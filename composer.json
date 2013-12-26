@@ -27,10 +27,13 @@
         }
     ],
 
+    "require-dev": {
+        "rdlowrey/auryn": "dev-DanackMaster",
+        "monolog/monolog": "1.4.0"
+    },
+    
     "require": {
         "php": ">=5.4.0",
-        "monolog/monolog": "1.4.0",
-        "rdlowrey/auryn": "dev-danackExceptionRefactor as v0.8.1-dev",
         "zendframework/zend-code": "2.*"
     },
     "autoload": {
