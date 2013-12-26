@@ -1,0 +1,41 @@
+{
+    "name": "intahwebz/weaver",
+    "homepage": "https://github.com/danack/Weaver",
+    "description": "An experiment in compositional programming.",
+    "keywords": ["AOP", "weaving", "wtf", "idonteven"],
+    "license": "MIT",
+    "authors": [
+        {
+            "name": "Dan Ackroyd",
+            "email": "Danack@basereality.com",
+            "role": "Creator / Main Developer / Cake baker"
+        }
+    ],
+    "repositories": [
+        {
+            "type": "vcs",
+            "url": "https://github.com/Danack/Auryn"
+        },
+
+        {
+            "type": "vcs",
+            "url": "https://github.com/Danack/intahwebz"
+        },
+        {
+            "type": "vcs",
+            "url": "/documents/projects/github/AutoloaderSpeedTest"
+        }
+    ],
+
+    "require": {
+        "php": ">=5.4.0",
+        "monolog/monolog": "1.4.0",
+        "rdlowrey/auryn": "dev-danackExceptionRefactor as v0.8.1-dev",
+        "zendframework/zend-code": "2.*"
+    },
+    "autoload": {
+        "psr-0": {
+            "Weaver": "src"
+        }
+    }
+}
