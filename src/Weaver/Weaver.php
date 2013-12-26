@@ -5,6 +5,7 @@ namespace Weaver;
 
 
 
+use Zend\Code\Generator\DocBlockGenerator;
 use Zend\Code\Generator\MethodGenerator;
 use Zend\Code\Generator\ParameterGenerator;
 
@@ -16,6 +17,7 @@ use Zend\Code\Generator\ClassGenerator;
 
 use Zend\Code\Reflection\ClassReflection;
 
+\Intahwebz\Functions::load();
 
 class Weaver {
 
@@ -26,7 +28,7 @@ class Weaver {
         $newBody = '';
 
         $newBody .= $weavingInfo[0]."\n";
-        $newBody .= 'parent::'.$method->getName()."(";
+        $newBody .= '$result = parent::'.$method->getName()."(";
 
         $parameters = $method->getParameters();
 
@@ -41,13 +43,15 @@ class Weaver {
 
         $newBody .= ");\n";
 
-        $newBody .= $weavingInfo[1]."\n";
+        $newBody .= $weavingInfo[1]."\n\n";
+
+        $newBody .= 'return $result;'."\n";
 
         return $newBody;
     }
 
 
-    function weaveClass($sourceClass, $decoratorClass, $weaving) {
+    function weaveClass($sourceClass, $decoratorClass, $weaving, $savePath) {
 
         $sourceReflector = new ClassReflection($sourceClass);
 
@@ -57,7 +61,7 @@ class Weaver {
 
         $generator->setName($sourceReflector->getNamespaceName().'\\'.$decoratorReflector->getShortName()."X".$sourceReflector->getShortName());
 
-        $generator->setExtendedClass($sourceReflector->getName());
+        $generator->setExtendedClass('\\'.$sourceReflector->getName());
 
         $methods = $sourceReflector->getMethods();
 
@@ -78,6 +82,10 @@ class Weaver {
             $body = $method->getBody();
             $docBlock = $method->getDocBlock();
 
+            if ($docBlock) {
+                $docBlock = DocBlockGenerator::fromReflection($docBlock);
+            }
+
             $generatedParameters = array();
 
             foreach ($parameters as $reflectionParameter) {
@@ -86,15 +94,15 @@ class Weaver {
 
             if (array_key_exists($name, $weaving) == true) {
                 $body = $this->modifyBody($weaving[$name], $method);
-            }
 
-            $generator->addMethod(
-                $name,
-                $generatedParameters,
-                $flags,
-                $body,
-                $docBlock
-            );
+                $generator->addMethod(
+                    $name,
+                    $generatedParameters,
+                    $flags,
+                    $body,
+                    $docBlock
+                );
+            }
         }
 
         $methods = $decoratorReflector->getMethods();
@@ -169,10 +177,26 @@ class Weaver {
             ""
         );
 
-        //$generator->setNamespaceName()
 
-        echo $generator->generate();
+        $properties = $decoratorReflector->getProperties();
 
+        foreach ($properties as $property) {
+            $generator->addProperty($property->getName(), null);
+        }
+
+        $generator->addUse('Intahwebz\Timer');
+
+        $filename = $savePath.'/'.$generator->getNamespaceName().'/'.$generator->getName().'.php';
+
+        $filename = str_replace('\\', '/', $filename);
+
+        ensureDirectoryExists($filename);
+
+        $written = file_put_contents($filename, "<?php\n".$generator->generate());
+
+        if ($written == false) {
+            throw new \RuntimeException("Failed to write file $filename.");
+        }
     }
 }
 
