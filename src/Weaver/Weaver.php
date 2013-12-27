@@ -8,6 +8,7 @@ namespace Weaver;
 use Zend\Code\Generator\DocBlockGenerator;
 use Zend\Code\Generator\MethodGenerator;
 use Zend\Code\Generator\ParameterGenerator;
+use Zend\Code\Generator\PropertyGenerator;
 
 use Zend\Code\Reflection\MethodReflection;
 use Zend\Code\Reflection\ParameterReflection;
@@ -59,7 +60,18 @@ class Weaver {
 
         $generator = new ClassGenerator();
 
-        $generator->setName($sourceReflector->getNamespaceName().'\\'.$decoratorReflector->getShortName()."X".$sourceReflector->getShortName());
+        $namespace = $sourceReflector->getNamespaceName();
+        $classname = $decoratorReflector->getShortName()."X".$sourceReflector->getShortName();
+        
+
+        if (strlen($namespace)) {
+            $fqcn = $namespace.'\\'.$classname;
+        }
+        else {
+            $fqcn = $classname;
+        }
+
+        $generator->setName($fqcn);
 
         $generator->setExtendedClass('\\'.$sourceReflector->getName());
 
@@ -178,10 +190,17 @@ class Weaver {
         );
 
 
+        $constants = $decoratorReflector->getConstants();
+
+        foreach ($constants as $name => $value) {
+            $generator->addProperty($name, $value, PropertyGenerator::FLAG_CONSTANT);
+        }
+
         $properties = $decoratorReflector->getProperties();
 
         foreach ($properties as $property) {
-            $generator->addProperty($property->getName(), null);
+            $newProperty = PropertyGenerator::fromReflection($property);
+            $generator->addPropertyFromGenerator($newProperty);
         }
 
         $generator->addUse('Intahwebz\Timer');

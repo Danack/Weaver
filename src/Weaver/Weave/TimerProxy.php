@@ -1,9 +1,9 @@
 <?php
 
 
-namespace Weaver\Test;
+namespace Weaver\Weave;
 
-
+use Intahwebz\Timer;
 
 
 class TimerProxy {

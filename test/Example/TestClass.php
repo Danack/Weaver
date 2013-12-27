@@ -1,13 +1,11 @@
 <?php
 
-
-namespace Weaver\Test;
+namespace Example;
 
 
 class TestClass {
 
-    function __construct($statement, $createLine, TestInterface $interface){
-        $this->interface = $interface;
+    function __construct($statement, $createLine){
         $this->statement = $statement;
         $this->createLine = $createLine;
     }
@@ -17,7 +15,8 @@ class TestClass {
 
     function executeQuery($queryString, $foo2) {
         echo "executing query!";
+        
+        return 5;
     }
 }
 
- 

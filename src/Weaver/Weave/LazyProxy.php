@@ -1,16 +1,13 @@
 <?php
 
 
-namespace Weaver;
+namespace Weaver\Weave;
 
 
-class WeavedLazy implements TestInterface {
+class LazyProxy {
 
     private $lazyInstance;
-    
-    function __construct() {
-    }
-    
+
     function init() {
         if ($this->lazyInstance == null) {
             $this->lazyInstance = new FunctionalClass();

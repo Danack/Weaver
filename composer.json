@@ -4,6 +4,7 @@
     "description": "An experiment in compositional programming.",
     "keywords": ["AOP", "weaving", "wtf", "idonteven"],
     "license": "MIT",
+
     "authors": [
         {
             "name": "Dan Ackroyd",
@@ -37,8 +38,10 @@
         "php": ">=5.4.0",
         "zendframework/zend-code": "2.*"
     },
+
     "autoload": {
         "psr-0": {
+            "Example": ["test", "generated"],
             "Weaver": "src"
         }
     }
