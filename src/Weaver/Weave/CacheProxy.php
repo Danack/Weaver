@@ -8,8 +8,6 @@ use Intahwebz\ObjectCache;
 
 class CacheProxy {
 
-//    const CACHE_KEY = '12345';
-
     /**
      * @var \Intahwebz\ObjectCache
      */
@@ -23,9 +21,16 @@ class CacheProxy {
         $args = func_get_args();
 
         $cacheKey = '';
-        
+
         foreach($args as $arg) {
-            $cacheKey = hash ("sha256", $cacheKey.$arg);
+            if (is_array($arg)) {
+                foreach ($arg as $argElement) {
+                    $cacheKey = hash("sha256", $cacheKey.$argElement);
+                }
+            }
+            else {
+                $cacheKey = hash("sha256", $cacheKey.$arg);
+            }
         }
 
         return $cacheKey;
