@@ -156,3 +156,23 @@ Null Objects
 Ghost Objects - for lazy loading
 Lazy References - wat
 Remote Object
+
+
+Protection Proxy
+class APIProtectionProxy extends API {
+    protected $count = 0;
+    public function __construct(API $api, $limit) {
+        $this->api = $api; $this->limit = $limit;
+    }
+
+    public function doStuff() {
+        $this->count();
+        return $this->api->doStuff();
+    }
+
+    private function count() {
+        if (++$this->count > $this->limit) {
+            throw new RemoteApiLimit('STAHP!');
+        }
+    }
+}
