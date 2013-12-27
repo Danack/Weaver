@@ -3,7 +3,7 @@
 namespace Example;
 
 
-class TestClass {
+class TestClass implements TestInterface {
 
     function __construct($statement, $createLine){
         $this->statement = $statement;

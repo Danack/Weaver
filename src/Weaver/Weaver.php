@@ -55,7 +55,6 @@ class Weaver {
     function weaveClass($sourceClass, $decoratorClass, $weaving, $savePath) {
 
         $sourceReflector = new ClassReflection($sourceClass);
-
         $decoratorReflector = new ClassReflection($decoratorClass);
 
         $generator = new ClassGenerator();
@@ -216,6 +215,247 @@ class Weaver {
         if ($written == false) {
             throw new \RuntimeException("Failed to write file $filename.");
         }
+    }
+
+
+    /**
+     * @param $weavingInfo
+     * @param MethodReflection $method
+     * @return string
+     */
+    function generateLazyProxyMethodBody($weavingInfo, MethodReflection $method) {
+
+        $newBody = '';
+
+        $newBody .= $weavingInfo['init']."\n";
+        $newBody .= '$result = parent::'.$method->getName()."(";
+
+        $parameters = $method->getParameters();
+
+        $separator = '';
+
+        foreach ($parameters as $reflectionParameter) {
+            $newBody .= $separator.'$'.$reflectionParameter->getName();
+            $separator = ', ';
+        }
+
+        $newBody .= ");\n";
+
+//        $newBody .= $weavingInfo[1]."\n\n";
+
+        $newBody .= 'return $result;'."\n";
+
+        return $newBody;
+    }
+
+
+    /**
+     * @param $sourceClass
+     * @param $decoratorClass
+     * @param $weaving
+     * @param $savePath
+     * @throws \RuntimeException
+     */
+    function lazyProxyClass($sourceClass, $decoratorClass, $weaving, $savePath) {
+
+        $sourceReflector = new ClassReflection($sourceClass);
+        $decoratorReflector = new ClassReflection($decoratorClass);
+
+        $generator = new ClassGenerator();
+
+
+        $namespace = $sourceReflector->getNamespaceName();
+        $classname = $decoratorReflector->getShortName()."X".$sourceReflector->getShortName();
+
+        if (strlen($namespace)) {
+            $fqcn = $namespace.'\\'.$classname;
+        }
+        else {
+            $fqcn = $classname;
+        }
+        $generator->setName($fqcn);
+        
+        
+
+        if (array_key_exists('interfaces', $weaving) == true) {
+            //echo "Shamoan?";
+            $generator->setImplementedInterfaces($weaving['interfaces']);
+        }
+        else {
+            $generator->setExtendedClass('\\'.$sourceReflector->getName());
+        }
+
+        $methods = $sourceReflector->getMethods();
+
+        $sourceConstructorMethod = null;
+        $decoratorConstructorMethod = null;
+
+        foreach ($methods as $method) {
+
+            $name = $method->getName();
+
+            if ($name == '__construct') {
+                $sourceConstructorMethod = $method;
+                continue;
+            }
+
+            $parameters = $method->getParameters();
+            $flags = MethodGenerator::FLAG_PUBLIC;
+            //$body = $method->getBody();
+            $docBlock = $method->getDocBlock();
+
+            if ($docBlock) {
+                $docBlock = DocBlockGenerator::fromReflection($docBlock);
+            }
+
+            $generatedParameters = array();
+
+            foreach ($parameters as $reflectionParameter) {
+                $generatedParameters[] = ParameterGenerator::fromReflection($reflectionParameter);
+            }
+
+
+            $body = $this->generateLazyProxyMethodBody($weaving, $method);
+
+            $generator->addMethod(
+                $name,
+                $generatedParameters,
+                $flags,
+                $body,
+                $docBlock
+            );
+            
+        }
+
+        $methods = $decoratorReflector->getMethods();
+
+        foreach ($methods as $method) {
+            $name = $method->getName();
+
+            if ($name == '__construct') {
+                $decoratorConstructorMethod = $method;
+                continue;
+            }
+
+            $parameters = $method->getParameters();
+            $flags = MethodGenerator::FLAG_PUBLIC;
+            $body = $method->getBody();
+            $docBlock = $method->getDocBlock();
+
+            $generatedParameters = array();
+
+            foreach ($parameters as $reflectionParameter) {
+                $generatedParameters[] = ParameterGenerator::fromReflection($reflectionParameter);
+            }
+
+            $generator->addMethod(
+                $name,
+                $generatedParameters,
+                $flags,
+                $body,
+                $docBlock
+            );
+        }
+
+
+        $initBody = 'if ($this->'.$weaving['lazyProperty'].' == null) {
+            $this->lazyInstance = new \Example\TestClass(';
+
+        $constructorParams = $this->addLazyConstructor($generator, $sourceConstructorMethod, $decoratorConstructorMethod);
+
+        $initBody .= $constructorParams;
+        
+        $initBody .= ");\n}";
+
+        $generator->addMethod(
+            'init',
+            array(),
+            MethodGenerator::FLAG_PUBLIC,
+            $initBody,
+            ""
+        );
+
+
+        $constants = $decoratorReflector->getConstants();
+
+        foreach ($constants as $name => $value) {
+            $generator->addProperty($name, $value, PropertyGenerator::FLAG_CONSTANT);
+        }
+
+        $properties = $decoratorReflector->getProperties();
+
+        foreach ($properties as $property) {
+            $newProperty = PropertyGenerator::fromReflection($property);
+            $generator->addPropertyFromGenerator($newProperty);
+        }
+
+        $generator->addUse('Intahwebz\Timer');
+
+        $filename = $savePath.'/'.$generator->getNamespaceName().'/'.$generator->getName().'.php';
+
+        $filename = str_replace('\\', '/', $filename);
+
+        ensureDirectoryExists($filename);
+
+        $written = file_put_contents($filename, "<?php\n".$generator->generate());
+
+        if ($written == false) {
+            throw new \RuntimeException("Failed to write file $filename.");
+        }
+    }
+
+    
+    
+    function addLazyConstructor(
+        ClassGenerator $generator, 
+        MethodReflection $sourceConstructorMethod = null, 
+        MethodReflection $decoratorConstructorMethod = null
+    ) {
+
+        $constructorBody = '';
+        $constructorParams = '';
+        $copyBody = '';
+
+        $generatedParameters = array();
+
+        if ($sourceConstructorMethod != null) {
+            $parameters = $sourceConstructorMethod->getParameters();
+
+            $separator = '';
+
+            foreach ($parameters as $reflectionParameter) {
+                $generatedParameters[] = ParameterGenerator::fromReflection($reflectionParameter);
+                $constructorParams .= $separator.'$this->'.$reflectionParameter->getName();
+                $separator = ', ';
+
+                $generator->addProperty($reflectionParameter->getName());
+                
+                $copyBody .= '$this->'.$reflectionParameter->getName().' = $'.$reflectionParameter->getName().";\n";
+            }
+
+//            $constructorParams .= ");\n";
+        }
+
+        if ($decoratorConstructorMethod != null) {
+            $parameters = $decoratorConstructorMethod->getParameters();
+            foreach ($parameters as $reflectionParameter) {
+                $generatedParameters[] = ParameterGenerator::fromReflection($reflectionParameter);
+            }
+
+            $constructorBody .= $decoratorConstructorMethod->getBody();
+        }
+
+        $constructorBody .= $copyBody;
+
+        $generator->addMethod(
+            '__construct',
+            $generatedParameters,
+            MethodGenerator::FLAG_PUBLIC,
+            $constructorBody,
+            ""
+        );
+        
+        return $constructorParams;
     }
 }
 
