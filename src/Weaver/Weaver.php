@@ -24,6 +24,44 @@ class Weaver {
 
 
 
+    function weaveClass($sourceClass, $decoratorClass, $weaving, $savePath) {
+        $sourceReflector = new ClassReflection($sourceClass);
+        $decoratorReflector = new ClassReflection($decoratorClass);
+        $generator = new ClassGenerator();
+
+        $fqcn = $this->setupClassName($generator, $weaving, $sourceReflector, $decoratorReflector);
+        $sourceConstructorMethod = $this->addProxyMethods($generator, $sourceReflector, $weaving);
+        $decoratorConstructorMethod = $this->addDecoratorMethods($generator, $decoratorReflector, $weaving);
+        $this->addProxyConstructor($generator, $sourceConstructorMethod, $decoratorConstructorMethod);
+        $this->addPropertiesAndConstants($generator, $decoratorReflector);
+        $this->saveFile($fqcn, $savePath, $generator);
+    }
+
+
+    /**
+     * @param $sourceClass
+     * @param $decoratorClass
+     * @param $weaving
+     * @param $savePath
+     * @throws \RuntimeException
+     */
+    function lazyProxyClass($sourceClass, $decoratorClass, $weaving, $savePath) {
+
+        $sourceReflector = new ClassReflection($sourceClass);
+        $decoratorReflector = new ClassReflection($decoratorClass);
+        $generator = new ClassGenerator();
+
+        $fqcn = $this->setupClassName($generator, $weaving, $sourceReflector, $decoratorReflector);
+        $sourceConstructorMethod = $this->addSourceMethods($generator, $sourceReflector, $weaving);
+        $decoratorConstructorMethod = $this->addDecoratorMethods($generator, $decoratorReflector, $weaving);
+        $this->addInitMethod($weaving, $generator, $sourceReflector, $sourceConstructorMethod, $decoratorConstructorMethod);
+        $this->addPropertiesAndConstants($generator, $decoratorReflector);
+        $this->saveFile($fqcn, $savePath, $generator);
+    }
+
+
+
+
     function modifyBody($weavingInfo, MethodReflection $method) {
 
         $newBody = '';
@@ -36,9 +74,7 @@ class Weaver {
         $separator = '';
 
         foreach ($parameters as $reflectionParameter) {
-
             $newBody .= $separator.'$'.$reflectionParameter->getName();
-
             $separator = ', ';
         }
 
@@ -52,33 +88,12 @@ class Weaver {
     }
 
 
-    function weaveClass($sourceClass, $decoratorClass, $weaving, $savePath) {
-
-        $sourceReflector = new ClassReflection($sourceClass);
-        $decoratorReflector = new ClassReflection($decoratorClass);
-
-        $generator = new ClassGenerator();
-
-        $namespace = $sourceReflector->getNamespaceName();
-        $classname = $decoratorReflector->getShortName()."X".$sourceReflector->getShortName();
-        
-
-        if (strlen($namespace)) {
-            $fqcn = $namespace.'\\'.$classname;
-        }
-        else {
-            $fqcn = $classname;
-        }
-
-        $generator->setName($fqcn);
-
-        $generator->setExtendedClass('\\'.$sourceReflector->getName());
-
-        $methods = $sourceReflector->getMethods();
+    function addProxyMethods(ClassGenerator $generator, ClassReflection $sourceReflector, $weaving) {
 
         $sourceConstructorMethod = null;
-        $decoratorConstructorMethod = null;
-
+        
+        $methods = $sourceReflector->getMethods();
+    
         foreach ($methods as $method) {
 
             $name = $method->getName();
@@ -115,39 +130,12 @@ class Weaver {
                 );
             }
         }
-
-        $methods = $decoratorReflector->getMethods();
-
-        foreach ($methods as $method) {
-
-            $name = $method->getName();
-
-            if ($name == '__construct') {
-                $decoratorConstructorMethod = $method;
-                continue;
-            }
-
-            $parameters = $method->getParameters();
-            $flags = MethodGenerator::FLAG_PUBLIC;
-            $body = $method->getBody();
-            $docBlock = $method->getDocBlock();
-
-            $generatedParameters = array();
-
-            foreach ($parameters as $reflectionParameter) {
-                $generatedParameters[] = ParameterGenerator::fromReflection($reflectionParameter);
-            }
-
-            $generator->addMethod(
-                $name,
-                $generatedParameters,
-                $flags,
-                $body,
-                $docBlock
-            );
-        }
+    
+        return $sourceConstructorMethod;
+    }
 
 
+    function addProxyConstructor(ClassGenerator $generator, MethodReflection $sourceConstructorMethod, MethodReflection $decoratorConstructorMethod) {
         $constructorBody = '';
 
         $generatedParameters = array();
@@ -188,35 +176,14 @@ class Weaver {
             ""
         );
 
-        $this->addPropertiesAndConstants($generator, $decoratorReflector);
-        $this->saveFile($fqcn, $savePath, $generator);
     }
-
+    
 
  
 
 
-    /**
-     * @param $sourceClass
-     * @param $decoratorClass
-     * @param $weaving
-     * @param $savePath
-     * @throws \RuntimeException
-     */
-    function lazyProxyClass($sourceClass, $decoratorClass, $weaving, $savePath) {
 
-        $sourceReflector = new ClassReflection($sourceClass);
-        $decoratorReflector = new ClassReflection($decoratorClass);
-        $generator = new ClassGenerator();
 
-        $fqcn = $this->setupClassName($generator, $weaving, $sourceReflector, $decoratorReflector);
-        $sourceConstructorMethod = $this->addSourceMethods($generator, $sourceReflector, $weaving);
-        $decoratorConstructorMethod = $this->addDecoratorMethods($generator, $decoratorReflector, $weaving);
-        $this->addInitMethod($weaving, $generator, $sourceReflector, $sourceConstructorMethod, $decoratorConstructorMethod);
-        $this->addPropertiesAndConstants($generator, $decoratorReflector);
-        $this->saveFile($fqcn, $savePath, $generator);
-    }
-    
     
     function setupClassName(
         ClassGenerator $generator, 
@@ -321,9 +288,6 @@ $decoratorConstructorMethod);
             }
 
             $parameters = $method->getParameters();
-            $flags = MethodGenerator::FLAG_PUBLIC;
-            $body = $method->getBody();
-            $docBlock = $method->getDocBlock();
 
             $generatedParameters = array();
 
@@ -334,14 +298,16 @@ $decoratorConstructorMethod);
             $generator->addMethod(
                 $name,
                 $generatedParameters,
-                $flags,
-                $body,
-                $docBlock
+                MethodGenerator::FLAG_PUBLIC,
+                $method->getBody(),
+                $method->getDocBlock()
             );
         }
         
         return $decoratorConstructorMethod;
     }
+
+    
     
     function addSourceMethods(ClassGenerator $generator, ClassReflection $sourceReflector, $weaving) {
 
@@ -449,8 +415,6 @@ $decoratorConstructorMethod);
                 
                 $copyBody .= '$this->'.$reflectionParameter->getName().' = $'.$reflectionParameter->getName().";\n";
             }
-
-//            $constructorParams .= ");\n";
         }
 
         if ($decoratorConstructorMethod != null) {
