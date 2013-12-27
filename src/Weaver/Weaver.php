@@ -22,7 +22,8 @@ use Zend\Code\Reflection\ClassReflection;
 
 class Weaver {
 
-
+    const PROXY = 'PROXY';
+    const LAZY = 'LAZY';
 
     function weaveClass($sourceClass, $decoratorClass, $weaving, $savePath) {
         $sourceReflector = new ClassReflection($sourceClass);
@@ -30,7 +31,7 @@ class Weaver {
         $generator = new ClassGenerator();
 
         $fqcn = $this->setupClassName($generator, $weaving, $sourceReflector, $decoratorReflector);
-        $sourceConstructorMethod = $this->addProxyMethods($generator, $sourceReflector, $weaving);
+        $sourceConstructorMethod = $this->addProxyMethods($generator, $sourceReflector, $weaving, self::PROXY);
         $decoratorConstructorMethod = $this->addDecoratorMethods($generator, $decoratorReflector, $weaving);
         $this->addProxyConstructor($generator, $sourceConstructorMethod, $decoratorConstructorMethod);
         $this->addPropertiesAndConstants($generator, $decoratorReflector);
@@ -52,13 +53,14 @@ class Weaver {
         $generator = new ClassGenerator();
 
         $fqcn = $this->setupClassName($generator, $weaving, $sourceReflector, $decoratorReflector);
-        $sourceConstructorMethod = $this->addSourceMethods($generator, $sourceReflector, $weaving);
+        //$sourceConstructorMethod = $this->addSourceMethods($generator, $sourceReflector, $weaving);
+        $sourceConstructorMethod = $this->addProxyMethods($generator, $sourceReflector, $weaving, self::LAZY);
+        
         $decoratorConstructorMethod = $this->addDecoratorMethods($generator, $decoratorReflector, $weaving);
         $this->addInitMethod($weaving, $generator, $sourceReflector, $sourceConstructorMethod, $decoratorConstructorMethod);
         $this->addPropertiesAndConstants($generator, $decoratorReflector);
         $this->saveFile($fqcn, $savePath, $generator);
     }
-
 
 
 
@@ -88,51 +90,7 @@ class Weaver {
     }
 
 
-    function addProxyMethods(ClassGenerator $generator, ClassReflection $sourceReflector, $weaving) {
 
-        $sourceConstructorMethod = null;
-        
-        $methods = $sourceReflector->getMethods();
-    
-        foreach ($methods as $method) {
-
-            $name = $method->getName();
-
-            if ($name == '__construct') {
-                $sourceConstructorMethod = $method;
-                continue;
-            }
-
-            $parameters = $method->getParameters();
-            $flags = MethodGenerator::FLAG_PUBLIC;
-            $body = $method->getBody();
-            $docBlock = $method->getDocBlock();
-
-            if ($docBlock) {
-                $docBlock = DocBlockGenerator::fromReflection($docBlock);
-            }
-
-            $generatedParameters = array();
-
-            foreach ($parameters as $reflectionParameter) {
-                $generatedParameters[] = ParameterGenerator::fromReflection($reflectionParameter);
-            }
-
-            if (array_key_exists($name, $weaving) == true) {
-                $body = $this->modifyBody($weaving[$name], $method);
-
-                $generator->addMethod(
-                    $name,
-                    $generatedParameters,
-                    $flags,
-                    $body,
-                    $docBlock
-                );
-            }
-        }
-    
-        return $sourceConstructorMethod;
-    }
 
 
     function addProxyConstructor(ClassGenerator $generator, MethodReflection $sourceConstructorMethod, MethodReflection $decoratorConstructorMethod) {
@@ -149,10 +107,7 @@ class Weaver {
 
             foreach ($parameters as $reflectionParameter) {
                 $generatedParameters[] = ParameterGenerator::fromReflection($reflectionParameter);
-
-
                 $constructorBody .= $separator.'$'.$reflectionParameter->getName();
-
                 $separator = ', ';
             }
 
@@ -175,10 +130,34 @@ class Weaver {
             $constructorBody,
             ""
         );
-
     }
-    
 
+
+    function addInitMethod(
+        $weaving,
+        ClassGenerator $generator,
+        ClassReflection $sourceReflector,
+        $sourceConstructorMethod,
+        $decoratorConstructorMethod
+    ) {
+        $initBody = 'if ($this->'.$weaving['lazyProperty'].' == null) {
+            $this->lazyInstance = new \\'.$sourceReflector->getName().'(';
+
+        $constructorParams = $this->addLazyConstructor($generator, $sourceConstructorMethod,
+            $decoratorConstructorMethod);
+
+        $initBody .= $constructorParams;
+
+        $initBody .= ");\n}";
+
+        $generator->addMethod(
+            'init',
+            array(),
+            MethodGenerator::FLAG_PUBLIC,
+            $initBody,
+            ""
+        );
+    }
  
 
 
@@ -245,31 +224,7 @@ class Weaver {
         }
     }
     
-    function addInitMethod(
-        $weaving,
-        ClassGenerator $generator,
-        ClassReflection $sourceReflector, 
-        $sourceConstructorMethod, 
-        $decoratorConstructorMethod
-    ) {
-        $initBody = 'if ($this->'.$weaving['lazyProperty'].' == null) {
-            $this->lazyInstance = new \\'.$sourceReflector->getName().'(';
-
-        $constructorParams = $this->addLazyConstructor($generator, $sourceConstructorMethod,    
-$decoratorConstructorMethod);
-
-        $initBody .= $constructorParams;
-        
-        $initBody .= ");\n}";
-
-        $generator->addMethod(
-            'init',
-            array(),
-            MethodGenerator::FLAG_PUBLIC,
-            $initBody,
-            ""
-        );
-    }
+  
     
     
     
@@ -307,25 +262,17 @@ $decoratorConstructorMethod);
         return $decoratorConstructorMethod;
     }
 
-    
-    
-    function addSourceMethods(ClassGenerator $generator, ClassReflection $sourceReflector, $weaving) {
+
+
+    function addProxyMethods(ClassGenerator $generator, ClassReflection $sourceReflector, $weaving, $mode) {
 
         $sourceConstructorMethod = null;
-        
-        $methods = $sourceReflector->getMethods();
 
-        //TODO - don't touch traits methods?
-        //$traits = $sourceReflector->getTraits();
+        $methods = $sourceReflector->getMethods();
 
         foreach ($methods as $method) {
 
             $name = $method->getName();
-
-//            if ($name == '__get') {
-//                var_dump($method);
-//                exit(0);
-//            }
 
             if ($name == '__construct') {
                 $sourceConstructorMethod = $method;
@@ -333,7 +280,6 @@ $decoratorConstructorMethod);
             }
 
             $parameters = $method->getParameters();
-            $flags = MethodGenerator::FLAG_PUBLIC;
             $docBlock = $method->getDocBlock();
 
             if ($docBlock) {
@@ -346,15 +292,28 @@ $decoratorConstructorMethod);
                 $generatedParameters[] = ParameterGenerator::fromReflection($reflectionParameter);
             }
 
-            $body = $this->generateLazyProxyMethodBody($weaving, $method);
+            if ($mode == self::PROXY) {
+                if (array_key_exists($name, $weaving) == false) {
+                    continue;
+                }
+                $body = $this->modifyBody($weaving[$name], $method);
+            }
+            else if ($mode == self::LAZY) {
+                $body = $this->generateLazyProxyMethodBody($weaving, $method);
+
+            }
+            else {
+                throw new \RuntimeException("Unknown type $mode");
+            }
 
             $generator->addMethod(
                 $name,
                 $generatedParameters,
-                $flags,
+                MethodGenerator::FLAG_PUBLIC,
                 $body,
                 $docBlock
             );
+        
         }
 
         return $sourceConstructorMethod;
@@ -366,13 +325,10 @@ $decoratorConstructorMethod);
      * @return string
      */
     function generateLazyProxyMethodBody($weavingInfo, MethodReflection $method) {
-
         $newBody = '';
         $newBody .= '$this->'.$weavingInfo['init']."();\n";
         $newBody .= '$result = $this->'.$weavingInfo['lazyProperty'].'->'.$method->getName()."(";
-
         $parameters = $method->getParameters();
-
         $separator = '';
 
         foreach ($parameters as $reflectionParameter) {
@@ -381,9 +337,6 @@ $decoratorConstructorMethod);
         }
 
         $newBody .= ");\n";
-
-//        $newBody .= $weavingInfo[1]."\n\n";
-
         $newBody .= 'return $result;'."\n";
 
         return $newBody;
@@ -403,7 +356,6 @@ $decoratorConstructorMethod);
 
         if ($sourceConstructorMethod != null) {
             $parameters = $sourceConstructorMethod->getParameters();
-
             $separator = '';
 
             foreach ($parameters as $reflectionParameter) {
