@@ -38,7 +38,6 @@ class Weaver {
         $this->saveFile($fqcn, $savePath, $generator);
     }
 
-
     /**
      * @param $sourceClass
      * @param $decoratorClass
@@ -53,9 +52,7 @@ class Weaver {
         $generator = new ClassGenerator();
 
         $fqcn = $this->setupClassName($generator, $weaving, $sourceReflector, $decoratorReflector);
-        //$sourceConstructorMethod = $this->addSourceMethods($generator, $sourceReflector, $weaving);
         $sourceConstructorMethod = $this->addProxyMethods($generator, $sourceReflector, $weaving, self::LAZY);
-        
         $decoratorConstructorMethod = $this->addDecoratorMethods($generator, $decoratorReflector, $weaving);
         $this->addInitMethod($weaving, $generator, $sourceReflector, $sourceConstructorMethod, $decoratorConstructorMethod);
         $this->addPropertiesAndConstants($generator, $decoratorReflector);
@@ -64,15 +61,10 @@ class Weaver {
 
 
 
-    function modifyBody($weavingInfo, MethodReflection $method) {
-
-        $newBody = '';
-
-        $newBody .= $weavingInfo[0]."\n";
+    function getProxiedBody($weavingInfo, MethodReflection $method) {
+        $newBody = $weavingInfo[0]."\n";
         $newBody .= '$result = parent::'.$method->getName()."(";
-
         $parameters = $method->getParameters();
-
         $separator = '';
 
         foreach ($parameters as $reflectionParameter) {
@@ -81,16 +73,11 @@ class Weaver {
         }
 
         $newBody .= ");\n";
-
         $newBody .= $weavingInfo[1]."\n\n";
-
         $newBody .= 'return $result;'."\n";
 
         return $newBody;
     }
-
-
-
 
 
     function addProxyConstructor(ClassGenerator $generator, MethodReflection $sourceConstructorMethod, MethodReflection $decoratorConstructorMethod) {
@@ -209,25 +196,17 @@ class Weaver {
     }
     
 
-    function saveFile($fqcn, $savePath, $generator) {
-
+    function saveFile($fqcn, $savePath, ClassGenerator $generator) {
         $filename = $savePath.'/'.$fqcn.'.php';
-
         $filename = str_replace('\\', '/', $filename);
-
         ensureDirectoryExists($filename);
-
         $written = file_put_contents($filename, "<?php\n".$generator->generate());
-
+        
         if ($written == false) {
             throw new \RuntimeException("Failed to write file $filename.");
         }
     }
-    
-  
-    
-    
-    
+
     function addDecoratorMethods(ClassGenerator $generator, ClassReflection $decoratorReflector, $weaving) {
 
         $decoratorConstructorMethod = null;
@@ -296,7 +275,7 @@ class Weaver {
                 if (array_key_exists($name, $weaving) == false) {
                     continue;
                 }
-                $body = $this->modifyBody($weaving[$name], $method);
+                $body = $this->getProxiedBody($weaving[$name], $method);
             }
             else if ($mode == self::LAZY) {
                 $body = $this->generateLazyProxyMethodBody($weaving, $method);
