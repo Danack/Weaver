@@ -35,7 +35,18 @@ class CacheProxy {
 
         return $cacheKey;
     }
-    
-}
+
+//    //TODO - would it be better to define the binding like this?
+//    function __prototype() {
+//        $cacheKey = $this->getCacheKey($queryString);
+//        $cachedValue = $this->cache->get($cacheKey);
+//
+//        if ($cachedValue) {
+//            return $cachedValue;
+//        }
+//        $result = parent::__prototype();
+//        $this->cache->put($cacheKey, $result);
+//        return $result;
+//    }
 
  

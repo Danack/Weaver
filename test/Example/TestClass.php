@@ -5,7 +5,7 @@ namespace Example;
 
 class TestClass implements TestInterface {
 
-    function __construct($statement, $createLine){
+    function __construct($statement, $createLine) {
         $this->statement = $statement;
         $this->createLine = $createLine;
     }
