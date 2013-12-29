@@ -258,6 +258,7 @@ END;
 //
 //Do not be surprised if any changes to this file are over-written.
 
+
 END;
 
         $written = file_put_contents($filename, $fileHeader.$this->generator->generate());
