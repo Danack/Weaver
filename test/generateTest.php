@@ -47,43 +47,6 @@ $weaver->extendWeaveClass(
 
 
 
-if (false) {
-
-
-
-$weaver = new \Weaver\Weaver();
-$lazyWeaving = array(
-    'init' => 'init',
-    'lazyProperty' => 'lazyInstance',
-    'interfaces' => array('TestInterface'),
-);
-
-
-$weaver = new \Weaver\Weaver();
-$weaver->instanceWeaveClass(
-    'Example\TestClass',
-    'Weaver\Weave\LazyProxy',
-    $lazyWeaving,
-    '../generated/'
-);
-
-
-$lazyWeaving = array(
-    'init' => 'init',
-    'lazyProperty' => 'lazyInstance',
-    'interfaces' => array('\Example\DBConnection'),
-);
-
-$weaver = new \Weaver\Weaver();
-$weaver->instanceWeaveClass(
-    'Example\ConnectionWrapper',
-    'Weaver\Weave\LazyProxy',
-    $lazyWeaving,
-    '../generated/'
-);
-
-}
-
 
 $weaver->writeClosureFactories(
     '../generated/Example/',
