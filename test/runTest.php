@@ -31,3 +31,13 @@ $query->anotherFunction("apples");
 $timer = $provider->make('Intahwebz\Timer');
 
 $timer->dumpTime();
+
+
+//Output will look something like:
+//
+//executing query: select * from foo;
+//Result was not in cache
+//Result is in cache.
+//Executing anotherFunction
+//Timer results
+//"select * from foo;", called 1 time, total time:0.000449
