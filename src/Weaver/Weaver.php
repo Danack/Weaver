@@ -3,19 +3,6 @@
 
 namespace Weaver;
 
-
-use Zend\Code\Generator\ClassGenerator;
-use Zend\Code\Generator\DocBlockGenerator;
-use Zend\Code\Generator\MethodGenerator;
-use Zend\Code\Generator\ParameterGenerator;
-use Zend\Code\Generator\PropertyGenerator;
-
-use Zend\Code\Reflection\MethodReflection;
-use Zend\Code\Reflection\ParameterReflection;
-use Zend\Code\Reflection\ClassReflection;
-
-
-
 \Intahwebz\Functions::load();
 
 class Weaver {

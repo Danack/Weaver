@@ -17,7 +17,7 @@ class TestClass implements TestInterface {
     
     function executeQuery($params) {
         echo "executing query: ".$this->queryString."\n";
-
+        usleep(300);
         return 5;
     }
 }
