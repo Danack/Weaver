@@ -30,18 +30,19 @@ class Weaver {
         foreach ($weavingInfoArray as $weavingInfo) {
             $decoratorClass = $weavingInfo[0];
             $weaving = $weavingInfo[1];
-        
             $extendWeaver = new ExtendWeaveMethod($sourceClass, $decoratorClass, $weaving, $savePath);
-
             $sourceClass = $extendWeaver->getFQCN();
-            $factoryClosure = $extendWeaver->generate($savePath);
+            $factoryClosure = $extendWeaver->generate($savePath, $originalSourceClass);
             $this->addClosureFactory($factoryClosure);
         }
     }
     
     function instanceWeaveClass($sourceClass, $decoratorClass, $weaving, $savePath) {
+
+        $originalSourceClass = $sourceClass;
+        
         $extendWeaver = new InstanceWeaveMethod($sourceClass, $decoratorClass, $weaving, $savePath);
-        $factoryClosure = $extendWeaver->generate($savePath);
+        $factoryClosure = $extendWeaver->generate($savePath, $originalSourceClass);
         $this->addClosureFactory($factoryClosure);
     }
 

@@ -14,10 +14,32 @@ use Zend\Code\Reflection\ParameterReflection;
 use Zend\Code\Reflection\ClassReflection;
 
 
-abstract class AbstractWeaveMethod {
+//$decoratorUseParams = getUseParams($addedParameters);
 
-    const PROXY = 'PROXY';
-    const LAZY = 'LAZY';
+function getConstructorParamsString($constructorParameters, $includeTypeHints = false) {
+    $string = '';
+    $separator = '';
+
+    foreach ($constructorParameters as $constructorParameter) {
+        $string .= $separator;
+
+        /** @var $constructorParameter ParameterGenerator */
+        if ($includeTypeHints) {
+            $typeHint = $constructorParameter->getType();
+            if ($typeHint) {
+                $string .= $typeHint.' ';
+            }
+        }
+
+        $string .= '$'.$constructorParameter->getName();
+        $separator = ', ';
+    }
+
+    return $string;
+}
+
+
+abstract class AbstractWeaveMethod {
 
     /**
      * @var ClassReflection
@@ -39,7 +61,6 @@ abstract class AbstractWeaveMethod {
     private $fqcn = null;
 
     function getFQCN() {
-
         if ($this->fqcn == null) {
             $namespace = $this->sourceReflector->getNamespaceName();
             $classname = $this->getProxiedName();
@@ -54,35 +75,35 @@ abstract class AbstractWeaveMethod {
 
         return $this->fqcn;
     }
-    
 
-    function getClosureFactoryName() {
-        $closureFactoryName = '\\'.$this->sourceReflector->getNamespaceName().'\Closure'.$this->sourceReflector->getShortName().'Factory';
+    function getClosureFactoryName($originalSourceClass) {
+        $originalSourceReflection = new ClassReflection($originalSourceClass);
+        $closureFactoryName = '\\'.$originalSourceReflection->getNamespaceName().'\Closure'.$originalSourceReflection->getShortName().'Factory';
 
         return $closureFactoryName;
     }
 
-    function getConstructorParamsString($constructorParameters, $includeTypeHints = false) {
-        $string = '';
-        $separator = '';
-
-        foreach ($constructorParameters as $constructorParameter) {
-            $string .= $separator;
-
-            /** @var $constructorParameter ParameterGenerator */
-            if ($includeTypeHints) {
-                $typeHint = $constructorParameter->getType();
-                if ($typeHint) {
-                    $string .= '\\'.$typeHint.' ';
-                }
-            }
-
-            $string .= '$'.$constructorParameter->getName();
-            $separator = ', ';
-        }
-
-        return $string;
-    }
+//    function getConstructorParamsString($constructorParameters, $includeTypeHints = false) {
+//        $string = '';
+//        $separator = '';
+//
+//        foreach ($constructorParameters as $constructorParameter) {
+//            $string .= $separator;
+//
+//            /** @var $constructorParameter ParameterGenerator */
+//            if ($includeTypeHints) {
+//                $typeHint = $constructorParameter->getType();
+//                if ($typeHint) {
+//                    $string .= '\\'.$typeHint.' ';
+//                }
+//            }
+//
+//            $string .= '$'.$constructorParameter->getName();
+//            $separator = ', ';
+//        }
+//
+//        return $string;
+//    }
 
     function setupClassName() {
         $this->generator->setName($this->getFQCN());
@@ -95,12 +116,9 @@ abstract class AbstractWeaveMethod {
         }
     }
 
-
-
     function getProxiedName() {
         return $this->decoratorReflector->getShortName()."X".$this->sourceReflector->getShortName();
     }
-
 
     function addPropertiesAndConstants() {
         $constants = $this->decoratorReflector->getConstants();
@@ -171,11 +189,16 @@ abstract class AbstractWeaveMethod {
         }
 
         $className = '\\'.$fqcn;
-        $decoratorParamsWithType = $this->getConstructorParamsString($decoratorConstructorMethod->getParameters(), true);
-        $decoratorUseParams = $this->getConstructorParamsString($decoratorConstructorMethod->getParameters());
-        $objectParams = $this->getConstructorParamsString($sourceConstructorMethod->getParameters());
-        $allParams = $this->getConstructorParamsString($constructorParameters);
-        $closureFactoryName = $this->getClosureFactoryName();
+
+        $addedParameters = $this->getAddedParameters($originalSourceClass, $constructorParameters);
+        $decoratorParamsWithType = getConstructorParamsString($addedParameters, true);
+        //$decoratorUseParams = $this->getConstructorParamsString($decoratorConstructorMethod->getParameters());   
+        $decoratorUseParams = getConstructorParamsString($addedParameters);
+
+        $objectParams = getConstructorParamsString($sourceConstructorMethod->getParameters());
+        $allParams = getConstructorParamsString($constructorParameters);
+
+        $closureFactoryName = $this->getClosureFactoryName($originalSourceClass);        
         $createClosureFactoryName = 'create'.$this->getProxiedName().'Factory';
 
         $function = <<< END
@@ -200,6 +223,41 @@ END;
         return $function;
     }
 
+    
+    function getAddedParameters($originalSourceClass, $constructorParameters) {
+
+        $originalSourceReflection = new ClassReflection($originalSourceClass);
+
+        $sourceConstructorParameters = array();
+        
+        $constructor = $originalSourceReflection->getConstructor();
+        
+        if ($constructor) {
+            $sourceConstructorParameters = $constructor->getParameters();
+        }
+
+        $addedParameters = array();
+        
+        foreach ($constructorParameters as $constructorParameter) {
+
+            $presentInOriginal = false;
+            
+            foreach ($sourceConstructorParameters as $sourceConstructorParameter) {
+                if ($constructorParameter->getName() == $sourceConstructorParameter->getName()) {
+                    $presentInOriginal = true;
+                }
+            }
+            
+            if ($presentInOriginal == false) {
+                $addedParameters[] = $constructorParameter;
+            }
+        }
+
+        return $addedParameters;
+    }
+
+
+
 
     function saveFile($savePath) {
 
@@ -216,7 +274,7 @@ END;
 
 
 
-    function addProxyMethods($mode) {
+    function addProxyMethods() {
 
         $sourceConstructorMethod = null;
 
@@ -245,21 +303,7 @@ END;
             }
 
             $newBody = $this->generateProxyMethodBody($method, $this->weaving);
-            
-//            if ($mode == self::PROXY) {
-//                if (array_key_exists($name, $this->weaving) == false) {
-//                    continue;
-//                }
-//                $body = $this->getProxiedBody($this->weaving[$name], $method);
-//            }
-//            else if ($mode == self::LAZY) {
-//                $body = $this->generateLazyProxyMethodBody($method);
-//
-//            }
-//            else {
-//                throw new \RuntimeException("Unknown type $mode");
-//            }
-            
+
             if ($newBody == true) {
                 $this->generator->addMethod(
                     $name,
@@ -273,10 +317,6 @@ END;
 
         return $sourceConstructorMethod;
     }
-
-
-
-
 
     /**
      * @param $savePath

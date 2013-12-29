@@ -19,8 +19,6 @@ use Zend\Code\Reflection\ClassReflection;
 
 class ExtendWeaveMethod extends AbstractWeaveMethod {
 
- 
-
     function __construct($sourceClass, $decoratorClass, $weaving) {
         $this->sourceReflector = new ClassReflection($sourceClass);
         $this->decoratorReflector = new ClassReflection($decoratorClass);
@@ -30,8 +28,7 @@ class ExtendWeaveMethod extends AbstractWeaveMethod {
     }
 
     function generate($savePath, $originalSourceClass) {
-
-        $sourceConstructorMethod = $this->addProxyMethods(self::PROXY);
+        $sourceConstructorMethod = $this->addProxyMethods();
         $decoratorConstructorMethod = $this->addDecoratorMethods();
         $constructorParameters = $this->addProxyConstructor($sourceConstructorMethod, $decoratorConstructorMethod);
         $this->addPropertiesAndConstants();
