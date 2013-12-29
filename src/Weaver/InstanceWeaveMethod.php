@@ -5,13 +5,13 @@ namespace Weaver;
 
 
 use Zend\Code\Generator\ClassGenerator;
-use Zend\Code\Generator\DocBlockGenerator;
+
 use Zend\Code\Generator\MethodGenerator;
 use Zend\Code\Generator\ParameterGenerator;
-use Zend\Code\Generator\PropertyGenerator;
+
 
 use Zend\Code\Reflection\MethodReflection;
-use Zend\Code\Reflection\ParameterReflection;
+
 use Zend\Code\Reflection\ClassReflection;
 
 
@@ -31,11 +31,11 @@ class InstanceWeaveMethod extends AbstractWeaveMethod  {
         $this->sourceReflector = new ClassReflection($sourceClass);
         $this->decoratorReflector = new ClassReflection($decoratorClass);
         $this->generator = new ClassGenerator();
-        $this->weaving = $weaving;
+        $this->methodBindingArray = $weaving;
     }
     
     function generate($savePath, $originalSourceClass) {
-        $sourceConstructorMethod = $this->addProxyMethods(self::LAZY);
+        $sourceConstructorMethod = $this->addProxyMethods();
         $decoratorConstructorMethod = $this->addDecoratorMethods();
         $constructorParameters = $this->addInitMethod($sourceConstructorMethod, $decoratorConstructorMethod);
         $this->addPropertiesAndConstants();
@@ -99,7 +99,7 @@ class InstanceWeaveMethod extends AbstractWeaveMethod  {
 
 
     function addInitMethod(MethodReflection $sourceConstructorMethod, MethodReflection $decoratorConstructorMethod) {
-        $initBody = 'if ($this->'.$this->weaving['lazyProperty'].' == null) {
+        $initBody = 'if ($this->'.$this->methodBindingArray['lazyProperty'].' == null) {
             $this->lazyInstance = new \\'.$this->sourceReflector->getName().'(';
 
         $constructorParams = $this->addLazyConstructor($sourceConstructorMethod,
@@ -127,8 +127,8 @@ class InstanceWeaveMethod extends AbstractWeaveMethod  {
      */
     function generateProxyMethodBody(MethodReflection $method, $weavingInfo) {
         $newBody = '';
-        $newBody .= '$this->'.$this->weaving['init']."();\n";
-        $newBody .= '$result = $this->'.$this->weaving['lazyProperty'].'->'.$method->getName()."(";
+        $newBody .= '$this->'.$this->methodBindingArray['init']."();\n";
+        $newBody .= '$result = $this->'.$this->methodBindingArray['lazyProperty'].'->'.$method->getName()."(";
         $parameters = $method->getParameters();
         $separator = '';
 

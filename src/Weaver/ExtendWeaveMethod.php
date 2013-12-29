@@ -4,13 +4,13 @@
 namespace Weaver;
 
 use Zend\Code\Generator\ClassGenerator;
-use Zend\Code\Generator\DocBlockGenerator;
+
 use Zend\Code\Generator\MethodGenerator;
 use Zend\Code\Generator\ParameterGenerator;
-use Zend\Code\Generator\PropertyGenerator;
+
 
 use Zend\Code\Reflection\MethodReflection;
-use Zend\Code\Reflection\ParameterReflection;
+
 use Zend\Code\Reflection\ClassReflection;
 
 
@@ -19,11 +19,18 @@ use Zend\Code\Reflection\ClassReflection;
 
 class ExtendWeaveMethod extends AbstractWeaveMethod {
 
-    function __construct($sourceClass, $decoratorClass, $weaving) {
+
+    /**
+     * @param $sourceClass
+     * @param $decoratorClass
+     * @param $methodBindingArray
+     * @internal param \Weaver\MethodBinding[] $methodBinding
+     */
+    function __construct($sourceClass, $decoratorClass, $methodBindingArray) {
         $this->sourceReflector = new ClassReflection($sourceClass);
         $this->decoratorReflector = new ClassReflection($decoratorClass);
         $this->generator = new ClassGenerator();
-        $this->weaving = $weaving;
+        $this->methodBindingArray = $methodBindingArray;
         $this->setupClassName();
     }
 
@@ -83,19 +90,28 @@ class ExtendWeaveMethod extends AbstractWeaveMethod {
     }
 
 
+
     function generateProxyMethodBody(MethodReflection $method, $weavingInfo) {
         $name = $method->getName();
 
-        if (array_key_exists($name, $this->weaving) == false) {
+        $methodBinding = $this->getMethodBindingForMethod($name);
+        
+        if (!$methodBinding) {
             return false;
         }
+//        
+//        if (array_key_exists($name, $this->methodBindingArray) == false) {
+//            return false;
+//        }
 
-        $weavingInfo = $this->weaving[$name];
+//        $weavingInfo = $methodBinding;//$this->methodBindingArray[$name];
 
         $newBody = '';
         
-        if (array_key_exists('before', $weavingInfo) == true) {
-            $newBody .= $weavingInfo['before']."\n";
+        $beforeFunction = $methodBinding->getBefore();
+        
+        if ($beforeFunction) {
+            $newBody .= $beforeFunction."\n";
         }
         
         $newBody .= '$result = parent::'.$method->getName()."(";
@@ -109,8 +125,10 @@ class ExtendWeaveMethod extends AbstractWeaveMethod {
 
         $newBody .= ");\n";
 
-        if (array_key_exists('after', $weavingInfo) == true) {
-            $newBody .= $weavingInfo['after']."\n\n";
+        $afterFunction = $methodBinding->getAfter();
+
+        if ($afterFunction) {
+            $newBody .= $afterFunction."\n\n";
         }
 
         $newBody .= 'return $result;'."\n";

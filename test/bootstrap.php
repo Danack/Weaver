@@ -20,7 +20,7 @@ if (apc_fetch('foo12345') == false) {
 //require_once('../config.php');
 require_once('../vendor/autoload.php');
 
-function createStandardLogger($logChannelName = 'logchannelname') {
+function createStandardLogger($logChannelName = 'logChannelName') {
     $logger = new Logger($logChannelName);
     $pid = getmypid();
 

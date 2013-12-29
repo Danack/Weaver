@@ -3,32 +3,41 @@
 
 require_once('../vendor/autoload.php');
 
+use Weaver\WeaveInfo;
+use Weaver\MethodBinding;
 
-$timerWeaving = array(
-    'executeQuery' => array(
-        'before' => '$this->timer->startTimer($this->queryString);', 
-        'after' => '$this->timer->stopTimer();'
-    ),
+
+$timerWeaveInfo = new WeaveInfo(
+    'Weaver\Weave\TimerProxy',
+    array(
+            new MethodBinding(
+                'executeQuery',
+                '$this->timer->startTimer($this->queryString);',
+                '$this->timer->stopTimer();'
+            )
+    )
 );
 
 
-$cacheWeaving = array(
-    'executeQuery' => array(
-        'before' => '
-        $cacheKey = $this->getCacheKey($this->queryString);
-        $cachedValue = $this->cache->get($cacheKey);
-        
-        if ($cachedValue) {
-            echo "Result is in cache.\n";
-            return $cachedValue;
-        }
-        ',
 
-        'after' => 'echo "Result was not in cache\n";
-        $this->cache->put($cacheKey, $result);'
-    ),
+$cacheWeaveInfo = new WeaveInfo(
+    'Weaver\Weave\CacheProxy',
+    array(
+        new MethodBinding('executeQuery',
+            '
+           $cacheKey = $this->getCacheKey($this->queryString);
+           $cachedValue = $this->cache->get($cacheKey);
+           
+           if ($cachedValue) {
+               echo "Result is in cache.\n";
+               return $cachedValue;
+           }
+           ',
+            'echo "Result was not in cache\n";
+                $this->cache->put($cacheKey, $result);'
+        ),
+    )
 );
-
 
 
 $weaver = new \Weaver\Weaver();
@@ -36,16 +45,11 @@ $weaver = new \Weaver\Weaver();
 $weaver->extendWeaveClass(
     'Example\TestClass', 
     array(
-        array('Weaver\Weave\TimerProxy', $timerWeaving),
-        array('Weaver\Weave\CacheProxy', $cacheWeaving),
+        $timerWeaveInfo,
+        $cacheWeaveInfo,
     ),
     '../generated/'
 );
-
-
-
-
-
 
 
 $weaver->writeClosureFactories(
