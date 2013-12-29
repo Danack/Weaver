@@ -28,9 +28,13 @@ class WeaveInfo {
     function getMethodBindingArray() {
         return $this->methodBindingArray;
     }
+
+    function setInterfaces(array $interfaces) {
+        $this->interfaces = $interfaces;
+    }
     
     function getInterfaces() {
-        
+        return $this->interfaces;
     }
 }
 

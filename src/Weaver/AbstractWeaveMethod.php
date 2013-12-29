@@ -115,7 +115,7 @@ abstract class AbstractWeaveMethod {
         return $this->decoratorReflector->getShortName()."X".$this->sourceReflector->getShortName();
     }
 
-    function addPropertiesAndConstants() {
+    function addPropertiesAndConstants($originalSourceClass) {
         $constants = $this->decoratorReflector->getConstants();
 
         foreach ($constants as $name => $value) {
@@ -126,6 +126,8 @@ abstract class AbstractWeaveMethod {
 
         foreach ($properties as $property) {
             $newProperty = PropertyGenerator::fromReflection($property);
+
+            $newProperty->setDocBlock(" @var \\$originalSourceClass");
             $this->generator->addPropertyFromGenerator($newProperty);
         }
     }
@@ -169,7 +171,7 @@ abstract class AbstractWeaveMethod {
         $originalSourceClass,
         $constructorParameters,
         MethodReflection $sourceConstructorMethod,
-        MethodReflection $decoratorConstructorMethod
+        MethodReflection $decoratorConstructorMethod = null
     ) {
 
         $fqcn = $this->getFQCN();
@@ -243,8 +245,13 @@ END;
 
         $addedParameters = array();
         
+        if (is_array($constructorParameters) == false) {
+            var_dump($constructorParameters);
+            exit(0);
+        }
+            
+        
         foreach ($constructorParameters as $constructorParameter) {
-
             $presentInOriginal = false;
             
             foreach ($sourceConstructorParameters as $sourceConstructorParameter) {
@@ -318,10 +325,7 @@ END;
                 $generatedParameters[] = ParameterGenerator::fromReflection($reflectionParameter);
             }
 
-            $newBody = $this->generateProxyMethodBody($method, $this->methodBindingArray);
-
-            //var_dump($this->weaving);
-            //echo($newBody);
+            $newBody = $this->generateProxyMethodBody($method);
 
             if ($newBody) {
                 $this->generator->addMethod(
@@ -362,7 +366,7 @@ END;
      */
     abstract function generate($savePath, $originalSourceClass);
 
-    abstract function generateProxyMethodBody(MethodReflection $methodReflection, $weavingInfo);
+    abstract function generateProxyMethodBody(MethodReflection $methodReflection);
 }
 
  

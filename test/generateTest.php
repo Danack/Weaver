@@ -5,6 +5,7 @@ require_once('../vendor/autoload.php');
 
 use Weaver\WeaveInfo;
 use Weaver\MethodBinding;
+use Weaver\LazyWeaveInfo;
 
 
 $timerWeaveInfo = new WeaveInfo(
@@ -42,7 +43,7 @@ $cacheWeaveInfo = new WeaveInfo(
 
 $weaver = new \Weaver\Weaver();
 
-$weaver->extendWeaveClass(
+$weaver->weaveClass(
     'Example\TestClass', 
     array(
         $timerWeaveInfo,
@@ -52,9 +53,50 @@ $weaver->extendWeaveClass(
 );
 
 
+
+
+$lazyWeaveInfo = new LazyWeaveInfo(
+    'Weaver\Weave\LazyProxy',
+    array(),
+    array('TestInterface'),
+    'init',
+    'lazyInstance'
+    
+);
+
+
+$weaver->weaveClass(
+    'Example\TestClass',
+    array(
+        $lazyWeaveInfo,
+    ),
+    '../generated/'
+);
+
+
+//
+//$lazyWeaving = array(
+//    'init' => 'init',
+//    'lazyProperty' => 'lazyInstance',
+//    'interfaces' => array('TestInterface'),
+//);
+//
+//
+//$weaver->instanceWeaveClass(
+//    'Example\TestClass',
+//    'Weaver\Weave\LazyProxy',
+//    $lazyWeaving,
+//    '../generated/'
+//);
+
+
+
+
+//This always needs to be last
 $weaver->writeClosureFactories(
     '../generated/Example/',
     'Example',
     'ClosureFactory',
     $weaver->getClosureFactories()
 );
+

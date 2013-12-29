@@ -6,7 +6,10 @@ namespace Weaver;
 \Intahwebz\Functions::load();
 
 class Weaver {
-    
+
+    /**
+     * @var string[]
+     */
     private $closureFactories = array();
 
 
@@ -15,7 +18,7 @@ class Weaver {
      * @param $weaveInfoArray WeaveInfo[]
      * @param $savePath
      */
-    function extendWeaveClass($sourceClass, $weaveInfoArray, $savePath) {
+    function weaveClass($sourceClass, $weaveInfoArray, $savePath) {
         
         $originalSourceClass = $sourceClass;
 
@@ -23,23 +26,26 @@ class Weaver {
             $decoratorClass = $weaveInfo->getDecoratorClass();
             
             $methodBindingArray = $weaveInfo->getMethodBindingArray();
-            $extendWeaver = new ExtendWeaveMethod($sourceClass, $decoratorClass, $methodBindingArray, $savePath);
+            
+            if ($weaveInfo instanceof \Weaver\LazyWeaveInfo) {
+                $extendWeaver = new InstanceWeaveMethod($sourceClass, $decoratorClass, $weaveInfo);
+            }
+            else {
+                $extendWeaver = new ExtendWeaveMethod($sourceClass, $decoratorClass, $methodBindingArray);
+            }
+
             $sourceClass = $extendWeaver->getFQCN();
             $factoryClosure = $extendWeaver->generate($savePath, $originalSourceClass);
             $this->addClosureFactory($factoryClosure);
         }
     }
     
-    function instanceWeaveClass($sourceClass, $decoratorClass, $weaving, $savePath) {
-
-        $originalSourceClass = $sourceClass;
-
-        //$weaveInfo->getInterfaces();
-        
-        $extendWeaver = new InstanceWeaveMethod($sourceClass, $decoratorClass, $weaving, $savePath);
-        $factoryClosure = $extendWeaver->generate($savePath, $originalSourceClass);
-        $this->addClosureFactory($factoryClosure);
-    }
+//    function instanceWeaveClass($sourceClass, $decoratorClass, $weaving, $savePath) {
+//        $originalSourceClass = $sourceClass;        
+//        $extendWeaver = new InstanceWeaveMethod($sourceClass, $decoratorClass, $weaving, $savePath);
+//        $factoryClosure = $extendWeaver->generate($savePath, $originalSourceClass);
+//        $this->addClosureFactory($factoryClosure);
+//    }
 
     function addClosureFactory($function) {
         $this->closureFactories[] = $function;

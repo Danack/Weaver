@@ -38,7 +38,7 @@ class ExtendWeaveMethod extends AbstractWeaveMethod {
         $sourceConstructorMethod = $this->addProxyMethods();
         $decoratorConstructorMethod = $this->addDecoratorMethods();
         $constructorParameters = $this->addProxyConstructor($sourceConstructorMethod, $decoratorConstructorMethod);
-        $this->addPropertiesAndConstants();
+        $this->addPropertiesAndConstants($originalSourceClass);
         $this->saveFile($savePath);
 
         $factoryClosure = $this->generateFactoryClosure($originalSourceClass, $constructorParameters, $sourceConstructorMethod, $decoratorConstructorMethod);
@@ -91,7 +91,7 @@ class ExtendWeaveMethod extends AbstractWeaveMethod {
 
 
 
-    function generateProxyMethodBody(MethodReflection $method, $weavingInfo) {
+    function generateProxyMethodBody(MethodReflection $method) {
         $name = $method->getName();
 
         $methodBinding = $this->getMethodBindingForMethod($name);
@@ -99,12 +99,6 @@ class ExtendWeaveMethod extends AbstractWeaveMethod {
         if (!$methodBinding) {
             return false;
         }
-//        
-//        if (array_key_exists($name, $this->methodBindingArray) == false) {
-//            return false;
-//        }
-
-//        $weavingInfo = $methodBinding;//$this->methodBindingArray[$name];
 
         $newBody = '';
         

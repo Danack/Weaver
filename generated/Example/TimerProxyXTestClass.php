@@ -9,6 +9,9 @@ namespace Example;
 class TimerProxyXTestClass extends \Example\TestClass
 {
 
+    /**
+     * @var \Example\TestClass
+     */
     private $timer = null;
 
     public function executeQuery($params)

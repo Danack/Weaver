@@ -10,7 +10,7 @@ class CacheProxyXTimerProxyXTestClass extends \Example\TimerProxyXTestClass
 {
 
     /**
-     * @var \Intahwebz\ObjectCache
+     * @var \Example\TestClass
      */
     private $cache = null;
 

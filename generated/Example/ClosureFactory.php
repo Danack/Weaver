@@ -47,5 +47,21 @@ function createCacheProxyXTimerProxyXTestClassFactory(\Intahwebz\Timer $timer, \
 }
 
 
+function createLazyProxyXTestClassFactory() {
+
+    $closure = function ($queryString)
+        use ()
+    {
+        $object = new \Example\LazyProxyXTestClass(
+            
+        );
+
+        return $object;
+    };
+
+    return new \Example\ClosureTestClassFactory($closure);
+}
+
+
 
 }
