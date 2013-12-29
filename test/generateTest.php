@@ -94,7 +94,7 @@ $weaver->weaveClass(
 
 //This always needs to be last
 $weaver->writeClosureFactories(
-    '../generated/Example/',
+    '../generated/',
     'Example',
     'ClosureFactory',
     $weaver->getClosureFactories()

@@ -39,13 +39,6 @@ class Weaver {
             $this->addClosureFactory($factoryClosure);
         }
     }
-    
-//    function instanceWeaveClass($sourceClass, $decoratorClass, $weaving, $savePath) {
-//        $originalSourceClass = $sourceClass;        
-//        $extendWeaver = new InstanceWeaveMethod($sourceClass, $decoratorClass, $weaving, $savePath);
-//        $factoryClosure = $extendWeaver->generate($savePath, $originalSourceClass);
-//        $this->addClosureFactory($factoryClosure);
-//    }
 
     function addClosureFactory($function) {
         $this->closureFactories[] = $function;
@@ -58,8 +51,7 @@ class Weaver {
 
 
     function writeClosureFactories($filepath, $namespace, $filename, $closureFactories) {
-
-        $fullFilename = $filepath.$filename.'.php';
+        $fullFilename = $filepath.'/'.$namespace.'/'.$filename.'.php';
         ensureDirectoryExists($fullFilename);
 
         $fileHandle = fopen($fullFilename, 'w');
