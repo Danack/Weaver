@@ -83,28 +83,6 @@ abstract class AbstractWeaveMethod {
         return $closureFactoryName;
     }
 
-//    function getConstructorParamsString($constructorParameters, $includeTypeHints = false) {
-//        $string = '';
-//        $separator = '';
-//
-//        foreach ($constructorParameters as $constructorParameter) {
-//            $string .= $separator;
-//
-//            /** @var $constructorParameter ParameterGenerator */
-//            if ($includeTypeHints) {
-//                $typeHint = $constructorParameter->getType();
-//                if ($typeHint) {
-//                    $string .= '\\'.$typeHint.' ';
-//                }
-//            }
-//
-//            $string .= '$'.$constructorParameter->getName();
-//            $separator = ', ';
-//        }
-//
-//        return $string;
-//    }
-
     function setupClassName() {
         $this->generator->setName($this->getFQCN());
 
@@ -191,11 +169,18 @@ abstract class AbstractWeaveMethod {
         $className = '\\'.$fqcn;
 
         $addedParameters = $this->getAddedParameters($originalSourceClass, $constructorParameters);
-        $decoratorParamsWithType = getConstructorParamsString($addedParameters, true);
-        //$decoratorUseParams = $this->getConstructorParamsString($decoratorConstructorMethod->getParameters());   
-        $decoratorUseParams = getConstructorParamsString($addedParameters);
 
-        $objectParams = getConstructorParamsString($sourceConstructorMethod->getParameters());
+        $originalSourceReflection = new ClassReflection($originalSourceClass);
+        $originalConstructorParameters = array();
+        $originalConstructor = $originalSourceReflection->getConstructor();
+        
+        if ($originalConstructor) {
+            $originalConstructorParameters = $originalConstructor->getParameters();
+        }
+
+        $decoratorParamsWithType = getConstructorParamsString($addedParameters, true);   
+        $decoratorUseParams = getConstructorParamsString($addedParameters);
+        $objectParams = getConstructorParamsString($originalConstructorParameters);
         $allParams = getConstructorParamsString($constructorParameters);
 
         $closureFactoryName = $this->getClosureFactoryName($originalSourceClass);        
@@ -304,7 +289,10 @@ END;
 
             $newBody = $this->generateProxyMethodBody($method, $this->weaving);
 
-            if ($newBody == true) {
+            //var_dump($this->weaving);
+            //echo($newBody);
+
+            if ($newBody) {
                 $this->generator->addMethod(
                     $name,
                     $generatedParameters,

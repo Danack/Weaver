@@ -5,6 +5,8 @@ namespace Example;
 
 
 interface TestInterface {
-    function foo($demBrackets);
-    function executeQuery($queryString, $foo2);
+    
+    function executeQuery($params);
+    
+    function anotherFunction($someParameter);
 } 

@@ -90,6 +90,8 @@ class ExtendWeaveMethod extends AbstractWeaveMethod {
             return false;
         }
 
+        $weavingInfo = $this->weaving[$name];
+
         $newBody = '';
         
         if (array_key_exists('before', $weavingInfo) == true) {

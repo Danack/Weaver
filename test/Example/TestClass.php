@@ -5,17 +5,19 @@ namespace Example;
 
 class TestClass implements TestInterface {
 
-    function __construct($statement, $createLine) {
-        $this->statement = $statement;
-        $this->createLine = $createLine;
+    protected $queryString;
+    
+    function __construct($queryString) {
+        $this->queryString = $queryString;
     }
 
-    function foo($demBrackets) {
+    function anotherFunction($someParameter) {
+        echo "Executing anotherFunction\n";
     }
+    
+    function executeQuery($params) {
+        echo "executing query: ".$this->queryString."\n";
 
-    function executeQuery($queryString, $foo2) {
-        echo "executing query!";
-        
         return 5;
     }
 }
