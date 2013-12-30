@@ -170,7 +170,7 @@ abstract class AbstractWeaveMethod {
     function generateFactoryClosure(
         $originalSourceClass,
         $constructorParameters,
-        MethodReflection $sourceConstructorMethod,
+        MethodReflection $sourceConstructorMethod = null,
         MethodReflection $decoratorConstructorMethod = null
     ) {
 

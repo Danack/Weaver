@@ -7,15 +7,8 @@ use Zend\Code\Generator\ClassGenerator;
 
 use Zend\Code\Generator\MethodGenerator;
 use Zend\Code\Generator\ParameterGenerator;
-
-
 use Zend\Code\Reflection\MethodReflection;
-
 use Zend\Code\Reflection\ClassReflection;
-
-
-
-
 
 class ExtendWeaveMethod extends AbstractWeaveMethod {
 
@@ -48,7 +41,9 @@ class ExtendWeaveMethod extends AbstractWeaveMethod {
 
 
 
-    function addProxyConstructor(MethodReflection $sourceConstructorMethod, MethodReflection $decoratorConstructorMethod) {
+    function addProxyConstructor(
+        MethodReflection $sourceConstructorMethod = null, 
+        MethodReflection $decoratorConstructorMethod = null) {
         $constructorBody = '';
 
         $generatedParameters = array();
