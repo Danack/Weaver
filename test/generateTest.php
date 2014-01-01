@@ -61,7 +61,6 @@ $lazyWeaveInfo = new LazyWeaveInfo(
     array('TestInterface'),
     'init',
     'lazyInstance'
-    
 );
 
 
