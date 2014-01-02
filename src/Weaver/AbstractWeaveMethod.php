@@ -8,9 +8,7 @@ use Zend\Code\Generator\DocBlockGenerator;
 use Zend\Code\Generator\MethodGenerator;
 use Zend\Code\Generator\ParameterGenerator;
 use Zend\Code\Generator\PropertyGenerator;
-
 use Zend\Code\Reflection\MethodReflection;
-
 use Zend\Code\Reflection\ClassReflection;
 
 
@@ -170,6 +168,7 @@ abstract class AbstractWeaveMethod {
     function generateFactoryClosure(
         $originalSourceClass,
         $constructorParameters,
+        $closureFactoryName,
         MethodReflection $sourceConstructorMethod = null,
         MethodReflection $decoratorConstructorMethod = null
     ) {
@@ -195,20 +194,24 @@ abstract class AbstractWeaveMethod {
             $originalConstructorParameters = $originalConstructor->getParameters();
         }
 
-        $decoratorParamsWithType = getConstructorParamsString($addedParameters, true);   
-        $decoratorUseParams = getConstructorParamsString($addedParameters);
-        $objectParams = getConstructorParamsString($originalConstructorParameters);
         $allParams = getConstructorParamsString($constructorParameters);
 
-        $closureFactoryName = $this->getClosureFactoryName($originalSourceClass);        
+
+        $decoratorParamsWithType = getConstructorParamsString($addedParameters, true);
+
+        $decoratorUseParams = '';
+        if (count($addedParameters)) {
+            $decoratorUseParams = 'use ('.getConstructorParamsString($addedParameters).')';
+        }
+    
+        $objectParams = getConstructorParamsString($originalConstructorParameters);
+            
         $createClosureFactoryName = 'create'.$this->getProxiedName().'Factory';
 
         $function = <<< END
 function $createClosureFactoryName($decoratorParamsWithType) {
 
-    \$closure = function ($objectParams)
-        use ($decoratorUseParams)
-    {
+    \$closure = function ($objectParams) $decoratorUseParams {
         \$object = new $className(
             $allParams
         );
@@ -220,8 +223,6 @@ function $createClosureFactoryName($decoratorParamsWithType) {
 }
 
 END;
-        
-        
         return $function;
     }
 
@@ -357,14 +358,12 @@ END;
         return null;
     }
 
-
-
     /**
      * @param $savePath
      * @param $originalSourceClass
      * @return string|null
      */
-    abstract function generate($savePath, $originalSourceClass);
+    abstract function generate($savePath, $originalSourceClass, $closureFactoryName);
 
     abstract function generateProxyMethodBody(MethodReflection $methodReflection);
 }

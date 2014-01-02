@@ -27,14 +27,19 @@ class ExtendWeaveMethod extends AbstractWeaveMethod {
         $this->setupClassName();
     }
 
-    function generate($savePath, $originalSourceClass) {
+    function generate($savePath, $originalSourceClass, $closureFactoryName) {
         $sourceConstructorMethod = $this->addProxyMethods();
         $decoratorConstructorMethod = $this->addDecoratorMethods();
         $constructorParameters = $this->addProxyConstructor($sourceConstructorMethod, $decoratorConstructorMethod);
         $this->addPropertiesAndConstants($originalSourceClass);
         $this->saveFile($savePath);
 
-        $factoryClosure = $this->generateFactoryClosure($originalSourceClass, $constructorParameters, $sourceConstructorMethod, $decoratorConstructorMethod);
+        $factoryClosure = $this->generateFactoryClosure(
+                               $originalSourceClass,
+                               $constructorParameters,
+                               $closureFactoryName,
+                               $sourceConstructorMethod,
+                               $decoratorConstructorMethod);
 
         return $factoryClosure;
     }
