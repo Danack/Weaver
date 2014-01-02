@@ -130,7 +130,11 @@ class InstanceWeaveMethod extends AbstractWeaveMethod  {
         }
 
         $newBody .= ");\n";
-        $newBody .= 'return $result;'."\n";
+
+        // if contains @return $method->getDocBlock(); ? nah thats dumb
+//        if ($methodBinding->getHasResult()) {
+//            $newBody .= 'return $result;'."\n";
+//        }
 
         return $newBody;
     }

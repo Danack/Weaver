@@ -7,15 +7,8 @@ use Zend\Code\Generator\ClassGenerator;
 
 use Zend\Code\Generator\MethodGenerator;
 use Zend\Code\Generator\ParameterGenerator;
-
-
 use Zend\Code\Reflection\MethodReflection;
-
 use Zend\Code\Reflection\ClassReflection;
-
-
-
-
 
 class ExtendWeaveMethod extends AbstractWeaveMethod {
 
@@ -58,9 +51,10 @@ class ExtendWeaveMethod extends AbstractWeaveMethod {
 
 
     function addProxyConstructor(
-        MethodReflection $sourceConstructorMethod = null, 
+        MethodReflection $sourceConstructorMethod = null,
         MethodReflection $decoratorConstructorMethod = null
     ) {
+
         $constructorBody = '';
 
         $generatedParameters = array();
@@ -107,7 +101,7 @@ class ExtendWeaveMethod extends AbstractWeaveMethod {
         $name = $method->getName();
 
         $methodBinding = $this->getMethodBindingForMethod($name);
-        
+
         if (!$methodBinding) {
             return false;
         }
@@ -119,8 +113,13 @@ class ExtendWeaveMethod extends AbstractWeaveMethod {
         if ($beforeFunction) {
             $newBody .= $beforeFunction."\n";
         }
-        
-        $newBody .= '$result = parent::'.$method->getName()."(";
+
+        if ($methodBinding->getHasResult()) {
+            $newBody .= '$result = parent::'.$method->getName()."(";
+        }
+        else {
+            $newBody .= 'parent::'.$method->getName()."(";
+        }
         $parameters = $method->getParameters();
         $separator = '';
 
@@ -137,7 +136,9 @@ class ExtendWeaveMethod extends AbstractWeaveMethod {
             $newBody .= $afterFunction."\n\n";
         }
 
-        $newBody .= 'return $result;'."\n";
+        if ($methodBinding->getHasResult()) {
+            $newBody .= 'return $result;'."\n";
+        }
 
         return $newBody;
     }
