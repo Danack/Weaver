@@ -8,11 +8,11 @@ class LazyWeaveInfo extends WeaveInfo {
 
     private $initMethodName;
     private $lazyPropertyName;
-    
+
     function __construct(
         $decoratorClass, 
         array $methodBindingArray, 
-        array $interfaces,
+        $interface,
         $initMethodName,
         $lazyPropertyName
     ) {
@@ -20,6 +20,7 @@ class LazyWeaveInfo extends WeaveInfo {
 
         $this->initMethodName = $initMethodName;
         $this->lazyPropertyName = $lazyPropertyName;
+        $this->interface = $interface;
     }
 
     /**
@@ -35,9 +36,11 @@ class LazyWeaveInfo extends WeaveInfo {
     public function getLazyPropertyName() {
         return $this->lazyPropertyName;
     }
-    
-    
-    
+
+
+    function setInterface(array $interface) {
+        $this->interface = $interface;
+    }
 }
 
  

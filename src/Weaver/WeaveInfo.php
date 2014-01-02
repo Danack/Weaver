@@ -9,6 +9,8 @@ class WeaveInfo {
     private $decoratorClass;
     
     private $methodBindingArray;
+    
+    protected $interface = null;
 
     function __construct($decoratorClass, array $methodBindingArray) {
         $this->decoratorClass = $decoratorClass;
@@ -29,13 +31,12 @@ class WeaveInfo {
         return $this->methodBindingArray;
     }
 
-    function setInterfaces(array $interfaces) {
-        $this->interfaces = $interfaces;
+
+
+    function getInterface() {
+        return $this->interface;
     }
-    
-    function getInterfaces() {
-        return $this->interfaces;
-    }
+   
 }
 
  
