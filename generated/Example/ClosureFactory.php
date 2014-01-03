@@ -43,7 +43,7 @@ function createCacheProxyXTimerProxyXTestClassFactory(\Intahwebz\Timer $timer, \
         return $object;
     };
 
-    return new \Example\ClosureTestClassFactory($closure);
+    return new \Example\ClosureTimerProxyXTestClassFactory($closure);
 }
 
 
@@ -59,7 +59,7 @@ function createLazyProxyXTestClassFactory() {
         return $object;
     };
 
-    return new \Example\ClosureTestClassFactory($closure);
+    return new \Example\ClosureTestInterfaceFactory($closure);
 }
 
 

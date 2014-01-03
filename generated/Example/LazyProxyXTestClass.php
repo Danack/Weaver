@@ -6,7 +6,7 @@
 
 namespace Example;
 
-class LazyProxyXTestClass extends \Example\TestClass
+class LazyProxyXTestClass implements TestInterface
 {
 
     public $queryString = null;
@@ -20,14 +20,12 @@ class LazyProxyXTestClass extends \Example\TestClass
     {
         $this->init();
         $result = $this->lazyInstance->anotherFunction($someParameter);
-        return $result;
     }
 
     public function executeQuery($params)
     {
         $this->init();
         $result = $this->lazyInstance->executeQuery($params);
-        return $result;
     }
 
     public function __construct($queryString)

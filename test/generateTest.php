@@ -11,11 +11,11 @@ use Weaver\LazyWeaveInfo;
 $timerWeaveInfo = new WeaveInfo(
     'Weaver\Weave\TimerProxy',
     array(
-            new MethodBinding(
-                'executeQuery',
-                '$this->timer->startTimer($this->queryString);',
-                '$this->timer->stopTimer();'
-            )
+        new MethodBinding(
+            'executeQuery',
+            '$this->timer->startTimer($this->queryString);',
+            '$this->timer->stopTimer();'
+        )
     )
 );
 

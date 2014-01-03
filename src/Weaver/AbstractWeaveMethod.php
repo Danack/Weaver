@@ -86,14 +86,10 @@ abstract class AbstractWeaveMethod {
 
     function setupClassName() {
         $this->generator->setName($this->getFQCN());
-
         $interface = $this->getInterface();
-        
-        $interfaces = array($interface);
-        
-        //var_dump($interfaces);
-        
-        if ($interfaces) {
+
+        if ($interface) {
+            $interfaces = array($interface);
             $this->generator->setImplementedInterfaces($interfaces);
         }
         else {
@@ -116,7 +112,6 @@ abstract class AbstractWeaveMethod {
 
         foreach ($properties as $property) {
             $newProperty = PropertyGenerator::fromReflection($property);
-
             $newProperty->setDocBlock(" @var \\$originalSourceClass");
             $this->generator->addPropertyFromGenerator($newProperty);
         }

@@ -130,11 +130,7 @@ class InstanceWeaveMethod extends AbstractWeaveMethod  {
         }
 
         $newBody .= ");\n";
-
-        // if contains @return $method->getDocBlock(); ? nah thats dumb
-//        if ($methodBinding->getHasResult()) {
-//            $newBody .= 'return $result;'."\n";
-//        }
+        $newBody .= 'return $result;'."\n";
 
         return $newBody;
     }
@@ -152,11 +148,10 @@ class InstanceWeaveMethod extends AbstractWeaveMethod  {
 
 
     function getClosureFactoryName() {
-        //$originalSourceReflection = new ClassReflection($originalSourceClass);
         $originalSourceReflection = $this->sourceReflector;
         $interface = $this->lazyWeaveInfo->getInterface();
-        $itnerfaceClassname = getClassName($interface);
-        $closureFactoryName = '\\'.$originalSourceReflection->getNamespaceName().'\Closure'.$itnerfaceClassname.'Factory';
+        $interfaceClassname = getClassName($interface);
+        $closureFactoryName = '\\'.$originalSourceReflection->getNamespaceName().'\Closure'.$interfaceClassname.'Factory';
 
         return $closureFactoryName;
     }
