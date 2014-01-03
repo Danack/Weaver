@@ -18,7 +18,7 @@ class Weaver {
      * @param $weaveInfoArray WeaveInfo[]
      * @param $savePath
      */
-    function weaveClass($sourceClass, $weaveInfoArray, $savePath) {
+    function weaveClass($sourceClass, $weaveInfoArray, $savePath, $closureFactoryName) {
         
         $originalSourceClass = $sourceClass;
 
@@ -35,7 +35,7 @@ class Weaver {
             }
 
             $sourceClass = $extendWeaver->getFQCN();
-            $factoryClosure = $extendWeaver->generate($savePath, $originalSourceClass);
+            $factoryClosure = $extendWeaver->generate($savePath, $originalSourceClass, $closureFactoryName);
             $this->addClosureFactory($factoryClosure);
         }
     }
