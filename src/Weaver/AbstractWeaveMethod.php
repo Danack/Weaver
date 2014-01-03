@@ -64,11 +64,6 @@ abstract class AbstractWeaveMethod {
      */
     private $fqcn = null;
 
-    /**
-     * @var array
-     */
-    private $interfaces = array();
-
     function getFQCN() {
         if ($this->fqcn == null) {
             $namespace = $this->sourceReflector->getNamespaceName();
@@ -84,22 +79,17 @@ abstract class AbstractWeaveMethod {
 
         return $this->fqcn;
     }
-
-    function getClosureFactoryName($originalSourceClass) {
-        $originalSourceReflection = new ClassReflection($originalSourceClass);
-        $closureFactoryName = '\\'.$originalSourceReflection->getNamespaceName().'\Closure'.$originalSourceReflection->getShortName().'Factory';
-
-        return $closureFactoryName;
-    }
     
-    function getInterfaces() {
-        return $this->interfaces;
-    }
+    
 
     function setupClassName() {
         $this->generator->setName($this->getFQCN());
 
-        $interfaces = $this->getInterfaces();
+        $interface = $this->getInterface();
+        
+        $interfaces = array($interface);
+        
+        //var_dump($interfaces);
         
         if ($interfaces) {
             $this->generator->setImplementedInterfaces($interfaces);
@@ -305,7 +295,6 @@ END;
         $methods = $this->sourceReflector->getMethods();
 
         foreach ($methods as $method) {
-
             $name = $method->getName();
 
             if ($name == '__construct') {
@@ -366,6 +355,11 @@ END;
     abstract function generate($savePath, $originalSourceClass, $closureFactoryName);
 
     abstract function generateProxyMethodBody(MethodReflection $methodReflection);
+
+    abstract function getInterface();
+
+    abstract function getClosureFactoryName();
+    
 }
 
  

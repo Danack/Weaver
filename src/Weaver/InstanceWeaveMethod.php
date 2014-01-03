@@ -5,16 +5,10 @@ namespace Weaver;
 
 
 use Zend\Code\Generator\ClassGenerator;
-
 use Zend\Code\Generator\MethodGenerator;
 use Zend\Code\Generator\ParameterGenerator;
-
-
 use Zend\Code\Reflection\MethodReflection;
-
 use Zend\Code\Reflection\ClassReflection;
-
-
 
 
 class InstanceWeaveMethod extends AbstractWeaveMethod  {
@@ -149,6 +143,29 @@ class InstanceWeaveMethod extends AbstractWeaveMethod  {
 
         return $newBody;
     }
+
+
+    /**
+     * @var array
+     */
+    private $interfaces = array();
+    
+    function getInterface() {
+        return $this->lazyWeaveInfo->getInterface();
+    }
+
+
+
+    function getClosureFactoryName() {
+        //$originalSourceReflection = new ClassReflection($originalSourceClass);
+        $originalSourceReflection = $this->sourceReflector;
+        $interface = $this->lazyWeaveInfo->getInterface();
+        $itnerfaceClassname = getClassName($interface);
+        $closureFactoryName = '\\'.$originalSourceReflection->getNamespaceName().'\Closure'.$itnerfaceClassname.'Factory';
+
+        return $closureFactoryName;
+    }
+
 }
 
  

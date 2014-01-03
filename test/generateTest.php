@@ -58,7 +58,7 @@ $weaver->weaveClass(
 $lazyWeaveInfo = new LazyWeaveInfo(
     'Weaver\Weave\LazyProxy',
     array(),
-    array('TestInterface'),
+    'TestInterface',
     'init',
     'lazyInstance'
 );

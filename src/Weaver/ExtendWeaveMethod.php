@@ -27,6 +27,10 @@ class ExtendWeaveMethod extends AbstractWeaveMethod {
         $this->setupClassName();
     }
 
+    function getInterface() {
+        return null;
+    }
+
     function generate($savePath, $originalSourceClass, $closureFactoryName) {
         $sourceConstructorMethod = $this->addProxyMethods();
         $decoratorConstructorMethod = $this->addDecoratorMethods();
@@ -47,8 +51,10 @@ class ExtendWeaveMethod extends AbstractWeaveMethod {
 
 
     function addProxyConstructor(
-        MethodReflection $sourceConstructorMethod = null, 
-        MethodReflection $decoratorConstructorMethod = null) {
+        MethodReflection $sourceConstructorMethod = null,
+        MethodReflection $decoratorConstructorMethod = null
+    ) {
+
         $constructorBody = '';
 
         $generatedParameters = array();
@@ -137,6 +143,14 @@ class ExtendWeaveMethod extends AbstractWeaveMethod {
         return $newBody;
     }
 
+    function getClosureFactoryName() {
+        $originalSourceReflection = $this->sourceReflector;
+
+        $closureFactoryName = '\\'.$originalSourceReflection->getNamespaceName().'\Closure'.$originalSourceReflection->getShortName().'Factory';
+
+        return $closureFactoryName;
+    }
+    
 }
 
  
