@@ -18,13 +18,16 @@ class ImplementsWeaveMethod extends AbstractWeaveMethod  {
      * @param $decoratorClass
      * @param $methodBindingArray MethodBinding[]
      */
-    function __construct($sourceClass, $decoratorClass, InstanceWeaveInfo $lazyWeaveInfo) {
+    function __construct(
+        $sourceClass, 
+        $decoratorClass, 
+        ImplementsWeaveInfo $implementsWeaveInfo) {
 
         $this->sourceReflector = new ClassReflection($sourceClass);
         $this->decoratorReflector = new ClassReflection($decoratorClass);
         $this->generator = new ClassGenerator();
-        $this->methodBindingArray = $lazyWeaveInfo->getMethodBindingArray();
-        $this->lazyWeaveInfo = $lazyWeaveInfo;
+        $this->methodBindingArray = $implementsWeaveInfo->getMethodBindingArray();
+        $this->implementsWeaveInfo = $implementsWeaveInfo;
         $this->setupClassName();
     }
 
@@ -87,6 +90,11 @@ class ImplementsWeaveMethod extends AbstractWeaveMethod  {
             $constructorBody .= $decoratorConstructorMethod->getBody();
         }
 
+        $factoryParam = $this->implementsWeaveInfo->getFactoryParam();
+        if ($factoryParam) {
+            $generatedParameters[] = $factoryParam;
+        }
+
         $constructorBody .= $copyBody;
 
         $this->generator->addMethod(
@@ -108,10 +116,20 @@ class ImplementsWeaveMethod extends AbstractWeaveMethod  {
      */
     function addInitMethod(MethodReflection $sourceConstructorMethod, MethodReflection $decoratorConstructorMethod = null) {
 
-        $lazyPropertyName = $this->lazyWeaveInfo->getLazyPropertyName();
+        $lazyPropertyName = $this->implementsWeaveInfo->getLazyPropertyName();
 
-        $initBody = 'if ($this->'.$lazyPropertyName.' == null) {
+        $initBody = 'if ($this->'.$lazyPropertyName.' == null) {';
+
+        $instanceFactorySignature = $this->implementsWeaveInfo->getInstanceFactorySignature();
+        
+        if ($instanceFactorySignature != null) {
+            $initBody .= '
+            $this->lazyInstance = '.$instanceFactorySignature.'(';
+        }
+        else {
+            $initBody .= '
             $this->lazyInstance = new \\'.$this->sourceReflector->getName().'(';
+        }
 
         $constructorParamsString = $this->addLazyConstructor($sourceConstructorMethod,
             $decoratorConstructorMethod);
@@ -127,19 +145,19 @@ class ImplementsWeaveMethod extends AbstractWeaveMethod  {
             $initBody,
             ""
         );
-        
+
         return $sourceConstructorMethod->getParameters();
     }
 
     /**
-     * @param InstanceWeaveInfo $weaveInfo
+     * @param ImplementsWeaveInfo $weaveInfo
      * @param MethodReflection $method
      * @return string
      */
     function generateProxyMethodBody(MethodReflection $method) {
         $newBody = '';
-        $initMethodName = $this->lazyWeaveInfo->getInitMethodName();
-        $lazyPropertyName = $this->lazyWeaveInfo->getLazyPropertyName();
+        $initMethodName = $this->implementsWeaveInfo->getInitMethodName();
+        $lazyPropertyName = $this->implementsWeaveInfo->getLazyPropertyName();
         $newBody .= '$this->'.$initMethodName."();\n";
         $newBody .= '$result = $this->'.$lazyPropertyName.'->'.$method->getName()."(";
         $parameters = $method->getParameters();
@@ -162,7 +180,7 @@ class ImplementsWeaveMethod extends AbstractWeaveMethod  {
     private $interfaces = array();
     
     function getInterface() {
-        return $this->lazyWeaveInfo->getInterface();
+        return $this->implementsWeaveInfo->getInterface();
     }
 
     /**
@@ -170,7 +188,7 @@ class ImplementsWeaveMethod extends AbstractWeaveMethod  {
      */
     function getClosureFactoryName() {
         $originalSourceReflection = $this->sourceReflector;
-        $interface = $this->lazyWeaveInfo->getInterface();
+        $interface = $this->implementsWeaveInfo->getInterface();
         $interfaceClassname = getClassName($interface);
         $closureFactoryName = '\\'.$originalSourceReflection->getNamespaceName().'\Closure'.$interfaceClassname.'Factory';
 

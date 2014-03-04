@@ -3,7 +3,7 @@
 
 use Weaver\ExtendWeaveInfo;
 use Weaver\MethodBinding;
-use Weaver\InstanceWeaveInfo;
+use Weaver\ImplementsWeaveInfo;
 
 
 $timerWeaveInfo = new ExtendWeaveInfo(
@@ -54,7 +54,7 @@ $weaver->weaveClass(
 
 
 
-$lazyWeaveInfo = new InstanceWeaveInfo(
+$lazyWeaveInfo = new ImplementsWeaveInfo(
     'Weaver\Weave\LazyProxy',
     array(),
     'TestInterface',

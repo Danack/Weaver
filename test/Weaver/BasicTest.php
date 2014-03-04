@@ -5,12 +5,17 @@ namespace Weaver;
 
 use Weaver\ExtendWeaveInfo;
 use Weaver\MethodBinding;
-use Weaver\InstanceWeaveInfo;
+use Weaver\ImplementsWeaveInfo;
 
 
 
 class BasicTest extends \PHPUnit_Framework_TestCase {
 
+    private $outputDir;
+    
+    function __construct() {
+        $this->outputDir = dirname(__FILE__).'/../../generated/';
+    }
     
     function testExtendWeave() {
 
@@ -53,7 +58,7 @@ class BasicTest extends \PHPUnit_Framework_TestCase {
                 $timerWeaveInfo,
                 $cacheWeaveInfo,
             ),
-            '../generated/',
+            $this->outputDir,
             'ClosureTestClassFactory'
         );
 
@@ -67,7 +72,7 @@ class BasicTest extends \PHPUnit_Framework_TestCase {
     function testInstanceWeave() {
         $weaver = new Weaver();
 
-        $lazyWeaveInfo = new InstanceWeaveInfo(
+        $lazyWeaveInfo = new ImplementsWeaveInfo(
             'Weaver\Weave\LazyProxy',
             'TestInterface',
             'init',
@@ -79,13 +84,39 @@ class BasicTest extends \PHPUnit_Framework_TestCase {
             array(
                 $lazyWeaveInfo,
             ),
-            '../generated/',
+            $this->outputDir,
             'ClosureTestClassFactory'
         );
 
         $this->writeFactories($weaver);
     }
 
+
+    /**
+     *
+     */
+    function testFactoryInstanceWeave() {
+        $weaver = new Weaver();
+
+        $lazyWeaveInfo = new ImplementsWeaveInfo(
+            'Weaver\Weave\LazyProxy',
+            'TestInterface',
+            'init',
+            'lazyInstance',
+            'SomeFactory', 'create'
+        );
+
+        $weaver->weaveClass(
+            'Example\TestClass',
+            array(
+                $lazyWeaveInfo,
+            ),
+            $this->outputDir, 
+            'ClosureTestClassFactory'
+        );
+
+        $this->writeFactories($weaver);
+    }
 
     /**
      * 
@@ -99,7 +130,7 @@ class BasicTest extends \PHPUnit_Framework_TestCase {
             array(
                 $timerWeaveInfo
             ),
-            '../generated/',
+            $this->outputDir,
             'ClosureTestClassFactory'
         );
      
@@ -107,33 +138,13 @@ class BasicTest extends \PHPUnit_Framework_TestCase {
     }
 
 
-
     function writeFactories(Weaver $weaver) {
         //This always needs to be last
         $weaver->writeClosureFactories(
-            '../generated/',
+            $this->outputDir,
             'Example',
             'ClosureFactory',
             $weaver->getClosureFactories()
         );
     }
-    
 }
-
-
-
-
-//
-//$lazyWeaving = array(
-//    'init' => 'init',
-//    'lazyProperty' => 'lazyInstance',
-//    'interfaces' => array('TestInterface'),
-//);
-//
-//
-//$weaver->instanceWeaveClass(
-//    'Example\TestClass',
-//    'Weaver\Weave\LazyProxy',
-//    $lazyWeaving,
-//    '../generated/'
-//);

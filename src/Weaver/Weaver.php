@@ -27,15 +27,15 @@ class Weaver {
             
             $methodBindingArray = $weaveInfo->getMethodBindingArray();
             
-            if ($weaveInfo instanceof \Weaver\InstanceWeaveInfo) {
-                $extendWeaver = new ImplementsWeaveMethod($sourceClass, $decoratorClass, $weaveInfo);
+            if ($weaveInfo instanceof \Weaver\ImplementsWeaveInfo) {
+                $weaveMethod = new ImplementsWeaveMethod($sourceClass, $decoratorClass, $weaveInfo);
             }
             else {
-                $extendWeaver = new ExtendWeaveMethod($sourceClass, $decoratorClass, $methodBindingArray);
+                $weaveMethod = new ExtendWeaveMethod($sourceClass, $decoratorClass, $methodBindingArray);
             }
 
-            $sourceClass = $extendWeaver->getFQCN();
-            $factoryClosure = $extendWeaver->generate($savePath, $originalSourceClass, $closureFactoryName);
+            $sourceClass = $weaveMethod->getFQCN();
+            $factoryClosure = $weaveMethod->generate($savePath, $originalSourceClass, $closureFactoryName);
             $this->addClosureFactory($factoryClosure);
         }
     }
