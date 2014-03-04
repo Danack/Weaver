@@ -16,7 +16,7 @@ class TimerProxy {
 
     function reportTimings() {
         $this->timer->dumpTime();
-    }
+    }   
 }
 
  

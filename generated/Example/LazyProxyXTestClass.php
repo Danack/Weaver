@@ -20,12 +20,14 @@ class LazyProxyXTestClass implements TestInterface
     {
         $this->init();
         $result = $this->lazyInstance->anotherFunction($someParameter);
+        return $result;
     }
 
     public function executeQuery($params)
     {
         $this->init();
         $result = $this->lazyInstance->executeQuery($params);
+        return $result;
     }
 
     public function __construct($queryString)

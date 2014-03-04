@@ -1,14 +1,12 @@
 <?php
 
 
-require_once('../vendor/autoload.php');
-
-use Weaver\WeaveInfo;
+use Weaver\ExtendWeaveInfo;
 use Weaver\MethodBinding;
-use Weaver\LazyWeaveInfo;
+use Weaver\InstanceWeaveInfo;
 
 
-$timerWeaveInfo = new WeaveInfo(
+$timerWeaveInfo = new ExtendWeaveInfo(
     'Weaver\Weave\TimerProxy',
     array(
         new MethodBinding(
@@ -21,7 +19,7 @@ $timerWeaveInfo = new WeaveInfo(
 
 
 
-$cacheWeaveInfo = new WeaveInfo(
+$cacheWeaveInfo = new ExtendWeaveInfo(
     'Weaver\Weave\CacheProxy',
     array(
         new MethodBinding('executeQuery',
@@ -49,13 +47,14 @@ $weaver->weaveClass(
         $timerWeaveInfo,
         $cacheWeaveInfo,
     ),
-    '../generated/'
+    '../generated/',
+    'ClosureTestClassFactory'
 );
 
 
 
 
-$lazyWeaveInfo = new LazyWeaveInfo(
+$lazyWeaveInfo = new InstanceWeaveInfo(
     'Weaver\Weave\LazyProxy',
     array(),
     'TestInterface',
@@ -69,7 +68,8 @@ $weaver->weaveClass(
     array(
         $lazyWeaveInfo,
     ),
-    '../generated/'
+    '../generated/',
+    'ClosureTestClassFactory'
 );
 
 

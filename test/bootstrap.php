@@ -9,16 +9,24 @@ use Auryn\Provider;
 
 error_reporting(E_ALL);
 
-
-apc_store('foo12345', 'BAR');
-if (apc_fetch('foo12345') == false) {
-    echo "APC appears to be failing.";
-    exit(0);
-}
+$autoloader = require_once(realpath(dirname(__FILE__).'/../vendor/autoload.php'));
 
 
-//require_once('../config.php');
-require_once('../vendor/autoload.php');
+$autoloader->add(
+    'Example', 
+    array(
+        realpath('./').'/generated/',
+        realpath('./').'/test/'
+    )
+);
+
+//apc_store('foo12345', 'BAR');
+//if (apc_fetch('foo12345') == false) {
+//    echo "APC appears to be failing.";
+//    exit(0);
+//}
+
+//require_once('../vendor/autoload.php');
 
 function createStandardLogger($logChannelName = 'logChannelName') {
     $logger = new Logger($logChannelName);

@@ -5,6 +5,9 @@ namespace Example;
 
 class TestClass implements TestInterface {
 
+    
+
+    
     protected $queryString;
     
     function __construct($queryString) {
@@ -19,6 +22,10 @@ class TestClass implements TestInterface {
         echo "executing query: ".$this->queryString."\n";
         usleep(300);
         return 5;
+    }
+    
+    function noReturn() {
+        echo "foo";
     }
 }
 

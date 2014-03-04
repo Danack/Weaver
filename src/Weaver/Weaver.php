@@ -19,7 +19,7 @@ class Weaver {
      * @param $savePath
      */
     function weaveClass($sourceClass, $weaveInfoArray, $savePath, $closureFactoryName) {
-        
+
         $originalSourceClass = $sourceClass;
 
         foreach ($weaveInfoArray as $weaveInfo) {
@@ -27,8 +27,8 @@ class Weaver {
             
             $methodBindingArray = $weaveInfo->getMethodBindingArray();
             
-            if ($weaveInfo instanceof \Weaver\LazyWeaveInfo) {
-                $extendWeaver = new InstanceWeaveMethod($sourceClass, $decoratorClass, $weaveInfo);
+            if ($weaveInfo instanceof \Weaver\InstanceWeaveInfo) {
+                $extendWeaver = new ImplementsWeaveMethod($sourceClass, $decoratorClass, $weaveInfo);
             }
             else {
                 $extendWeaver = new ExtendWeaveMethod($sourceClass, $decoratorClass, $methodBindingArray);

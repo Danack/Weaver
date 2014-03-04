@@ -11,14 +11,14 @@ use Zend\Code\Reflection\MethodReflection;
 use Zend\Code\Reflection\ClassReflection;
 
 
-class InstanceWeaveMethod extends AbstractWeaveMethod  {
+class ImplementsWeaveMethod extends AbstractWeaveMethod  {
 
     /**
      * @param $sourceClass
      * @param $decoratorClass
      * @param $methodBindingArray MethodBinding[]
      */
-    function __construct($sourceClass, $decoratorClass, LazyWeaveInfo $lazyWeaveInfo) {
+    function __construct($sourceClass, $decoratorClass, InstanceWeaveInfo $lazyWeaveInfo) {
 
         $this->sourceReflector = new ClassReflection($sourceClass);
         $this->decoratorReflector = new ClassReflection($decoratorClass);
@@ -27,7 +27,13 @@ class InstanceWeaveMethod extends AbstractWeaveMethod  {
         $this->lazyWeaveInfo = $lazyWeaveInfo;
         $this->setupClassName();
     }
-    
+
+    /**
+     * @param $savePath
+     * @param $originalSourceClass
+     * @param $closureFactoryName
+     * @return null|string
+     */
     function generate($savePath, $originalSourceClass, $closureFactoryName) {
         $sourceConstructorMethod = $this->addProxyMethods();
         $decoratorConstructorMethod = $this->addDecoratorMethods();
@@ -44,6 +50,11 @@ class InstanceWeaveMethod extends AbstractWeaveMethod  {
         return $factoryClosure;
     }
 
+    /**
+     * @param MethodReflection $sourceConstructorMethod
+     * @param MethodReflection $decoratorConstructorMethod
+     * @return string
+     */
     function addLazyConstructor(
         MethodReflection $sourceConstructorMethod = null,
         MethodReflection $decoratorConstructorMethod = null
@@ -90,6 +101,11 @@ class InstanceWeaveMethod extends AbstractWeaveMethod  {
     }
 
 
+    /**
+     * @param MethodReflection $sourceConstructorMethod
+     * @param MethodReflection $decoratorConstructorMethod
+     * @return \Zend\Code\Reflection\ParameterReflection[]
+     */
     function addInitMethod(MethodReflection $sourceConstructorMethod, MethodReflection $decoratorConstructorMethod = null) {
 
         $lazyPropertyName = $this->lazyWeaveInfo->getLazyPropertyName();
@@ -116,7 +132,7 @@ class InstanceWeaveMethod extends AbstractWeaveMethod  {
     }
 
     /**
-     * @param LazyWeaveInfo $weaveInfo
+     * @param InstanceWeaveInfo $weaveInfo
      * @param MethodReflection $method
      * @return string
      */
@@ -140,7 +156,6 @@ class InstanceWeaveMethod extends AbstractWeaveMethod  {
         return $newBody;
     }
 
-
     /**
      * @var array
      */
@@ -150,8 +165,9 @@ class InstanceWeaveMethod extends AbstractWeaveMethod  {
         return $this->lazyWeaveInfo->getInterface();
     }
 
-
-
+    /**
+     * @return string
+     */
     function getClosureFactoryName() {
         $originalSourceReflection = $this->sourceReflector;
         $interface = $this->lazyWeaveInfo->getInterface();

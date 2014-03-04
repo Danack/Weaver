@@ -17,9 +17,7 @@ namespace {
 
 function createTimerProxyXTestClassFactory(\Intahwebz\Timer $timer) {
 
-    $closure = function ($queryString)
-        use ($timer)
-    {
+    $closure = function ($queryString) use ($timer) {
         $object = new \Example\TimerProxyXTestClass(
             $queryString, $timer
         );
@@ -27,15 +25,13 @@ function createTimerProxyXTestClassFactory(\Intahwebz\Timer $timer) {
         return $object;
     };
 
-    return new \Example\ClosureTestClassFactory($closure);
+    return new ClosureTestClassFactory($closure);
 }
 
 
 function createCacheProxyXTimerProxyXTestClassFactory(\Intahwebz\Timer $timer, \Intahwebz\ObjectCache $cache) {
 
-    $closure = function ($queryString)
-        use ($timer, $cache)
-    {
+    $closure = function ($queryString) use ($timer, $cache) {
         $object = new \Example\CacheProxyXTimerProxyXTestClass(
             $queryString, $timer, $cache
         );
@@ -43,23 +39,21 @@ function createCacheProxyXTimerProxyXTestClassFactory(\Intahwebz\Timer $timer, \
         return $object;
     };
 
-    return new \Example\ClosureTimerProxyXTestClassFactory($closure);
+    return new ClosureTestClassFactory($closure);
 }
 
 
 function createLazyProxyXTestClassFactory() {
 
-    $closure = function ($queryString)
-        use ()
-    {
+    $closure = function ($queryString)  {
         $object = new \Example\LazyProxyXTestClass(
-            
+            $queryString
         );
 
         return $object;
     };
 
-    return new \Example\ClosureTestInterfaceFactory($closure);
+    return new ClosureTestClassFactory($closure);
 }
 
 

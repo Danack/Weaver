@@ -6,12 +6,12 @@ namespace Weaver;
 
 class MethodBinding {
 
-    private $functionName;
+    private $methodMatcher;
     private $before;
     private $after;
 
-    function __construct($functionName, $before, $after, $hasResult = true) {
-        $this->functionName = $functionName;
+    function __construct(MethodMatcher $methodMatcher, $before, $after, $hasResult = true) {
+        $this->methodMatcher = $methodMatcher;
         $this->before = $before;
         $this->after = $after;
         $this->hasResult = $hasResult;
@@ -38,11 +38,8 @@ class MethodBinding {
         return $this->before;
     }
 
-    /**
-     * @return mixed
-     */
-    public function getFunctionName() {
-        return $this->functionName;
+    function matchesMethod($methodName) {
+        return $this->methodMatcher->matches($methodName);
     }
 }
 

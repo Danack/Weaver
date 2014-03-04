@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<phpunit bootstrap="./test/bootstrap.php">
+
+    <!-- <phpunit bootstrap="bootstrap.php"
+             printerFile="vendor/whatthejeff/nyancat-phpunit-resultprinter/src/NyanCat/PHPUnit/ResultPrinter.php"
+             printerClass="NyanCat\PHPUnit\ResultPrinter"> -->
+    <php>
+    </php>
+
+    <testsuites>
+        <testsuite name="Weaver Test Suite">
+            <directory>./test/Weaver/</directory>
+        </testsuite>
+    </testsuites>
+
+    <filter>
+        <whitelist>
+            <directory>./src/Weaver</directory>
+        </whitelist>
+    </filter>
+
+    <logging>
+        <!-- <log type="coverage-text" target="php://stdout" showUncoveredFiles="false"/> -->
+        <!-- <log type="coverage-html" target="/temp/intahwebz-db-coverage" charset="UTF-8"
+             highlight="false" lowUpperBound="35" highLowerBound="70"/> --> 
+        <log type="coverage-html" target="./var/intahwebz-db/" charset="UTF-8"
+             highlight="false" lowUpperBound="35" highLowerBound="70"/>
+    </logging>
+</phpunit>

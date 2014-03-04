@@ -4,7 +4,7 @@
 namespace Weaver;
 
 
-class WeaveInfo {
+abstract class WeaveInfo {
 
     private $decoratorClass;
     
@@ -12,9 +12,18 @@ class WeaveInfo {
     
     protected $interface = null;
 
-    function __construct($decoratorClass, array $methodBindingArray) {
+    function __construct($decoratorClass, MethodBinding $methodBinding = null) {
         $this->decoratorClass = $decoratorClass;
-        $this->methodBindingArray = $methodBindingArray;
+        $this->methodBindingArray = array();
+
+        $args = func_get_args();
+
+        for ($i=1 ; $i<func_num_args() ; $i++) {
+            $methodBinding = $args[$i];
+            if ($methodBinding != null) {
+                $this->methodBindingArray[] = $methodBinding;
+            }
+        }
     }
 
     /**
@@ -30,8 +39,6 @@ class WeaveInfo {
     function getMethodBindingArray() {
         return $this->methodBindingArray;
     }
-
-
 
     function getInterface() {
         return $this->interface;

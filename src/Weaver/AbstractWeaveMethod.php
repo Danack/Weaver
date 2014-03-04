@@ -12,8 +12,6 @@ use Zend\Code\Reflection\MethodReflection;
 use Zend\Code\Reflection\ClassReflection;
 
 
-//$decoratorUseParams = getUseParams($addedParameters);
-
 function getConstructorParamsString($constructorParameters, $includeTypeHints = false) {
     $string = '';
     $separator = '';
@@ -99,6 +97,11 @@ abstract class AbstractWeaveMethod {
         return $this->decoratorReflector->getShortName()."X".$this->sourceReflector->getShortName();
     }
 
+    /**
+     * Adds the properties and constants from the decorating class to the
+     * class being weaved.
+     * @param $originalSourceClass
+     */
     function addPropertiesAndConstants($originalSourceClass) {
         $constants = $this->decoratorReflector->getConstants();
 
@@ -332,9 +335,8 @@ END;
      * @return null|MethodBinding
      */
     function getMethodBindingForMethod($name) {
-
         foreach ($this->methodBindingArray as $methodBinding) {
-            if ($methodBinding->getFunctionName() == $name) {
+            if ($methodBinding->matchesMethod($name) == true) {
                 return $methodBinding;
             }
         }
