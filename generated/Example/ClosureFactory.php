@@ -15,38 +15,10 @@ namespace Example {
 
 namespace {
 
-function createTimerProxyXTestClassFactory(\Intahwebz\Timer $timer) {
-
-    $closure = function ($queryString) use ($timer) {
-        $object = new \Example\TimerProxyXTestClass(
-            $queryString, $timer
-        );
-
-        return $object;
-    };
-
-    return new ClosureTestClassFactory($closure);
-}
-
-
-function createCacheProxyXTimerProxyXTestClassFactory(\Intahwebz\Timer $timer, \Intahwebz\ObjectCache $cache) {
-
-    $closure = function ($queryString) use ($timer, $cache) {
-        $object = new \Example\CacheProxyXTimerProxyXTestClass(
-            $queryString, $timer, $cache
-        );
-
-        return $object;
-    };
-
-    return new ClosureTestClassFactory($closure);
-}
-
-
-function createLazyProxyXTestClassFactory() {
+function createProxyWithConstantXTestClassFactory() {
 
     $closure = function ($queryString)  {
-        $object = new \Example\LazyProxyXTestClass(
+        $object = new \Example\ProxyWithConstantXTestClass(
             $queryString
         );
 

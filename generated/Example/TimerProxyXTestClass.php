@@ -23,6 +23,15 @@ class TimerProxyXTestClass extends \Example\TestClass
         return $result;
     }
 
+    public function noReturn()
+    {
+        $this->timer->startTimer($this->queryString);
+        $result = parent::noReturn();
+        $this->timer->stopTimer();
+
+        return $result;
+    }
+
     public function reportTimings()
     {
         $this->timer->dumpTime();

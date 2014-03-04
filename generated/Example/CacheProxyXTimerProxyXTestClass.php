@@ -17,16 +17,16 @@ class CacheProxyXTimerProxyXTestClass extends \Example\TimerProxyXTestClass
     public function executeQuery($params)
     {
         $cacheKey = $this->getCacheKey($this->queryString);
-                   $cachedValue = $this->cache->get($cacheKey);
-                   
-                   if ($cachedValue) {
-                       echo "Result is in cache.\n";
-                       return $cachedValue;
-                   }
-                   
+                       $cachedValue = $this->cache->get($cacheKey);
+                       
+                       if ($cachedValue) {
+                           echo "Result is in cache.\n";
+                           return $cachedValue;
+                       }
+                       
         $result = parent::executeQuery($params);
         echo "Result was not in cache\n";
-                        $this->cache->put($cacheKey, $result);
+                            $this->cache->put($cacheKey, $result);
 
         return $result;
     }

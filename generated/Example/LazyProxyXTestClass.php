@@ -30,7 +30,14 @@ class LazyProxyXTestClass implements TestInterface
         return $result;
     }
 
-    public function __construct($queryString)
+    public function noReturn()
+    {
+        $this->init();
+        $result = $this->lazyInstance->noReturn();
+        return $result;
+    }
+
+    public function __construct($queryString, SomeFactory $someFactory)
     {
         $this->queryString = $queryString;
     }
@@ -38,7 +45,7 @@ class LazyProxyXTestClass implements TestInterface
     public function init()
     {
         if ($this->lazyInstance == null) {
-                    $this->lazyInstance = new \Example\TestClass($this->queryString);
+                    $this->lazyInstance = $this->someFactory->create($this->queryString);
         }
     }
 
