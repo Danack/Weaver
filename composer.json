@@ -36,7 +36,7 @@
     },
 
     "require": {
-        "intahwebz/core": "dev-master",
+        "intahwebz/core": ">=0.1.2",
         "php": ">=5.4.0",
         "zendframework/zend-code": "2.*"
     },
