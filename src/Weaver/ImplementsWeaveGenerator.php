@@ -11,7 +11,7 @@ use Zend\Code\Reflection\MethodReflection;
 use Zend\Code\Reflection\ClassReflection;
 
 
-class ImplementsWeaveMethod extends AbstractWeaveMethod  {
+class ImplementsWeaveGenerator extends SingleClassWeaveGenerator  {
 
     /**
      * @param $sourceClass
@@ -195,6 +195,25 @@ class ImplementsWeaveMethod extends AbstractWeaveMethod  {
         return $closureFactoryName;
     }
 
+    //TODO - move to singleSourceClassGenerator
+    function getNamespaceName() {
+        return $this->sourceReflector->getNamespaceName();
+    }
+
+    //TODO - move to singleSourceClassGenerator
+    function getProxiedName() {
+        return $this->decoratorReflector->getShortName()."X".$this->sourceReflector->getShortName();
+    }
+
+    function setupClassName() {
+        $this->generator->setName($this->getFQCN());
+        $interface = $this->getInterface();
+
+        //if ($interface) {
+            $interfaces = array($interface);
+            $this->generator->setImplementedInterfaces($interfaces);
+        //}
+    }
 }
 
  

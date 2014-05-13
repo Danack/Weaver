@@ -19,19 +19,23 @@ class Weaver {
      * @param $savePath
      */
     function weaveClass($sourceClass, $weaveInfoArray, $savePath, $closureFactoryName) {
-
         $originalSourceClass = $sourceClass;
 
         foreach ($weaveInfoArray as $weaveInfo) {
             $decoratorClass = $weaveInfo->getDecoratorClass();
-            
-            $methodBindingArray = $weaveInfo->getMethodBindingArray();
-            
+
             if ($weaveInfo instanceof \Weaver\ImplementsWeaveInfo) {
-                $weaveMethod = new ImplementsWeaveMethod($sourceClass, $decoratorClass, $weaveInfo);
+                $weaveMethod = new ImplementsWeaveGenerator($sourceClass, $decoratorClass, $weaveInfo);
+            }
+            else if ($weaveInfo instanceof \Weaver\CompositeWeaveInfo) {
+
+                //$originalSourceClass = $weaveInfo->getOutputClassname();
+
+                $weaveMethod = new CompositeWeaveGenerator($weaveInfo);
             }
             else {
-                $weaveMethod = new ExtendWeaveMethod($sourceClass, $decoratorClass, $methodBindingArray);
+                $methodBindingArray = $weaveInfo->getMethodBindingArray();
+                $weaveMethod = new ExtendWeaveGenerator($sourceClass, $decoratorClass, $methodBindingArray);
             }
 
             $sourceClass = $weaveMethod->getFQCN();
@@ -81,8 +85,6 @@ namespace $namespace {
         }
     }
 }
-
-
 
 END;
 

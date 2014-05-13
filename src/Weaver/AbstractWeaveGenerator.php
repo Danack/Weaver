@@ -3,7 +3,7 @@
 
 namespace Weaver;
 
-use Zend\Code\Generator\ClassGenerator;
+
 use Zend\Code\Generator\DocBlockGenerator;
 use Zend\Code\Generator\MethodGenerator;
 use Zend\Code\Generator\ParameterGenerator;
@@ -35,36 +35,37 @@ function getConstructorParamsString($constructorParameters, $includeTypeHints = 
 }
 
 
-abstract class AbstractWeaveMethod {
+abstract class AbstractWeaveGenerator {
+
+   
 
     /**
      * @var ClassReflection
      */
-    protected $sourceReflector;
+    protected $decoratorClassReflector;
 
     /**
-     * @var ClassReflection
-     */
-    protected $decoratorReflector;
-
-    /**
-     * @var ClassGenerator
+     * @var \Zend\Code\Generator\ClassGenerator
      */
     protected $generator;
 
-    /**
-     * @var MethodBinding[]
-     */
-    protected $methodBindingArray;
+//    /**
+//     * @var MethodBinding[]
+//     */
+//    protected $methodBindingArray;
 
     /**
      * @var string
      */
     private $fqcn = null;
 
+    /**
+     * @return string
+     */
     function getFQCN() {
         if ($this->fqcn == null) {
-            $namespace = $this->sourceReflector->getNamespaceName();
+
+            $namespace = $this->getNamespaceName();
             $classname = $this->getProxiedName();
 
             if (strlen($namespace)) {
@@ -77,39 +78,19 @@ abstract class AbstractWeaveMethod {
 
         return $this->fqcn;
     }
-    
-    
-
-    function setupClassName() {
-        $this->generator->setName($this->getFQCN());
-        $interface = $this->getInterface();
-
-        if ($interface) {
-            $interfaces = array($interface);
-            $this->generator->setImplementedInterfaces($interfaces);
-        }
-        else {
-            $this->generator->setExtendedClass('\\'.$this->sourceReflector->getName());
-        }
-    }
-
-    function getProxiedName() {
-        return $this->decoratorReflector->getShortName()."X".$this->sourceReflector->getShortName();
-    }
 
     /**
-     * Adds the properties and constants from the decorating class to the
-     * class being weaved.
+     * @param ClassReflection $reflector
      * @param $originalSourceClass
      */
-    function addPropertiesAndConstants($originalSourceClass) {
-        $constants = $this->decoratorReflector->getConstants();
+    function addPropertiesAndConstantsForReflector(ClassReflection $reflector, $originalSourceClass) {
+        $constants = $reflector->getConstants();
 
         foreach ($constants as $name => $value) {
             $this->generator->addProperty($name, $value, PropertyGenerator::FLAG_CONSTANT);
         }
 
-        $properties = $this->decoratorReflector->getProperties();
+        $properties = $reflector->getProperties();
 
         foreach ($properties as $property) {
             $newProperty = PropertyGenerator::fromReflection($property);
@@ -117,7 +98,12 @@ abstract class AbstractWeaveMethod {
             $this->generator->addPropertyFromGenerator($newProperty);
         }
     }
+        
+    
 
+    /**
+     * @return null|MethodReflection
+     */
     function addDecoratorMethods() {
 
         $decoratorConstructorMethod = null;
@@ -152,69 +138,6 @@ abstract class AbstractWeaveMethod {
         return $decoratorConstructorMethod;
     }
 
-
-    function generateFactoryClosure(
-        $originalSourceClass,
-        $constructorParameters,
-        $closureFactoryName,
-        MethodReflection $sourceConstructorMethod = null,
-        MethodReflection $decoratorConstructorMethod = null
-    ) {
-
-        $fqcn = $this->getFQCN();
-
-        if ($decoratorConstructorMethod != null) {
-            $parameters = $decoratorConstructorMethod->getParameters();
-            foreach ($parameters as $reflectionParameter) {
-                $generatedParameters[] = ParameterGenerator::fromReflection($reflectionParameter);
-            }
-        }
-
-        $className = '\\'.$fqcn;
-
-        $addedParameters = $this->getAddedParameters($originalSourceClass, $constructorParameters);
-
-        $originalSourceReflection = new ClassReflection($originalSourceClass);
-        $originalConstructorParameters = array();
-        $originalConstructor = $originalSourceReflection->getConstructor();
-        
-        if ($originalConstructor) {
-            $originalConstructorParameters = $originalConstructor->getParameters();
-        }
-
-        $allParams = getConstructorParamsString($constructorParameters);
-
-
-        $decoratorParamsWithType = getConstructorParamsString($addedParameters, true);
-
-        $decoratorUseParams = '';
-        if (count($addedParameters)) {
-            $decoratorUseParams = 'use ('.getConstructorParamsString($addedParameters).')';
-        }
-    
-        $objectParams = getConstructorParamsString($originalConstructorParameters);
-            
-        $createClosureFactoryName = 'create'.$this->getProxiedName().'Factory';
-
-        $function = <<< END
-function $createClosureFactoryName($decoratorParamsWithType) {
-
-    \$closure = function ($objectParams) $decoratorUseParams {
-        \$object = new $className(
-            $allParams
-        );
-
-        return \$object;
-    };
-
-    return new $closureFactoryName(\$closure);
-}
-
-END;
-        return $function;
-    }
-
-
     /**
      * @param $originalSourceClass
      * @param $constructorParameters MethodReflection[]
@@ -235,11 +158,9 @@ END;
         $addedParameters = array();
         
         if (is_array($constructorParameters) == false) {
-            var_dump($constructorParameters);
-            exit(0);
+            throw new \ErrorException("Constructor params needs to be an array, for some reason it isn't.");
         }
-            
-        
+
         foreach ($constructorParameters as $constructorParameter) {
             $presentInOriginal = false;
             
@@ -257,15 +178,14 @@ END;
         return $addedParameters;
     }
 
+    /**
+     * @param $savePath
+     * @throws \RuntimeException
+     */
+    protected function saveFile($savePath, $text) {
 
-
-
-    function saveFile($savePath) {
-
-        $fqcn = $this->getFQCN();
-        $filename = $savePath.'/'.$fqcn.'.php';
-        $filename = str_replace('\\', '/', $filename);
-        ensureDirectoryExists($filename);
+        mkdir($savePath, true);
+        $filename = str_replace('\\', '/', $this->getFQCN());
 
         $fileHeader = <<< END
 <?php
@@ -274,10 +194,10 @@ END;
 //
 //Do not be surprised if any changes to this file are over-written.
 
-
 END;
 
-        $written = file_put_contents($filename, $fileHeader.$this->generator->generate());
+        $text = $this->applyHacks($text);
+        $written = file_put_contents($savePath.'/'.$filename, $fileHeader.$text);
 
         if ($written == false) {
             throw new \RuntimeException("Failed to write file $filename.");
@@ -285,50 +205,7 @@ END;
     }
 
 
-
-    function addProxyMethods() {
-
-        $sourceConstructorMethod = null;
-
-        $methods = $this->sourceReflector->getMethods();
-
-        foreach ($methods as $method) {
-            $name = $method->getName();
-
-            if ($name == '__construct') {
-                $sourceConstructorMethod = $method;
-                continue;
-            }
-
-            $parameters = $method->getParameters();
-            $docBlock = $method->getDocBlock();
-
-            if ($docBlock) {
-                $docBlock = DocBlockGenerator::fromReflection($docBlock);
-            }
-
-            $generatedParameters = array();
-
-            foreach ($parameters as $reflectionParameter) {
-                $generatedParameters[] = ParameterGenerator::fromReflection($reflectionParameter);
-            }
-
-            $newBody = $this->generateProxyMethodBody($method);
-
-            if ($newBody) {
-                $this->generator->addMethod(
-                    $name,
-                    $generatedParameters,
-                    MethodGenerator::FLAG_PUBLIC,
-                    $newBody,
-                    $docBlock
-                );
-            }
-        }
-
-        return $sourceConstructorMethod;
-    }
-
+   
 
     /**
      * @param $name
@@ -351,12 +228,38 @@ END;
      */
     abstract function generate($savePath, $originalSourceClass, $closureFactoryName);
 
+    /**
+     * @param MethodReflection $methodReflection
+     * @return mixed
+     */
     abstract function generateProxyMethodBody(MethodReflection $methodReflection);
 
+    /**
+     * @return mixed
+     */
     abstract function getInterface();
 
+    /**
+     * Get the name of the generated factory class that creates this weaved class.
+     * @return mixed
+     */
     abstract function getClosureFactoryName();
-    
+
+    abstract function getNamespaceName();
+
+    abstract function getProxiedName();
+
+    abstract function setupClassName();
+
+    abstract function addProxyMethods();
+
+    abstract function addPropertiesAndConstants($originalSourceClass);
+
+    function applyHacks($sourceCode) {
+        return $sourceCode;
+    }
+
+    abstract function generateFactoryClosure();
 }
 
  

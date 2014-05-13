@@ -31,7 +31,6 @@ class ImplementsWeaveInfo extends WeaveInfo {
 
         $this->instanceFactoryName = $instanceFactoryName;
         $this->instanceFactoryMethod = $instanceFactoryMethod;
-
     }
 
     /**
@@ -47,11 +46,17 @@ class ImplementsWeaveInfo extends WeaveInfo {
     function getLazyPropertyName() {
         return $this->lazyPropertyName;
     }
-    
+
+    /**
+     * @return string
+     */
     function getInstanceFactorySignature() {
         return '$this->'.lcfirst($this->instanceFactoryName).'->'.$this->instanceFactoryMethod; //byte-safe
     }
 
+    /**
+     * @return null
+     */
     function getFactoryParam() {
         if (!$this->instanceFactoryName) {
             return null;
