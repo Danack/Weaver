@@ -10,6 +10,12 @@ class MethodBinding {
     private $before;
     private $after;
 
+    /**
+     * @param MethodMatcher $methodMatcher
+     * @param $before
+     * @param $after
+     * @param bool $hasResult
+     */
     function __construct(MethodMatcher $methodMatcher, $before, $after, $hasResult = true) {
         $this->methodMatcher = $methodMatcher;
         $this->before = $before;
@@ -38,6 +44,10 @@ class MethodBinding {
         return $this->before;
     }
 
+    /**
+     * @param $methodName
+     * @return bool
+     */
     function matchesMethod($methodName) {
         return $this->methodMatcher->matches($methodName);
     }

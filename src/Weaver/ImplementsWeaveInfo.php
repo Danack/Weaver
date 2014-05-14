@@ -11,8 +11,10 @@ class ImplementsWeaveInfo extends WeaveInfo {
     private $initMethodName;
     private $lazyPropertyName;
     private $instanceFactoryName;
+    protected $interface = null;
 
     function __construct(
+        $sourceClass,
         $decoratorClass, 
         $interface,
         $initMethodName,
@@ -20,7 +22,7 @@ class ImplementsWeaveInfo extends WeaveInfo {
         $instanceFactoryName = null,
         $instanceFactoryMethod = null
     ) {
-        parent::__construct($decoratorClass, null);
+        parent::__construct($sourceClass, $decoratorClass, null);
         $this->initMethodName = $initMethodName;
         $this->lazyPropertyName = $lazyPropertyName;
         $this->interface = $interface;
@@ -32,6 +34,7 @@ class ImplementsWeaveInfo extends WeaveInfo {
         $this->instanceFactoryName = $instanceFactoryName;
         $this->instanceFactoryMethod = $instanceFactoryMethod;
     }
+    
 
     /**
      * @return string
@@ -48,6 +51,7 @@ class ImplementsWeaveInfo extends WeaveInfo {
     }
 
     /**
+     * Returns the factory if specified by the config
      * @return string
      */
     function getInstanceFactorySignature() {
@@ -66,6 +70,11 @@ class ImplementsWeaveInfo extends WeaveInfo {
         $params['type'] = $this->instanceFactoryName;
 
         return ParameterGenerator::fromArray($params);
+    }
+
+
+    function getInterface() {
+        return $this->interface;
     }
 }
 

@@ -9,8 +9,8 @@ use Auryn\Provider;
 
 error_reporting(E_ALL);
 
-$autoloader = require_once(realpath(dirname(__FILE__).'/../vendor/autoload.php'));
 
+$autoloader = require realpath(dirname(__FILE__).'/../vendor/autoload.php');
 
 $autoloader->add(
     'Example', 

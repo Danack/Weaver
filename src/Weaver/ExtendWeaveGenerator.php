@@ -12,7 +12,11 @@ use Zend\Code\Reflection\ClassReflection;
 
 class ExtendWeaveGenerator extends SingleClassWeaveGenerator {
 
-
+    /**
+     * @var MethodBinding[]
+     */
+    protected $methodBindingArray;
+    
     /**
      * @param $sourceClass
      * @param $decoratorClass
@@ -24,7 +28,9 @@ class ExtendWeaveGenerator extends SingleClassWeaveGenerator {
         $this->decoratorReflector = new ClassReflection($decoratorClass);
         $this->generator = new ClassGenerator();
         $this->methodBindingArray = $methodBindingArray;
-        $this->setupClassName();
+        $this->generator->setName($this->getFQCN());
+        $this->generator->setExtendedClass('\\'.$this->sourceReflector->getName());
+
     }
 
     /**
@@ -40,43 +46,43 @@ class ExtendWeaveGenerator extends SingleClassWeaveGenerator {
      * @param $closureFactoryName
      * @return null|string
      */
-    function generate($savePath, $originalSourceClass, $closureFactoryName) {
-        $sourceConstructorMethod = $this->addProxyMethods();
-        $decoratorConstructorMethod = $this->addDecoratorMethods();
-        $constructorParameters = $this->addProxyConstructor($sourceConstructorMethod, $decoratorConstructorMethod);
-        $this->addPropertiesAndConstants($originalSourceClass);
-        $this->saveFile($savePath);
-
-        $factoryClosure = $this->generateFactoryClosure(
-                               $originalSourceClass,
-                               $constructorParameters,
-                               $closureFactoryName,
-                               $sourceConstructorMethod,
-                               $decoratorConstructorMethod);
-
-        return $factoryClosure;
+    function writeClass($outputDir) {
+        $this->addProxyMethods();
+        $this->addDecoratorMethods();
+        $this->addProxyConstructor();
+        $this->addPropertiesAndConstants();
+        $this->generator->setName($this->getFQCN());
+        \Weaver\saveFile($outputDir, $this->getFQCN(), $this->generator->generate());
     }
 
+
+    /**
+     * @param $name
+     * @return null|MethodBinding
+     */
+    function getMethodBindingForMethod($name) {
+        foreach ($this->methodBindingArray as $methodBinding) {
+            if ($methodBinding->matchesMethod($name) == true) {
+                return $methodBinding;
+            }
+        }
+
+        return null;
+    }
 
     /**
      * @param MethodReflection $sourceConstructorMethod
      * @param MethodReflection $decoratorConstructorMethod
      * @return array
      */
-    function addProxyConstructor(
-        MethodReflection $sourceConstructorMethod = null,
-        MethodReflection $decoratorConstructorMethod = null
-    ) {
-
+    function addProxyConstructor() {
         $constructorBody = '';
-
         $generatedParameters = array();
 
+        $sourceConstructorMethod = $this->sourceReflector->getConstructor();
         if ($sourceConstructorMethod != null) {
             $parameters = $sourceConstructorMethod->getParameters();
-
             $constructorBody .= 'parent::__construct(';
-
             $separator = '';
 
             foreach ($parameters as $reflectionParameter) {
@@ -88,6 +94,7 @@ class ExtendWeaveGenerator extends SingleClassWeaveGenerator {
             $constructorBody .= ");\n";
         }
 
+        $decoratorConstructorMethod = $this->decoratorReflector->getConstructor();
         if ($decoratorConstructorMethod != null) {
             $parameters = $decoratorConstructorMethod->getParameters();
             foreach ($parameters as $reflectionParameter) {
@@ -115,7 +122,6 @@ class ExtendWeaveGenerator extends SingleClassWeaveGenerator {
      */
     function generateProxyMethodBody(MethodReflection $method) {
         $name = $method->getName();
-
         $methodBinding = $this->getMethodBindingForMethod($name);
 
         if (!$methodBinding) {
@@ -123,7 +129,6 @@ class ExtendWeaveGenerator extends SingleClassWeaveGenerator {
         }
 
         $newBody = '';
-        
         $beforeFunction = $methodBinding->getBefore();
         
         if ($beforeFunction) {
@@ -169,27 +174,13 @@ class ExtendWeaveGenerator extends SingleClassWeaveGenerator {
         return $closureFactoryName;
     }
 
-
-    //TODO - move to singleSourceClassGenerator
-    function getNamespaceName() {
-        return $this->sourceReflector->getNamespaceName();
-    }
-
-    //TODO - move to singleSourceClassGenerator
-    function getProxiedName() {
-        return $this->decoratorReflector->getShortName()."X".$this->sourceReflector->getShortName();
-    }
-
     /**
-     *
+     * @param $directory
+     * @throws \Exception
      */
-    function setupClassName() {
-        $this->generator->setName($this->getFQCN());
-        $this->generator->setExtendedClass('\\'.$this->sourceReflector->getName());
+    function writeFactory($directory) {
+        throw new \Exception("writefactory not implemented.");
     }
-
-
-
 }
 
  

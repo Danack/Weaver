@@ -12,23 +12,23 @@ use Zend\Code\Reflection\ClassReflection;
 
 
 class ImplementsWeaveGenerator extends SingleClassWeaveGenerator  {
-
+    
     /**
      * @param $sourceClass
      * @param $decoratorClass
      * @param $methodBindingArray MethodBinding[]
      */
-    function __construct(
-        $sourceClass, 
-        $decoratorClass, 
-        ImplementsWeaveInfo $implementsWeaveInfo) {
-
-        $this->sourceReflector = new ClassReflection($sourceClass);
-        $this->decoratorReflector = new ClassReflection($decoratorClass);
+    function __construct(ImplementsWeaveInfo $implementsWeaveInfo) {
+        $this->implementsWeaveInfo = $implementsWeaveInfo;
+        $this->sourceReflector = new ClassReflection($implementsWeaveInfo->getSourceClass());
+        $this->decoratorReflector = new ClassReflection($implementsWeaveInfo->getDecoratorClass());
         $this->generator = new ClassGenerator();
         $this->methodBindingArray = $implementsWeaveInfo->getMethodBindingArray();
-        $this->implementsWeaveInfo = $implementsWeaveInfo;
-        $this->setupClassName();
+
+        $this->generator->setName($this->getFQCN());
+        $interface = $this->implementsWeaveInfo->getInterface();
+        $interfaces = array($interface);
+        $this->generator->setImplementedInterfaces($interfaces);
     }
 
     /**
@@ -37,20 +37,12 @@ class ImplementsWeaveGenerator extends SingleClassWeaveGenerator  {
      * @param $closureFactoryName
      * @return null|string
      */
-    function generate($savePath, $originalSourceClass, $closureFactoryName) {
-        $sourceConstructorMethod = $this->addProxyMethods();
-        $decoratorConstructorMethod = $this->addDecoratorMethods();
-        $constructorParameters = $this->addInitMethod($sourceConstructorMethod, $decoratorConstructorMethod);
-        $this->addPropertiesAndConstants($originalSourceClass);
-        $this->saveFile($savePath);
-        $factoryClosure = $this->generateFactoryClosure(
-                               $originalSourceClass, 
-                               $constructorParameters, 
-                               $closureFactoryName, 
-                               $sourceConstructorMethod, 
-                               $decoratorConstructorMethod);
-
-        return $factoryClosure;
+    function writeClass($savePath) { //, $closureFactoryName) {
+        $this->addPropertiesAndConstants();
+        $this->addProxyMethods();
+        $this->addDecoratorMethods();
+        $this->addInitMethod();
+        \Weaver\saveFile($savePath, $this->getFQCN(), $this->generator->generate());
     }
 
     /**
@@ -58,17 +50,15 @@ class ImplementsWeaveGenerator extends SingleClassWeaveGenerator  {
      * @param MethodReflection $decoratorConstructorMethod
      * @return string
      */
-    function addLazyConstructor(
-        MethodReflection $sourceConstructorMethod = null,
-        MethodReflection $decoratorConstructorMethod = null
-    ) {
+    function addLazyConstructor() {
         $constructorBody = '';
         $constructorParamsString = '';
         $copyBody = '';
 
         $generatedParameters = array();
 
-        if ($sourceConstructorMethod != null) {
+        if ($this->sourceReflector->hasMethod('__construct')) {
+            $sourceConstructorMethod = $this->sourceReflector->getMethod('__construct');
             $parameters = $sourceConstructorMethod->getParameters();
             $separator = '';
 
@@ -76,12 +66,12 @@ class ImplementsWeaveGenerator extends SingleClassWeaveGenerator  {
                 $generatedParameters[] = ParameterGenerator::fromReflection($reflectionParameter);
                 $constructorParamsString .= $separator.'$this->'.$reflectionParameter->getName();
                 $separator = ', ';
-                $this->generator->addProperty($reflectionParameter->getName());
                 $copyBody .= '$this->'.$reflectionParameter->getName().' = $'.$reflectionParameter->getName().";\n";
             }
         }
 
-        if ($decoratorConstructorMethod != null) {
+        if ($this->decoratorReflector->hasMethod('__construct')) {
+            $decoratorConstructorMethod = $this->decoratorReflector->getMethod('__construct');
             $parameters = $decoratorConstructorMethod->getParameters();
             foreach ($parameters as $reflectionParameter) {
                 $generatedParameters[] = ParameterGenerator::fromReflection($reflectionParameter);
@@ -114,12 +104,9 @@ class ImplementsWeaveGenerator extends SingleClassWeaveGenerator  {
      * @param MethodReflection $decoratorConstructorMethod
      * @return \Zend\Code\Reflection\ParameterReflection[]
      */
-    function addInitMethod(MethodReflection $sourceConstructorMethod, MethodReflection $decoratorConstructorMethod = null) {
-
+    function addInitMethod() {
         $lazyPropertyName = $this->implementsWeaveInfo->getLazyPropertyName();
-
         $initBody = 'if ($this->'.$lazyPropertyName.' == null) {';
-
         $instanceFactorySignature = $this->implementsWeaveInfo->getInstanceFactorySignature();
         
         if ($instanceFactorySignature != null) {
@@ -131,11 +118,8 @@ class ImplementsWeaveGenerator extends SingleClassWeaveGenerator  {
             $this->lazyInstance = new \\'.$this->sourceReflector->getName().'(';
         }
 
-        $constructorParamsString = $this->addLazyConstructor($sourceConstructorMethod,
-            $decoratorConstructorMethod);
-
+        $constructorParamsString = $this->addLazyConstructor();
         $initBody .= $constructorParamsString;
-
         $initBody .= ");\n}";
 
         $this->generator->addMethod(
@@ -145,8 +129,6 @@ class ImplementsWeaveGenerator extends SingleClassWeaveGenerator  {
             $initBody,
             ""
         );
-
-        return $sourceConstructorMethod->getParameters();
     }
 
     /**
@@ -174,11 +156,10 @@ class ImplementsWeaveGenerator extends SingleClassWeaveGenerator  {
         return $newBody;
     }
 
+
     /**
-     * @var array
+     * @return null
      */
-    private $interfaces = array();
-    
     function getInterface() {
         return $this->implementsWeaveInfo->getInterface();
     }
@@ -195,25 +176,21 @@ class ImplementsWeaveGenerator extends SingleClassWeaveGenerator  {
         return $closureFactoryName;
     }
 
-    //TODO - move to singleSourceClassGenerator
-    function getNamespaceName() {
-        return $this->sourceReflector->getNamespaceName();
-    }
-
-    //TODO - move to singleSourceClassGenerator
+    /**
+     * @return string
+     */
     function getProxiedName() {
         return $this->decoratorReflector->getShortName()."X".$this->sourceReflector->getShortName();
     }
 
-    function setupClassName() {
-        $this->generator->setName($this->getFQCN());
-        $interface = $this->getInterface();
-
-        //if ($interface) {
-            $interfaces = array($interface);
-            $this->generator->setImplementedInterfaces($interfaces);
-        //}
+    /**
+     * @param $directory
+     * @throws WeaveException
+     */
+    function writeFactory($directory) {
+        throw new WeaveException("Not implemented.");
     }
+    
 }
 
  

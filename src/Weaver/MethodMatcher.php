@@ -3,19 +3,22 @@
 
 namespace Weaver;
 
-//
-//interface MethodMatcher {
-//    function matches($methodName);
-//}
 
 class MethodMatcher {
 
     private $methods;
 
+    /**
+     * @param array $methods
+     */
     function __construct(array $methods) {
         $this->methods = $methods;
     }
 
+    /**
+     * @param $methodName
+     * @return bool
+     */
     function matches($methodName) {
         if (in_array($methodName, $this->methods)) {
             return true;

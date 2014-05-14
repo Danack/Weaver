@@ -63,6 +63,7 @@ class CacheProxy {
         
         echo "Result was not in cache\n";
         $this->cache->put($cacheKey, $result);
+        return $result;
     }
 
 

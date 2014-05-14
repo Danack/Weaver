@@ -24,11 +24,6 @@ class CompositeWeaveInfo extends WeaveInfo {
         \Intahwebz\Functions::load();
     }
 
-//    function getOutputClassname() {
-//        return 'ImagickDemo\Control\ControlCompositeXRadiusXSigmaXImage';
-//    }
-    
-    
     /**
      * @return array
      */

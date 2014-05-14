@@ -5,9 +5,6 @@ namespace Example;
 
 class TestClass implements TestInterface {
 
-    
-
-    
     protected $queryString;
     
     function __construct($queryString) {

@@ -6,13 +6,17 @@ namespace Weaver;
 
 abstract class WeaveInfo {
 
+    
+    protected $sourceClass;
+    
     /**
      * The classname that the subject class(es) gets weaved with.
-     * @TODO why is this here?
      * @var string
      */
     protected $decoratorClass;
 
+    
+    
     /**
      * Which methods of the weaved get intercepted.
      * 
@@ -20,9 +24,10 @@ abstract class WeaveInfo {
      */
     private $methodBindingArray;
     
-    protected $interface = null;
 
-    function __construct($decoratorClass, MethodBinding $methodBinding = null) {
+
+    function __construct($sourceClass, $decoratorClass, MethodBinding $methodBinding = null) {
+        $this->sourceClass = $sourceClass;
         $this->decoratorClass = $decoratorClass;
         $this->methodBindingArray = array();
 
@@ -36,6 +41,14 @@ abstract class WeaveInfo {
         }
     }
 
+
+    /**
+     * @return string
+     */
+    public function getSourceClass() {
+        return $this->sourceClass;
+    }
+    
     /**
      * @return string
      */
@@ -51,9 +64,7 @@ abstract class WeaveInfo {
         return $this->methodBindingArray;
     }
 
-    function getInterface() {
-        return $this->interface;
-    }
+
 }
 
  
