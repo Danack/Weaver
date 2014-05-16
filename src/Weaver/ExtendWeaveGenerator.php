@@ -16,6 +16,12 @@ class ExtendWeaveGenerator extends SingleClassWeaveGenerator {
      * @var MethodBinding[]
      */
     protected $methodBindingArray;
+
+
+    /**
+     * @var ExtendWeaveInfo
+     */
+    private $extendWeaveInfo;
     
     /**
      * @param $sourceClass
@@ -23,14 +29,13 @@ class ExtendWeaveGenerator extends SingleClassWeaveGenerator {
      * @param $methodBindingArray
      * @internal param \Weaver\MethodBinding[] $methodBinding
      */
-    function __construct($sourceClass, $decoratorClass, $methodBindingArray) {
-        $this->sourceReflector = new ClassReflection($sourceClass);
-        $this->decoratorReflector = new ClassReflection($decoratorClass);
+    function __construct(ExtendWeaveInfo $extendWeaveInfo) {
+        $this->extendWeaveInfo = $extendWeaveInfo;
+        $this->sourceReflector = new ClassReflection($extendWeaveInfo->getSourceClass());
+        $this->decoratorReflector = new ClassReflection($extendWeaveInfo->getDecoratorClass());
         $this->generator = new ClassGenerator();
-        $this->methodBindingArray = $methodBindingArray;
         $this->generator->setName($this->getFQCN());
         $this->generator->setExtendedClass('\\'.$this->sourceReflector->getName());
-
     }
 
     /**
@@ -53,6 +58,8 @@ class ExtendWeaveGenerator extends SingleClassWeaveGenerator {
         $this->addPropertiesAndConstants();
         $this->generator->setName($this->getFQCN());
         \Weaver\saveFile($outputDir, $this->getFQCN(), $this->generator->generate());
+        
+        return $this->getFQCN();
     }
 
 
@@ -61,7 +68,7 @@ class ExtendWeaveGenerator extends SingleClassWeaveGenerator {
      * @return null|MethodBinding
      */
     function getMethodBindingForMethod($name) {
-        foreach ($this->methodBindingArray as $methodBinding) {
+        foreach ($this->extendWeaveInfo->getMethodBindingArray() as $methodBinding) {
             if ($methodBinding->matchesMethod($name) == true) {
                 return $methodBinding;
             }
@@ -79,8 +86,8 @@ class ExtendWeaveGenerator extends SingleClassWeaveGenerator {
         $constructorBody = '';
         $generatedParameters = array();
 
-        $sourceConstructorMethod = $this->sourceReflector->getConstructor();
-        if ($sourceConstructorMethod != null) {
+        if ($this->sourceReflector->hasMethod('__construct')) {
+            $sourceConstructorMethod = $this->sourceReflector->getMethod('__construct');
             $parameters = $sourceConstructorMethod->getParameters();
             $constructorBody .= 'parent::__construct(';
             $separator = '';
@@ -94,14 +101,16 @@ class ExtendWeaveGenerator extends SingleClassWeaveGenerator {
             $constructorBody .= ");\n";
         }
 
-        $decoratorConstructorMethod = $this->decoratorReflector->getConstructor();
-        if ($decoratorConstructorMethod != null) {
-            $parameters = $decoratorConstructorMethod->getParameters();
-            foreach ($parameters as $reflectionParameter) {
-                $generatedParameters[] = ParameterGenerator::fromReflection($reflectionParameter);
+        if ($this->decoratorReflector->hasMethod('__construct')) {
+            $decoratorConstructorMethod = $this->decoratorReflector->getMethod('__construct');
+            if ($decoratorConstructorMethod != null) {
+                $parameters = $decoratorConstructorMethod->getParameters();
+                foreach ($parameters as $reflectionParameter) {
+                    $generatedParameters[] = ParameterGenerator::fromReflection($reflectionParameter);
+                }
+    
+                $constructorBody .= $decoratorConstructorMethod->getBody();
             }
-
-            $constructorBody .= $decoratorConstructorMethod->getBody();
         }
 
         $this->generator->addMethod(

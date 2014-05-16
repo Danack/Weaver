@@ -78,7 +78,6 @@ class CompositeWeaveGenerator implements WeaveGenerator {
         foreach ($this->compositeClassReflectionArray as $sourceReflector) {
             foreach ($sourceReflector->getMethods() as $methodReflection) {
                 if (strcmp($methodReflection->getName(), '__construct') === 0) {
-                    
                     $methodGenerator = MethodGenerator::fromReflection($methodReflection);
                     $methodGenerator->setVisibility(\Zend\Code\Generator\AbstractMemberGenerator::VISIBILITY_PRIVATE);
                     $modifiedConstructorName = 'construct_'.getClassName($sourceReflector->getName());
@@ -154,7 +153,7 @@ class CompositeWeaveGenerator implements WeaveGenerator {
     function getProxiedName() {
         $proxiedName = $this->containerClassReflection->getShortName();
         foreach ($this->compositeClassReflectionArray as $sourceReflector) {
-            $proxiedName .= "X".$sourceReflector->getShortName();
+            $proxiedName .= $sourceReflector->getShortName();
         }
 
         return $proxiedName;

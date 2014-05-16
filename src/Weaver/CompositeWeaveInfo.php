@@ -16,7 +16,7 @@ class CompositeWeaveInfo extends WeaveInfo {
         array $encapsulateMethods = []
     ) {
 
-        parent::__construct($decoratorClass, null);
+        //parent::__construct($decoratorClass, []);
         $this->decoratorClass = $decoratorClass;
         $this->composites = $composites;
         $this->encapsulateMethods = $encapsulateMethods;

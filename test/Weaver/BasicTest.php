@@ -20,38 +20,46 @@ class BasicTest extends \PHPUnit_Framework_TestCase {
     function testExtendWeave() {
 
         /*
-        
-        $methodBinding = new MethodBinding(
+        $timerMethodBinding = new MethodBinding(
             new MethodMatcher(['executeQuery', 'noReturn']),
             '$this->timer->startTimer($this->queryString);',
             '$this->timer->stopTimer();'
         );
 
         $timerWeaveInfo = new ExtendWeaveInfo(
+            'Example\TestClass',
             'Weaver\Weave\TimerProxy',
-            $methodBinding
+            [$timerMethodBinding]
         );
+
+        $weaver = new ExtendWeaveGenerator($timerWeaveInfo);
+        $previousClass = $weaver->writeClass($this->outputDir);
+
+        $cacheMethodBinding = new MethodBinding(
+            new MethodMatcher(['executeQuery']),
+            '
+            $cacheKey = $this->getCacheKey($this->queryString);
+            $cachedValue = $this->cache->get($cacheKey);
+            
+            if ($cachedValue) {
+                echo "Result is in cache.\n";
+                return $cachedValue;
+            }
+            ',
+            'echo "Result was not in cache\n";
+                $this->cache->put($cacheKey, $result);'
+        ); */
 
         $cacheWeaveInfo = new ExtendWeaveInfo(
+            'Example\TestClass',
             'Weaver\Weave\CacheProxy',
-
-            new MethodBinding(
-                new MethodMatcher(['executeQuery']),
-               '
-               $cacheKey = $this->getCacheKey($this->queryString);
-               $cachedValue = $this->cache->get($cacheKey);
-               
-               if ($cachedValue) {
-                   echo "Result is in cache.\n";
-                   return $cachedValue;
-               }
-               ',
-                'echo "Result was not in cache\n";
-                    $this->cache->put($cacheKey, $result);'
-            )
+            []
         );
 
-
+        $weaver = new ExtendWeaveGenerator($cacheWeaveInfo);
+        $weaver->writeClass($this->outputDir);
+        
+        /*
         $weaver = new Weaver();
 
         $weaver->weaveClass(
@@ -72,19 +80,22 @@ class BasicTest extends \PHPUnit_Framework_TestCase {
      * 
      */
     function testInstanceWeave() {
-        
-        /*
-        $weaver = new Weaver();
 
         $lazyWeaveInfo = new ImplementsWeaveInfo(
+            'Example\TestClass',
             'Weaver\Weave\LazyProxy',
             'TestInterface',
             'init',
-            'lazyInstance'
+            'lazyInstance' //This is not actually really used?
         );
 
+        $weaver = new ImplementsWeaveGenerator($lazyWeaveInfo);
+        $weaver->writeClass($this->outputDir);
+
+        /*
+        $weaver = new Weaver();
         $weaver->weaveClass(
-            'Example\TestClass',
+            ,
             array(
                 $lazyWeaveInfo,
             ),
@@ -114,7 +125,6 @@ class BasicTest extends \PHPUnit_Framework_TestCase {
         );
 
         $weaver = new ImplementsWeaveGenerator($lazyWeaveInfo);
-
         $weaver->writeClass($this->outputDir);
 
 /*        $weaver->weaveClass(
@@ -135,23 +145,30 @@ class BasicTest extends \PHPUnit_Framework_TestCase {
      * 
      */
     function testConst() {
-        
-        /*
-        $timerWeaveInfo = new ExtendWeaveInfo('\Example\Proxy\ProxyWithConstant', null);
 
-        $weaver = new Weaver();
-        $weaver->weaveClass(
+        $timerWeaveInfo = new ExtendWeaveInfo(
             'Example\TestClass',
-            array(
-                $timerWeaveInfo
-            ),
-            $this->outputDir,
-            'ClosureTestClassFactory'
+            '\Example\Proxy\ProxyWithConstant', 
+            []
         );
+
+        $weaver = new ExtendWeaveGenerator($timerWeaveInfo);
+        $weaver->writeClass($this->outputDir);
+            
+            
+//        $weaver = new Weaver();
+//        $weaver->weaveClass(
+//            'Example\TestClass',
+//            array(
+//                $timerWeaveInfo
+//            ),
+//            $this->outputDir,
+//            'ClosureTestClassFactory'
+//        );
      
-         $this->writeFactories($weaver);
+        // $this->writeFactories($weaver);
         
-        */
+        
     }
 
 

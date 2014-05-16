@@ -106,6 +106,7 @@ class ImplementsWeaveGenerator extends SingleClassWeaveGenerator  {
      */
     function addInitMethod() {
         $lazyPropertyName = $this->implementsWeaveInfo->getLazyPropertyName();
+
         $initBody = 'if ($this->'.$lazyPropertyName.' == null) {';
         $instanceFactorySignature = $this->implementsWeaveInfo->getInstanceFactorySignature();
         

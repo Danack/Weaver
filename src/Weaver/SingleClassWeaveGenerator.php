@@ -104,7 +104,7 @@ abstract class SingleClassWeaveGenerator implements WeaveGenerator {
      * @param $originalSourceClass
      */
     function addPropertiesAndConstantsForReflector(ClassReflection $reflector ) {
-        $originalSourceClass = $reflector->getShortName();
+        //$originalSourceClass = $reflector->getShortName();
         $constants = $reflector->getConstants();
         foreach ($constants as $name => $value) {
             $this->generator->addProperty($name, $value, PropertyGenerator::FLAG_CONSTANT);
@@ -113,7 +113,9 @@ abstract class SingleClassWeaveGenerator implements WeaveGenerator {
         $properties = $reflector->getProperties();
         foreach ($properties as $property) {
             $newProperty = PropertyGenerator::fromReflection($property);
-            $newProperty->setDocBlock(" @var \\$originalSourceClass");
+            //$newProperty->setDocBlock(" @var \\$originalSourceClass");
+            //$property->getDocBlock()
+            
             $this->generator->addPropertyFromGenerator($newProperty);
         }
     }

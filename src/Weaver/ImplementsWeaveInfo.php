@@ -22,7 +22,7 @@ class ImplementsWeaveInfo extends WeaveInfo {
         $instanceFactoryName = null,
         $instanceFactoryMethod = null
     ) {
-        parent::__construct($sourceClass, $decoratorClass, null);
+        parent::__construct($sourceClass, $decoratorClass, []);
         $this->initMethodName = $initMethodName;
         $this->lazyPropertyName = $lazyPropertyName;
         $this->interface = $interface;

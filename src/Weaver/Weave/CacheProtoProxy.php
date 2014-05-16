@@ -31,6 +31,7 @@ class CacheProxy {
             else {
                 $cacheKey = hash("sha256", $cacheKey.$arg);
             }
+            //blah
         }
 
         return $cacheKey;
