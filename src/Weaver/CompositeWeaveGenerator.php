@@ -54,14 +54,21 @@ class CompositeWeaveGenerator implements WeaveGenerator {
     /**
      * @param $outputDir
      */
-    function writeClass($outputDir) {
+    function writeClass($outputDir, $outputClassname = null) {
         $this->addPropertiesAndConstants();
         $this->addConstructorMethod();
         $this->addMethods();
         $this->addEncapsulatedMethods();
-        $this->generator->setName($this->getFQCN());
+
+        $fqcn = $this->getFQCN();
+        
+        if ($outputClassname) {
+            $fqcn = $outputClassname;
+        }
+
+        $this->generator->setName($fqcn);
         $text = $this->applyHacks($this->generator->generate());
-        \Weaver\saveFile($outputDir, $this->getFQCN(), $text);
+        \Weaver\saveFile($outputDir, $fqcn, $text);
     }
 
     /**
@@ -83,7 +90,6 @@ class CompositeWeaveGenerator implements WeaveGenerator {
             $constructorParametersGeneratorArray[] = $parameterGenerator;
             $weaveConstructorBody .= "\$this->$paramName = \$$paramName;\n";
         }
-
 
         foreach ($this->containerClassReflection->getMethods() as $methodReflection) {
             if (strcmp($methodReflection->getName(), '__construct') === 0) {
@@ -214,7 +220,6 @@ class CompositeWeaveGenerator implements WeaveGenerator {
     private function addMethods() {
         $this->addMethodFromReflection($this->containerClassReflection);
         foreach ($this->compositeClassReflectionArray as $sourceReflector) {
-            //$this->addMethodFromReflection($sourceReflector, true);
             $this->addProxiedMethodsFromReflection($sourceReflector);
         }
     }

@@ -61,7 +61,7 @@ END;
 
 
 interface WeaveGenerator {
-    function writeClass($directory);
+    function writeClass($directory, $outputClassname = null);
     function writeFactory($directory);
 }
 
