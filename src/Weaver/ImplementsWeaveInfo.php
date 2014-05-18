@@ -55,7 +55,12 @@ class ImplementsWeaveInfo extends WeaveInfo {
      * @return string
      */
     function getInstanceFactorySignature() {
-        return '$this->'.lcfirst($this->instanceFactoryName).'->'.$this->instanceFactoryMethod; //byte-safe
+        
+        if ($this->instanceFactoryName && $this->instanceFactoryMethod) {
+            return '$this->'.lcfirst($this->instanceFactoryName).'->'.$this->instanceFactoryMethod; //byte-safe
+        }
+        
+        return null;
     }
 
     /**

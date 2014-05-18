@@ -35,7 +35,7 @@ class ImplementsWeaveGenerator extends SingleClassWeaveGenerator  {
      * @param $savePath
      * @param $originalSourceClass
      * @param $closureFactoryName
-     * @return null|string
+     * @return string
      */
     function writeClass($savePath) { //, $closureFactoryName) {
         $this->addPropertiesAndConstants();
@@ -43,6 +43,8 @@ class ImplementsWeaveGenerator extends SingleClassWeaveGenerator  {
         $this->addDecoratorMethods();
         $this->addInitMethod();
         \Weaver\saveFile($savePath, $this->getFQCN(), $this->generator->generate());
+        
+        return $this->getFQCN();
     }
 
     /**
@@ -141,6 +143,8 @@ class ImplementsWeaveGenerator extends SingleClassWeaveGenerator  {
         $newBody = '';
         $initMethodName = $this->implementsWeaveInfo->getInitMethodName();
         $lazyPropertyName = $this->implementsWeaveInfo->getLazyPropertyName();
+        
+        
         $newBody .= '$this->'.$initMethodName."();\n";
         $newBody .= '$result = $this->'.$lazyPropertyName.'->'.$method->getName()."(";
         $parameters = $method->getParameters();
