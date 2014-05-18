@@ -89,7 +89,6 @@ class ExtendWeaveTest extends \PHPUnit_Framework_TestCase {
 
         $injector = createProvider([], []);
         
-        //echo "clas to test is ".$previousClass;
         $composite = $injector->make($previousClass, [':queryString' => 'testQueryString']);
     }
 
