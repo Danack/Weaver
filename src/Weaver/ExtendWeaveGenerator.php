@@ -39,25 +39,25 @@ class ExtendWeaveGenerator extends SingleClassWeaveGenerator {
     }
 
     /**
-     * @return null
-     */
-    function getInterface() {
-        return null;
-    }
-
-    /**
      * @param $savePath
      * @param $originalSourceClass
      * @param $closureFactoryName
      * @return null|string
      */
-    function writeClass($outputDir) {
+    function writeClass($outputDir, $outputClassname = null) {
         $this->addProxyMethods();
         $this->addDecoratorMethods();
         $this->addProxyConstructor();
         $this->addPropertiesAndConstants();
-        $this->generator->setName($this->getFQCN());
-        \Weaver\saveFile($outputDir, $this->getFQCN(), $this->generator->generate());
+
+        $fqcn = $this->getFQCN();
+
+        if ($outputClassname) {
+            $fqcn = $outputClassname;
+        }
+
+        $this->generator->setName($fqcn);
+        \Weaver\saveFile($outputDir, $fqcn, $this->generator->generate());
         
         return $this->getFQCN();
     }

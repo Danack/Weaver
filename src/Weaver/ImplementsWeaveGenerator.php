@@ -25,7 +25,7 @@ class ImplementsWeaveGenerator extends SingleClassWeaveGenerator  {
         $this->generator = new ClassGenerator();
         $this->methodBindingArray = $implementsWeaveInfo->getMethodBindingArray();
 
-        $this->generator->setName($this->getFQCN());
+
         $interface = $this->implementsWeaveInfo->getInterface();
         $interfaces = array($interface);
         $this->generator->setImplementedInterfaces($interfaces);
@@ -37,14 +37,20 @@ class ImplementsWeaveGenerator extends SingleClassWeaveGenerator  {
      * @param $closureFactoryName
      * @return string
      */
-    function writeClass($savePath) { //, $closureFactoryName) {
+    function writeClass($savePath, $outputClassname = null) {
         $this->addPropertiesAndConstants();
         $this->addProxyMethods();
         $this->addDecoratorMethods();
         $this->addInitMethod();
-        \Weaver\saveFile($savePath, $this->getFQCN(), $this->generator->generate());
-        
-        return $this->getFQCN();
+        $fqcn = $this->getFQCN();
+        if ($outputClassname) {
+            $fqcn = $outputClassname;
+        }
+
+        $this->generator->setName($fqcn);
+        \Weaver\saveFile($savePath, $fqcn, $this->generator->generate());
+
+        return $fqcn;
     }
 
     /**
