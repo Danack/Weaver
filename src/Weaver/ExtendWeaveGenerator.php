@@ -173,24 +173,6 @@ class ExtendWeaveGenerator extends SingleClassWeaveGenerator {
 
         return $newBody;
     }
-
-    /**
-     * @return string
-     */
-    function getClosureFactoryName() {
-        $originalSourceReflection = $this->sourceReflector;
-        $closureFactoryName = '\\'.$originalSourceReflection->getNamespaceName().'\Closure'.$originalSourceReflection->getShortName().'Factory';
-
-        return $closureFactoryName;
-    }
-
-    /**
-     * @param $directory
-     * @throws \Exception
-     */
-    function writeFactory($directory) {
-        throw new \Exception("writefactory not implemented.");
-    }
 }
 
  

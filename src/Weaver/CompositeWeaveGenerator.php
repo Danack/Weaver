@@ -311,12 +311,13 @@ class CompositeWeaveGenerator implements WeaveGenerator {
         $namespace = $this->getNamespaceName();
         $classname = $this->getProxiedName();
 
+        $return = $classname;
+        
         if (strlen($namespace)) {
-            return $namespace.'\\'.$classname;
+            $return = $namespace.'\\'.$return;
         }
-        else {
-            return $classname;
-        }
+
+        return $return;
     }
 }
 

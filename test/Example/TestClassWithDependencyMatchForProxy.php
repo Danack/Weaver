@@ -3,12 +3,14 @@
 namespace Example;
 
 
-class TestClass implements TestInterface {
+
+class TestClassWithDependencyMatchForProxy implements TestInterface {
 
     protected $queryString;
     
-    function __construct($queryString) {
+    function __construct(TypeHintClass $proxyDependency, $queryString) {
         $this->queryString = $queryString;
+        $this->proxyDependency = $proxyDependency;
     }
 
     function anotherFunction($someParameter) {
@@ -19,14 +21,6 @@ class TestClass implements TestInterface {
         echo "executing query: ".$this->queryString."\n";
         usleep(300);
         return 5;
-    }
-    
-    function noReturn() {
-        echo "foo";
-    }
-    
-    function __toString() {
-        return "This shouldn't be extended";
     }
 }
 

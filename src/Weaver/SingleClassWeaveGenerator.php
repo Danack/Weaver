@@ -11,7 +11,6 @@ use Zend\Code\Reflection\MethodReflection;
 use Zend\Code\Reflection\ClassReflection;
 
 
-
 abstract class SingleClassWeaveGenerator implements WeaveGenerator {
 
     /**
@@ -62,29 +61,13 @@ abstract class SingleClassWeaveGenerator implements WeaveGenerator {
                 continue;
             }
 
-            $parameters = $method->getParameters();
-            $docBlock = $method->getDocBlock();
-
-            if ($docBlock) {
-                $docBlock = DocBlockGenerator::fromReflection($docBlock);
-            }
-
-            $generatedParameters = array();
-
-            foreach ($parameters as $reflectionParameter) {
-                $generatedParameters[] = ParameterGenerator::fromReflection($reflectionParameter);
-            }
-
+            $methodGenerator = MethodGenerator::fromReflection($method);
             $newBody = $this->generateProxyMethodBody($method);
 
             if ($newBody) {
-                $this->generator->addMethod(
-                    $name,
-                    $generatedParameters,
-                    MethodGenerator::FLAG_PUBLIC,
-                    $newBody,
-                    $docBlock
-                );
+                //TODO - document why this is only added when newBody is set.
+                $methodGenerator->setBody($newBody);
+                $this->generator->addMethodFromGenerator($methodGenerator);
             }
         }
     }
@@ -108,82 +91,6 @@ abstract class SingleClassWeaveGenerator implements WeaveGenerator {
     }
 
     /**
-     * @param $originalSourceClass
-     * @param $constructorParameters
-     * @param $closureFactoryName
-     * @param MethodReflection $sourceConstructorMethod
-     * @param MethodReflection $decoratorConstructorMethod
-     * @return string
-     */
-
-    /*
-    function generateFactoryClosure(
-        $originalSourceClass,
-        $constructorParameters,
-        $closureFactoryName,
-        MethodReflection $sourceConstructorMethod = null,
-        MethodReflection $decoratorConstructorMethod = null
-    ) {
-
-        $fqcn = $this->getFQCN();
-
-        if ($decoratorConstructorMethod != null) {
-            $parameters = $decoratorConstructorMethod->getParameters();
-            foreach ($parameters as $reflectionParameter) {
-                $generatedParameters[] = ParameterGenerator::fromReflection($reflectionParameter);
-            }
-        }
-
-        $className = '\\'.$fqcn;
-
-        $addedParameters = $this->getAddedParameters($originalSourceClass, $constructorParameters);
-
-        $originalSourceReflection = new ClassReflection($originalSourceClass);
-        $originalConstructorParameters = array();
-        $originalConstructor = $originalSourceReflection->getConstructor();
-
-        if ($originalConstructor) {
-            $originalConstructorParameters = $originalConstructor->getParameters();
-        }
-
-        $allParams = getConstructorParamsString($constructorParameters);
-
-
-
-
-        $decoratorParamsWithType = getConstructorParamsString($addedParameters, true);
-
-        $decoratorUseParams = '';
-        if (count($addedParameters)) {
-            $decoratorUseParams = 'use ('.getConstructorParamsString($addedParameters).')';
-        }
-
-        $objectParams = getConstructorParamsString($originalConstructorParameters);
-
-        $createClosureFactoryName = 'create'.$this->getProxiedName().'Factory';
-
-        $function = <<< END
-function $createClosureFactoryName($decoratorParamsWithType) {
-
-    \$closure = function ($objectParams) $decoratorUseParams {
-        \$object = new $className(
-            $allParams
-        );
-
-        return \$object;
-    };
-
-    return new $closureFactoryName(\$closure);
-}
-
-END;
-        return $function;
-    }
-    
-    */
-
-
-    /**
      * @return null|MethodReflection
      */
     function addDecoratorMethods() {
@@ -196,59 +103,10 @@ END;
                 continue;
             }
 
-            $parameters = $method->getParameters();
-            $generatedParameters = array();
-
-            foreach ($parameters as $reflectionParameter) {
-                $generatedParameters[] = ParameterGenerator::fromReflection($reflectionParameter);
-            }
-
-            $this->generator->addMethod(
-                $name,
-                $generatedParameters,
-                MethodGenerator::FLAG_PUBLIC,
-                $method->getBody(),
-                $method->getDocBlock()
-            );
+            $methodGenerator = MethodGenerator::fromReflection($method);
+            $this->generator->addMethodFromGenerator($methodGenerator);
         }
     }
-
-//    /**
-//     * @param $originalSourceClass
-//     * @param $constructorParameters MethodReflection[]
-//     * @return array
-//     */
-//    function getAddedParameters($originalSourceClass, $constructorParameters) {
-//        $originalSourceReflection = new ClassReflection($originalSourceClass);
-//        $sourceConstructorParameters = array();
-//        $constructor = $originalSourceReflection->getConstructor();
-//
-//        if ($constructor) {
-//            $sourceConstructorParameters = $constructor->getParameters();
-//        }
-//
-//        $addedParameters = array();
-//
-//        if (is_array($constructorParameters) == false) {
-//            throw new \ErrorException("Constructor params needs to be an array, for some reason it isn't.");
-//        }
-//
-//        foreach ($constructorParameters as $constructorParameter) {
-//            $presentInOriginal = false;
-//
-//            foreach ($sourceConstructorParameters as $sourceConstructorParameter) {
-//                if ($constructorParameter->getName() == $sourceConstructorParameter->getName()) {
-//                    $presentInOriginal = true;
-//                }
-//            }
-//
-//            if ($presentInOriginal == false) {
-//                $addedParameters[] = $constructorParameter;
-//            }
-//        }
-//
-//        return $addedParameters;
-//    }
 
     /**
      * @return string
@@ -257,12 +115,13 @@ END;
         $namespace = $this->getNamespaceName();
         $classname = $this->getProxiedName();
 
+        $return = $classname;
+
         if (strlen($namespace)) {
-            return $namespace.'\\'.$classname;
+            $return = $namespace.'\\'.$return;
         }
-        else {
-            return $classname;
-        }
+
+        return $return;
     }
 }
 

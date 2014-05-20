@@ -24,6 +24,7 @@ class MethodMatcher {
             return true;
         }
         
+        //TODO - this is a bit shit.
         if (in_array('*', $this->methods)) {
             if (strpos($methodName, '__') !== 0) {
                 return true;

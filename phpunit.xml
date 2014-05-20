@@ -17,6 +17,9 @@
     <filter>
         <whitelist>
             <directory>./src/Weaver</directory>
+            <exclude>
+                <directory>./src/Weaver/Weave</directory>
+            </exclude>
         </whitelist>
     </filter>
 

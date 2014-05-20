@@ -7,11 +7,11 @@ namespace Weaver;
 class ExtendWeaveTest extends \PHPUnit_Framework_TestCase {
 
     private $outputDir;
-    
+
     function __construct() {
         $this->outputDir = dirname(__FILE__).'/../../generated/';
     }
-    
+
     function testExtendWeave_cacheProxy() {
 
         $cacheWeaveInfo = new ExtendWeaveInfo(
@@ -56,7 +56,6 @@ class ExtendWeaveTest extends \PHPUnit_Framework_TestCase {
             $this->cache->put($cacheKey, $result, 50);'
         );
 
-        
         $timerWeaveInfo = new ExtendWeaveInfo(
             $previousClass,
             'Weaver\Weave\CacheProxy',
@@ -70,6 +69,57 @@ class ExtendWeaveTest extends \PHPUnit_Framework_TestCase {
 
         $composite = $injector->make($previousClass, [':queryString' => 'testQueryString']);
     }
+
+
+    function testExtendWeaveNoReturn() {
+
+        $timerMethodBinding = new MethodBinding(
+            new MethodMatcher(['executeQuery', 'noReturn']),
+            '$this->timer->startTimer($this->queryString);',
+            '$this->timer->stopTimer();',
+            false
+        );
+
+        $timerWeaveInfo = new ExtendWeaveInfo(
+            'Example\TestClass',
+            'Weaver\Weave\TimerProxy',
+            [$timerMethodBinding]
+        );
+
+        $weaver = new ExtendWeaveGenerator($timerWeaveInfo);
+        $previousClass = $weaver->writeClass($this->outputDir, 'Example\ExtendNoResult');
+
+
+        $injector = createProvider([], []);
+
+        $composite = $injector->make($previousClass, [':queryString' => 'testQueryString']);
+    }
+
+    function testExtendWeaveAllMethods() {
+
+        $timerMethodBinding = new MethodBinding(
+            new MethodMatcher(['*']),
+            '$this->timer->startTimer($this->queryString);',
+            '$this->timer->stopTimer();',
+            false
+        );
+
+        $timerWeaveInfo = new ExtendWeaveInfo(
+            'Example\TestClass',
+            'Weaver\Weave\TimerProxy',
+            [$timerMethodBinding]
+        );
+
+        $weaver = new ExtendWeaveGenerator($timerWeaveInfo);
+        $previousClass = $weaver->writeClass($this->outputDir, 'Example\ExtendNoResult');
+
+
+        $injector = createProvider([], []);
+
+        $composite = $injector->make($previousClass, [':queryString' => 'testQueryString']);
+    }
+
+
 
     /**
      * 

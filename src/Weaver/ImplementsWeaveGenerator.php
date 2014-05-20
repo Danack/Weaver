@@ -249,32 +249,10 @@ class ImplementsWeaveGenerator extends SingleClassWeaveGenerator  {
 
 
     /**
-     * @return null
-     */
-    function getInterface() {
-        return $this->implementsWeaveInfo->getInterface();
-    }
-
-
-    /**
      * @return string
      */
     function getProxiedName() {
         return $this->decoratorReflector->getShortName()."X".$this->sourceReflector->getShortName();
-    }
-
-    //Here be SRP violations.
-
-    /**
-     * @return string
-     */
-    function getClosureFactoryName() {
-        $originalSourceReflection = $this->sourceReflector;
-        $interface = $this->implementsWeaveInfo->getInterface();
-        $interfaceClassname = getClassName($interface);
-        $closureFactoryName = '\\'.$originalSourceReflection->getNamespaceName().'\Closure'.$interfaceClassname.'Factory';
-
-        return $closureFactoryName;
     }
 
 
@@ -321,7 +299,7 @@ class ImplementsWeaveGenerator extends SingleClassWeaveGenerator  {
         $useString = '';
 
         if (count($addedParams)) {
-            $useString = "use(".getParamsAsString($sourceParameters).")";
+            $useString = "use(".getParamsAsString($addedParams).")";
         }
 
         $closureParamsString = getParamsAsString($sourceParameters, true);
@@ -361,6 +339,8 @@ class ImplementsWeaveGenerator extends SingleClassWeaveGenerator  {
 
             foreach ($sourceConstructorParameters as $sourceConstructorParameter) {
                 if ($constructorParameter->getName() == $sourceConstructorParameter->getName()) {
+                    
+                    //TODO - add type check.
                     $presentInOriginal = true;
                 }
             }

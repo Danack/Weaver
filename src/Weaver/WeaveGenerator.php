@@ -3,6 +3,8 @@
 
 namespace Weaver;
 
+use Weaver\WeaveException;
+
 use Zend\Code\Generator\ParameterGenerator;
 
 /**
@@ -25,10 +27,10 @@ END;
 
     $outputFilename = $savePath.'/'.$filename.'.php';
     @mkdir(dirname($outputFilename), 0777, true);
-    $written = file_put_contents($outputFilename, $fileHeader.$text);
+    $written = @file_put_contents($outputFilename, $fileHeader.$text);
 
     if ($written == false) {
-        throw new \RuntimeException("Failed to write file $filename.");
+        throw new WeaveException("Failed to write file $filename.");
     }
 }
 

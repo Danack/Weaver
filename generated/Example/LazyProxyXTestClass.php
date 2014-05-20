@@ -37,6 +37,13 @@ class LazyProxyXTestClass implements TestInterface
         return $result;
     }
 
+    public function __toString()
+    {
+        $this->init();
+        $result = $this->lazyInstance->__toString();
+        return $result;
+    }
+
     public function __construct($queryString)
     {
         $this->queryString = $queryString;

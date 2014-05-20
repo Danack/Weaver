@@ -3,12 +3,15 @@
 namespace Example;
 
 
-class TestClass implements TestInterface {
+class TestClassWithTypeHintedParameter implements TestInterface {
 
     protected $queryString;
     
-    function __construct($queryString) {
+    private $dependency;
+    
+    function __construct($queryString, TypeHintClass $dependency) {
         $this->queryString = $queryString;
+        $this->dependency = $dependency;
     }
 
     function anotherFunction($someParameter) {
@@ -20,13 +23,6 @@ class TestClass implements TestInterface {
         usleep(300);
         return 5;
     }
-    
-    function noReturn() {
-        echo "foo";
-    }
-    
-    function __toString() {
-        return "This shouldn't be extended";
-    }
+
 }
 

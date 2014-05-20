@@ -101,6 +101,57 @@ class ImplementsWeaveTest extends \PHPUnit_Framework_TestCase {
         $weaver = new ImplementsWeaveGenerator($lazyWeaveInfo);
         //$weaver->writeClass($this->outputDir);
     }
-    
 
+
+    function testTypeHintedParameter() {
+        $lazyWeaveInfo = new ImplementsWeaveInfo(
+            'Example\TestClassWithTypeHintedParameter',
+            'Example\LazyProxyWithDependency',
+            'TestInterface',
+            'init',
+            'lazyInstance'
+        );
+
+        $weaver = new ImplementsWeaveGenerator($lazyWeaveInfo);
+        $className = $weaver->writeClass($this->outputDir);
+
+        $injector = createProvider([], []);
+        $proxiedClass = $injector->make($className, [':queryString' => 'testQueryString']);
+    }
+
+
+    function testTypeHintedParameterWithOutputClassnameDefined() {
+        $lazyWeaveInfo = new ImplementsWeaveInfo(
+            'Example\TestClassWithTypeHintedParameter',
+            'Example\LazyProxyWithDependencyNamedDependency',
+            'TestInterface',
+            'init',
+            'lazyInstance'
+        );
+
+        $weaver = new ImplementsWeaveGenerator($lazyWeaveInfo);
+        $outputClassName = 'Example\ProxyWithDependency';
+        $resultOutputClassName = $weaver->writeClass($this->outputDir, $outputClassName);
+
+        $this->assertEquals($resultOutputClassName, $outputClassName);
+
+        $injector = createProvider([], []);
+        
+        $injector->defineParam('dependencyNotInProxiedClass', true);
+        
+        $proxiedClass = $injector->make($outputClassName, [':queryString' => 'testQueryString']);
+
+
+        $closureFactoryInfo = $weaver->generateClosureFactoryInfo('Example\StandardTestClassFactory');
+        //$injector = createProvider([], []);
+
+        //TODO - eval this?
+        $fileHandle = fopen($this->outputDir."testTypeHintedParameterWithOutputClassnameDefined.php", 'wb');
+        fwrite($fileHandle, "<?php\n");
+        fwrite($fileHandle, $closureFactoryInfo->__toString());
+        
+        
+    }
+    
+    
 }
