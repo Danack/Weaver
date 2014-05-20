@@ -3,11 +3,6 @@
 
 namespace Weaver;
 
-use Weaver\ExtendWeaveInfo;
-use Weaver\MethodBinding;
-use Weaver\ImplementsWeaveInfo;
-
-
 
 class ExtendWeaveTest extends \PHPUnit_Framework_TestCase {
 
@@ -27,23 +22,7 @@ class ExtendWeaveTest extends \PHPUnit_Framework_TestCase {
 
         $weaver = new ExtendWeaveGenerator($cacheWeaveInfo);
         $weaver->writeClass($this->outputDir);
-        
-        /*
-        $weaver = new Weaver();
-
-        $weaver->weaveClass(
-            'Example\TestClass',
-            array(
-                $timerWeaveInfo,
-                $cacheWeaveInfo,
-            ),
-            $this->outputDir,
-            'ClosureTestClassFactory'
-        );
-
-        $this->writeFactories($weaver); */
     }
-
 
     function testExtendWeave_TimerProxyCacheProxy() {
 
@@ -88,7 +67,7 @@ class ExtendWeaveTest extends \PHPUnit_Framework_TestCase {
         $previousClass = $weaver->writeClass($this->outputDir);
 
         $injector = createProvider([], []);
-        
+
         $composite = $injector->make($previousClass, [':queryString' => 'testQueryString']);
     }
 
@@ -109,23 +88,5 @@ class ExtendWeaveTest extends \PHPUnit_Framework_TestCase {
         $original = $injector->make('Example\Proxy\ProxyWithConstant');
         $weaved =  $injector->make('Example\ProxyWithConstantXTestClass', [':queryString' => 'testQuery']);
         $this->assertEquals($original::A_CONSTANT, $weaved::A_CONSTANT);
-        
-        
-        //TODO re-add factory for this
-//        $weaver = new Weaver();
-//        $weaver->weaveClass(
-//            'Example\TestClass',
-//            array(
-//                $timerWeaveInfo
-//            ),
-//            $this->outputDir,
-//            'ClosureTestClassFactory'
-//        );
-     
-        // $this->writeFactories($weaver);
-        
-        
     }
-
-
 }

@@ -48,7 +48,8 @@ class ExtendWeaveGenerator extends SingleClassWeaveGenerator {
         $this->addProxyMethods();
         $this->addDecoratorMethods();
         $this->addProxyConstructor();
-        $this->addPropertiesAndConstants();
+        $this->addPropertiesAndConstantsForReflector($this->decoratorReflector);
+        $this->addPropertiesAndConstantsForReflector($this->sourceReflector);
 
         $fqcn = $this->getFQCN();
 

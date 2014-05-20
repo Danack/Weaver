@@ -13,7 +13,7 @@ use Zend\Code\Reflection\MethodReflection;
 use Zend\Code\Reflection\ClassReflection;
 
 use Zend\Code\Generator\AbstractMemberGenerator;
-use Weaver\WeaveException;
+
 
 class CompositeWeaveGenerator implements WeaveGenerator {
 
@@ -248,13 +248,6 @@ class CompositeWeaveGenerator implements WeaveGenerator {
     }
 
     /**
-     * 
-     */
-    function generateFactoryClosure() {
-    }
-
-
-    /**
      * @param ClassReflection $reflector
      * @param $originalSourceClass
      */
@@ -332,14 +325,6 @@ class CompositeWeaveGenerator implements WeaveGenerator {
         else {
             return $classname;
         }
-    }
-
-    /**
-     * @param $directory
-     * @throws WeaveException
-     */
-    function writeFactory($directory) {
-        throw new WeaveException("Not implemented");
     }
 }
 

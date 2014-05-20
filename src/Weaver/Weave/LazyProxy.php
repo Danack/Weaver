@@ -5,8 +5,7 @@ namespace Weaver\Weave;
 
 
 class LazyProxy {
-
-    private $lazyInstance;
+    //private $lazyInstance;
 }
 
  

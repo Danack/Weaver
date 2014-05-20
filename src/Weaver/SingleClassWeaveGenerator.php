@@ -90,21 +90,10 @@ abstract class SingleClassWeaveGenerator implements WeaveGenerator {
     }
 
     /**
-     * Adds the properties and constants from the decorating class to the
-     * class being weaved.
-     * @param $originalSourceClass
-     */
-    function addPropertiesAndConstants() {
-        $this->addPropertiesAndConstantsForReflector($this->decoratorReflector);
-        $this->addPropertiesAndConstantsForReflector($this->sourceReflector);
-    }
-
-    /**
      * @param ClassReflection $reflector
      * @param $originalSourceClass
      */
     function addPropertiesAndConstantsForReflector(ClassReflection $reflector ) {
-        //$originalSourceClass = $reflector->getShortName();
         $constants = $reflector->getConstants();
         foreach ($constants as $name => $value) {
             $this->generator->addProperty($name, $value, PropertyGenerator::FLAG_CONSTANT);
@@ -113,9 +102,7 @@ abstract class SingleClassWeaveGenerator implements WeaveGenerator {
         $properties = $reflector->getProperties();
         foreach ($properties as $property) {
             $newProperty = PropertyGenerator::fromReflection($property);
-            //$newProperty->setDocBlock(" @var \\$originalSourceClass");
-            //$property->getDocBlock()
-            
+            $newProperty->setVisibility(\Zend\Code\Generator\AbstractMemberGenerator::FLAG_PRIVATE);
             $this->generator->addPropertyFromGenerator($newProperty);
         }
     }
@@ -226,42 +213,42 @@ END;
         }
     }
 
-    /**
-     * @param $originalSourceClass
-     * @param $constructorParameters MethodReflection[]
-     * @return array
-     */
-    function getAddedParameters($originalSourceClass, $constructorParameters) {
-        $originalSourceReflection = new ClassReflection($originalSourceClass);
-        $sourceConstructorParameters = array();
-        $constructor = $originalSourceReflection->getConstructor();
-
-        if ($constructor) {
-            $sourceConstructorParameters = $constructor->getParameters();
-        }
-
-        $addedParameters = array();
-
-        if (is_array($constructorParameters) == false) {
-            throw new \ErrorException("Constructor params needs to be an array, for some reason it isn't.");
-        }
-
-        foreach ($constructorParameters as $constructorParameter) {
-            $presentInOriginal = false;
-
-            foreach ($sourceConstructorParameters as $sourceConstructorParameter) {
-                if ($constructorParameter->getName() == $sourceConstructorParameter->getName()) {
-                    $presentInOriginal = true;
-                }
-            }
-
-            if ($presentInOriginal == false) {
-                $addedParameters[] = $constructorParameter;
-            }
-        }
-
-        return $addedParameters;
-    }
+//    /**
+//     * @param $originalSourceClass
+//     * @param $constructorParameters MethodReflection[]
+//     * @return array
+//     */
+//    function getAddedParameters($originalSourceClass, $constructorParameters) {
+//        $originalSourceReflection = new ClassReflection($originalSourceClass);
+//        $sourceConstructorParameters = array();
+//        $constructor = $originalSourceReflection->getConstructor();
+//
+//        if ($constructor) {
+//            $sourceConstructorParameters = $constructor->getParameters();
+//        }
+//
+//        $addedParameters = array();
+//
+//        if (is_array($constructorParameters) == false) {
+//            throw new \ErrorException("Constructor params needs to be an array, for some reason it isn't.");
+//        }
+//
+//        foreach ($constructorParameters as $constructorParameter) {
+//            $presentInOriginal = false;
+//
+//            foreach ($sourceConstructorParameters as $sourceConstructorParameter) {
+//                if ($constructorParameter->getName() == $sourceConstructorParameter->getName()) {
+//                    $presentInOriginal = true;
+//                }
+//            }
+//
+//            if ($presentInOriginal == false) {
+//                $addedParameters[] = $constructorParameter;
+//            }
+//        }
+//
+//        return $addedParameters;
+//    }
 
     /**
      * @return string

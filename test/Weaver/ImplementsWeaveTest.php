@@ -27,33 +27,26 @@ class ImplementsWeaveTest extends \PHPUnit_Framework_TestCase {
             'Weaver\Weave\LazyProxy',
             'TestInterface',
             'init',
-            'lazyInstance' //This is not actually really used?
+            'lazyInstance', //This is not actually really used?
+            ['Example\TestClassFactory', 'create']
         );
 
         $weaver = new ImplementsWeaveGenerator($lazyWeaveInfo);
         $previousClass = $weaver->writeClass($this->outputDir);
-
-
+        $closureFactoryInfo = $weaver->generateClosureFactoryInfo('Example\StandardTestClassFactory');
         $injector = createProvider([], []);
 
-        $composite = $injector->make($previousClass, [':queryString' => 'testQueryString']);
+        //TODO - eval this?
+        $fileHandle = fopen($this->outputDir."testInstanceWeave.php", 'wb');
+        fwrite($fileHandle, "<?php\n");
+        fwrite($fileHandle, $closureFactoryInfo->__toString());
+        fclose($fileHandle);
         
-        /*
-        $weaver = new Weaver();
-        $weaver->weaveClass(
-            ,
-            array(
-                $lazyWeaveInfo,
-            ),
-            $this->outputDir,
-            'ClosureTestClassFactory'
-        );
+        require_once($this->outputDir."testInstanceWeave.php");
 
-        $this->writeFactories($weaver);
-        
-        */
+        $injector->delegate('Example\TestClassFactory', $closureFactoryInfo->getFunctionName());
+        $proxiedClass = $injector->make($previousClass, [':queryString' => 'testQueryString']);
     }
-
 
     /**
      *
@@ -66,29 +59,48 @@ class ImplementsWeaveTest extends \PHPUnit_Framework_TestCase {
             'Weaver\Weave\LazyProxy',
             'TestInterface',
             'init',
-            'lazyInstance',
-            'SomeFactory', 'create'
+            'lazyInstance'
+            // dont set a factory ['Example\TestClassFactory', 'create']
         );
 
         $weaver = new ImplementsWeaveGenerator($lazyWeaveInfo);
         $weaver->writeClass($this->outputDir);
-        
-        
-
-/*        $weaver->weaveClass(
-            'Example\TestClass',
-            array(
-                $lazyWeaveInfo,
-            ),
-            $this->outputDir
-            //  'ClosureTestClassFactory'
-        );
-
-*/
-
-        //$this->writeFactories($weaver);
     }
 
 
+    function testFunctionFactory() {
+        $lazyWeaveInfo = new ImplementsWeaveInfo(
+            'Example\TestClass',
+            'Weaver\Weave\LazyProxy',
+            'TestInterface',
+            'init',
+            'lazyInstance',
+            'createTestClass'//not a valid factory
+        );
+
+        $weaver = new ImplementsWeaveGenerator($lazyWeaveInfo);
+        //TODO - need to be able to set output class name
+        $weaver->writeClass($this->outputDir);
+    }
+    
+    
+
+    function testInvalidFactory() {
+
+        $this->setExpectedException('Weaver\WeaveException');
+
+        $lazyWeaveInfo = new ImplementsWeaveInfo(
+            'Example\TestClass',
+            'Weaver\Weave\LazyProxy',
+            'TestInterface',
+            'init',
+            'lazyInstance',
+            new \stdClass()//not a valid factory
+        );
+
+        $weaver = new ImplementsWeaveGenerator($lazyWeaveInfo);
+        //$weaver->writeClass($this->outputDir);
+    }
+    
 
 }

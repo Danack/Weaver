@@ -25,6 +25,10 @@
         {
             "type": "vcs",
             "url": "/documents/projects/github/AutoloaderSpeedTest"
+        },
+        {
+            "type": "artifact",
+            "url": "./artifact"
         }
     ],
 
@@ -38,7 +42,7 @@
     "require": {
         "intahwebz/core": ">=0.1.2",
         "php": ">=5.4.0",
-        "zendframework/zend-code": "2.*"
+        "zendframework/zend-code": "2.5"
     },
 
     "autoload": {

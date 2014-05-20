@@ -5,10 +5,42 @@ namespace Weaver;
 
 
 use Zend\Code\Generator\ClassGenerator;
+use Zend\Code\Generator\DocBlockGenerator;
 use Zend\Code\Generator\MethodGenerator;
 use Zend\Code\Generator\ParameterGenerator;
 use Zend\Code\Reflection\MethodReflection;
 use Zend\Code\Reflection\ClassReflection;
+use Zend\Code\Reflection\FunctionReflection;
+use Zend\Code\Generator\PropertyGenerator;
+
+/**
+ * @param ParameterGenerator[] $parameters
+ * @param bool $includeTypeHints
+ * @return string
+ */
+function getParamsAsString($parameters, $includeTypeHints = false) {
+    $string = '';
+    $separator = '';
+
+    foreach ($parameters as $parameter) {
+        $string .= $separator;
+
+        /** @var $parameter ParameterGenerator */
+        if ($includeTypeHints) {
+            $typeHint = $parameter->getType();
+            if ($typeHint) {
+                $string .= $typeHint.' ';
+            }
+        }
+
+        $string .= '$'.$parameter->getName();
+        $separator = ', ';
+    }
+
+    return $string;
+}
+
+
 
 
 class ImplementsWeaveGenerator extends SingleClassWeaveGenerator  {
@@ -25,7 +57,6 @@ class ImplementsWeaveGenerator extends SingleClassWeaveGenerator  {
         $this->generator = new ClassGenerator();
         $this->methodBindingArray = $implementsWeaveInfo->getMethodBindingArray();
 
-
         $interface = $this->implementsWeaveInfo->getInterface();
         $interfaces = array($interface);
         $this->generator->setImplementedInterfaces($interfaces);
@@ -38,7 +69,28 @@ class ImplementsWeaveGenerator extends SingleClassWeaveGenerator  {
      * @return string
      */
     function writeClass($savePath, $outputClassname = null) {
-        $this->addPropertiesAndConstants();
+        $this->addPropertiesAndConstantsForReflector($this->decoratorReflector);
+        $this->addPropertiesAndConstantsForReflector($this->sourceReflector);
+
+        $lazyPropertyName = $this->implementsWeaveInfo->getLazyPropertyName();
+
+        if ($this->generator->hasProperty($lazyPropertyName) == false) {
+            $lazyProperty = new PropertyGenerator($lazyPropertyName);
+            $lazyProperty->setStandardDocBlock($this->sourceReflector->getName());
+            $this->generator->addPropertyFromGenerator($lazyProperty);
+        }
+
+        //$factoryClassname = $this->implementsWeaveInfo->getInstanceFactoryClassName();
+        $factoryClassname = $this->implementsWeaveInfo->getLazyFactory();
+
+        if ($factoryClassname) {
+            $variableName = lcfirst(getClassName($factoryClassname)); 
+            $newProperty = new PropertyGenerator($variableName);
+            $newProperty->setStandardDocBlock($factoryClassname);
+            $newProperty->setVisibility(\Zend\Code\Generator\AbstractMemberGenerator::FLAG_PRIVATE);
+            $this->generator->addPropertyFromGenerator($newProperty);
+        }
+
         $this->addProxyMethods();
         $this->addDecoratorMethods();
         $this->addInitMethod();
@@ -48,10 +100,31 @@ class ImplementsWeaveGenerator extends SingleClassWeaveGenerator  {
         }
 
         $this->generator->setName($fqcn);
-        \Weaver\saveFile($savePath, $fqcn, $this->generator->generate());
+        $text = $this->generator->generate();
+        
+        $text = str_replace(
+            [
+                ', Example\ClosureTestClassFactory',
+                ', Example\TestClassFactory',
+                '@var Example\TestClassFactory',
+                '@var Example\TestClass',
+            ], 
+            [
+                ', \Example\ClosureTestClassFactory',
+                ', \Example\TestClassFactory',
+                '@var \Example\TestClassFactory',
+                '@var \Example\TestClass',
+            ], 
+            $text
+        );
+
+        \Weaver\saveFile($savePath, $fqcn, $text);
 
         return $fqcn;
     }
+
+
+    
 
     /**
      * @param MethodReflection $sourceConstructorMethod
@@ -88,7 +161,14 @@ class ImplementsWeaveGenerator extends SingleClassWeaveGenerator  {
             $constructorBody .= $decoratorConstructorMethod->getBody();
         }
 
-        $factoryParam = $this->implementsWeaveInfo->getFactoryParam();
+        $factoryInterfaceName = $this->implementsWeaveInfo->getLazyFactory();
+
+        if ($factoryInterfaceName) {
+            $variableName = lcfirst(getClassName($factoryInterfaceName));
+            $constructorBody .= "    \$this->$variableName = \$$variableName;\n";
+        }
+
+        $factoryParam = $this->implementsWeaveInfo->getFactoryParameterGenerator();
         if ($factoryParam) {
             $generatedParameters[] = $factoryParam;
         }
@@ -117,7 +197,7 @@ class ImplementsWeaveGenerator extends SingleClassWeaveGenerator  {
 
         $initBody = 'if ($this->'.$lazyPropertyName.' == null) {';
         $instanceFactorySignature = $this->implementsWeaveInfo->getInstanceFactorySignature();
-        
+
         if ($instanceFactorySignature != null) {
             $initBody .= '
             $this->lazyInstance = '.$instanceFactorySignature.'(';
@@ -175,6 +255,16 @@ class ImplementsWeaveGenerator extends SingleClassWeaveGenerator  {
         return $this->implementsWeaveInfo->getInterface();
     }
 
+
+    /**
+     * @return string
+     */
+    function getProxiedName() {
+        return $this->decoratorReflector->getShortName()."X".$this->sourceReflector->getShortName();
+    }
+
+    //Here be SRP violations.
+
     /**
      * @return string
      */
@@ -187,21 +277,101 @@ class ImplementsWeaveGenerator extends SingleClassWeaveGenerator  {
         return $closureFactoryName;
     }
 
+
     /**
-     * @return string
+     * @return ClosureFactoryInfo
      */
-    function getProxiedName() {
-        return $this->decoratorReflector->getShortName()."X".$this->sourceReflector->getShortName();
+    function generateClosureFactoryInfo($closureFactoryName) {
+
+        $generatedClassname = getClassName($this->getFQCN());
+        $createClosureFactoryName = 'create'.$generatedClassname.'Factory';
+
+        $decoratorParameters = [];
+        $sourceParameters = [];
+        
+        if ($this->decoratorReflector->hasMethod('__construct')){
+            $constructorReflection = $this->decoratorReflector->getMethod('__construct');
+            $decoratorParameters = $constructorReflection->getParameters();
+        }
+
+        if ($this->sourceReflector->hasMethod('__construct')){
+            $constructorReflection = $this->sourceReflector->getMethod('__construct');
+            $sourceParameters = $constructorReflection->getParameters();
+        }
+
+        $body = $this->generateFactoryBody($decoratorParameters, $sourceParameters, $closureFactoryName);
+
+        $factoryInfo = new ClosureFactoryInfo(
+            $createClosureFactoryName,
+            $decoratorParameters,
+            $body
+        );
+
+        return $factoryInfo;
     }
 
     /**
-     * @param $directory
-     * @throws WeaveException
+     * @param \ReflectionParameter[] $decoratorParameters
+     * @param \ReflectionParameter[] $sourceParameters
+     * @return string
      */
-    function writeFactory($directory) {
-        throw new WeaveException("Not implemented.");
-    }
+    function generateFactoryBody($decoratorParameters,  $sourceParameters, $closureFactoryName) {
+        
+        $addedParams = $this->getAddedParameters($decoratorParameters, $sourceParameters);
+        $useString = '';
+
+        if (count($addedParams)) {
+            $useString = "use(".getParamsAsString($sourceParameters).")";
+        }
+
+        $closureParamsString = getParamsAsString($sourceParameters, true);
+
+        //TODO - need to not have dupes.
+        $allParams = array_merge($decoratorParameters, $sourceParameters);
+        $allParamsString = getParamsAsString($allParams);
+        $sourceClassname = $this->sourceReflector->getName();
+
+
+        $body = "
+        \$closure = function ($closureParamsString) $useString {
+            \$object = new \\$sourceClassname(
+                $allParamsString
+            );
     
+            return \$object;
+        };
+    
+        return new $closureFactoryName(\$closure);  
+    ";
+        
+        return $body;
+    }
+
+    /**
+     * @param $originalSourceClass
+     * @param $decoratorConstructorParameters MethodReflection[]
+     * @return array
+     */
+    function getAddedParameters($decoratorConstructorParameters, $sourceConstructorParameters) {
+
+        $addedParameters = array();
+
+        foreach ($decoratorConstructorParameters as $constructorParameter) {
+            $presentInOriginal = false;
+
+            foreach ($sourceConstructorParameters as $sourceConstructorParameter) {
+                if ($constructorParameter->getName() == $sourceConstructorParameter->getName()) {
+                    $presentInOriginal = true;
+                }
+            }
+
+            if ($presentInOriginal == false) {
+                $addedParameters[] = $constructorParameter;
+            }
+        }
+
+        return $addedParameters;
+    }
 }
 
  

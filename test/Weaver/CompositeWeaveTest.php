@@ -3,11 +3,6 @@
 
 namespace Weaver;
 
-use Weaver\ExtendWeaveInfo;
-use Weaver\MethodBinding;
-use Weaver\ImplementsWeaveInfo;
-
-
 
 class CompositeWeaveTest extends \PHPUnit_Framework_TestCase {
 
