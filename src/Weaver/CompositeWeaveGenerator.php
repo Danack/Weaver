@@ -69,6 +69,8 @@ class CompositeWeaveGenerator implements WeaveGenerator {
         $this->generator->setName($fqcn);
         $text = $this->applyHacks($this->generator->generate());
         \Weaver\saveFile($outputDir, $fqcn, $text);
+
+        return $fqcn;
     }
 
     /**
@@ -119,16 +121,6 @@ class CompositeWeaveGenerator implements WeaveGenerator {
         );
 
         return [];
-    }
-
-    /**
-     * @return string
-     */
-    function getClosureFactoryName() {
-        $originalSourceReflection = $this->containerClassReflection;
-        $closureFactoryName = '\\'.$this->containerClassReflection->getNamespaceName().'\Closure'.$originalSourceReflection->getShortName().'Factory';
-
-        return $closureFactoryName;
     }
 
     /**

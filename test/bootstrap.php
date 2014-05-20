@@ -20,6 +20,14 @@ $autoloader->add(
     )
 );
 
+$autoloader->add(
+   '',
+   array(
+       realpath('./').'/generated/',
+   )
+);
+
+
 //apc_store('foo12345', 'BAR');
 //if (apc_fetch('foo12345') == false) {
 //    echo "APC appears to be failing.";
