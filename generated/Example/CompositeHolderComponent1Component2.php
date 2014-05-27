@@ -6,7 +6,7 @@
 //
 namespace Example;
 
-class CompositeHolderComponent1Component2
+class CompositeHolderComponent1Component2 implements \Example\CompositeInterface
 {
 
     const output = 'CompositeHolder';

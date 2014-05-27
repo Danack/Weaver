@@ -55,6 +55,15 @@ class CompositeWeaveGenerator implements WeaveGenerator {
      * @param $outputDir
      */
     function writeClass($outputDir, $outputClassname = null) {
+
+        $interfaces = $this->containerClassReflection->getInterfaces();
+
+        $function = function (ClassReflection $interfaceRefelection) {
+            return $interfaceRefelection->getName();
+        };
+        
+        $interfaces = array_map($function, $interfaces);
+        $this->generator->setImplementedInterfaces($interfaces);
         $this->addPropertiesAndConstants();
         $this->addConstructorMethod();
         $this->addMethods();
@@ -235,6 +244,8 @@ class CompositeWeaveGenerator implements WeaveGenerator {
         $sourceCode = str_replace(", Example\\", ", \\Example\\", $sourceCode);
         $sourceCode = str_replace("(ImagickDemo\\ControlElement\\", "(\\ImagickDemo\\ControlElement\\", $sourceCode);
         $sourceCode = str_replace(", ImagickDemo\\ControlElement\\", ", \\ImagickDemo\\ControlElement\\", $sourceCode);
+        $sourceCode = str_replace('implements Example\CompositeInterface', 'implements \Example\CompositeInterface', $sourceCode);
+        $sourceCode = str_replace('implements ImagickDemo\Control', 'implements \ImagickDemo\Control', $sourceCode);
 
         return $sourceCode;
     }

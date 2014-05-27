@@ -27,7 +27,7 @@ class UtilTest extends \PHPUnit_Framework_TestCase {
     }
 
     function testExtendWeave_cacheProxy() {
-
+        
         $this->setExpectedException('Weaver\WeaveException');
         
         $cacheWeaveInfo = new ExtendWeaveInfo(
@@ -40,6 +40,8 @@ class UtilTest extends \PHPUnit_Framework_TestCase {
         
         $weaver = new ExtendWeaveGenerator($cacheWeaveInfo);
         $weaver->writeClass($this->outputDir);
+        
+       
     }
     
 }

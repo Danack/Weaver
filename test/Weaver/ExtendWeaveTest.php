@@ -67,6 +67,9 @@ class ExtendWeaveTest extends \PHPUnit_Framework_TestCase {
 
         $injector = createProvider([], []);
 
+        //$injector->delegate()
+
+
         $composite = $injector->make($previousClass, [':queryString' => 'testQueryString']);
     }
 

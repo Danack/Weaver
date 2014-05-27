@@ -4,7 +4,8 @@
 namespace Example;
 
 
-class CompositeHolder {
+
+class CompositeHolder implements CompositeInterface {
 
     private $testValue;
     const output = 'CompositeHolder';
