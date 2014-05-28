@@ -3,16 +3,16 @@
 
 namespace Weaver;
 
-use Zend\Code\Generator\ClassGenerator;
+use Danack\Code\Generator\ClassGenerator;
 
-use Zend\Code\Generator\DocBlockGenerator;
-use Zend\Code\Generator\MethodGenerator;
-use Zend\Code\Generator\ParameterGenerator;
-use Zend\Code\Generator\PropertyGenerator;
-use Zend\Code\Reflection\MethodReflection;
-use Zend\Code\Reflection\ClassReflection;
+use Danack\Code\Generator\DocBlockGenerator;
+use Danack\Code\Generator\MethodGenerator;
+use Danack\Code\Generator\ParameterGenerator;
+use Danack\Code\Generator\PropertyGenerator;
+use Danack\Code\Reflection\MethodReflection;
+use Danack\Code\Reflection\ClassReflection;
 
-use Zend\Code\Generator\AbstractMemberGenerator;
+use Danack\Code\Generator\AbstractMemberGenerator;
 
 
 class CompositeWeaveGenerator implements WeaveGenerator {
@@ -23,7 +23,7 @@ class CompositeWeaveGenerator implements WeaveGenerator {
     private $weaveInfo;
 
     /**
-     * @var \Zend\Code\Generator\ClassGenerator
+     * @var \Danack\Code\Generator\ClassGenerator
      */
     protected $generator;
 
@@ -76,7 +76,7 @@ class CompositeWeaveGenerator implements WeaveGenerator {
         }
 
         $this->generator->setName($fqcn);
-        $text = $this->applyHacks($this->generator->generate());
+        $text = $this->generator->generate();
         \Weaver\saveFile($outputDir, $fqcn, $text);
 
         return $fqcn;
@@ -168,7 +168,7 @@ class CompositeWeaveGenerator implements WeaveGenerator {
             }
 
             if (array_key_exists($name, $this->weaveInfo->getEncapsulateMethods()) == true) {
-                $methodGenerator->setVisibility(\Zend\Code\Generator\AbstractMemberGenerator::VISIBILITY_PRIVATE);
+                $methodGenerator->setVisibility(\Danack\Code\Generator\AbstractMemberGenerator::VISIBILITY_PRIVATE);
                 $methodGenerator->setName($name.getClassName($sourceReflector->getName()));
             }
 
@@ -234,21 +234,6 @@ class CompositeWeaveGenerator implements WeaveGenerator {
         $this->addPropertiesAndConstantsForReflector($this->containerClassReflection);
     }
 
-    /**
-     * @param $sourceCode
-     * @return mixed
-     */
-    private function applyHacks($sourceCode) {
-        $sourceCode = str_replace("(Intahwebz\\", "(\\Intahwebz\\", $sourceCode);
-        $sourceCode = str_replace("(Example\\", "(\\Example\\", $sourceCode);
-        $sourceCode = str_replace(", Example\\", ", \\Example\\", $sourceCode);
-        $sourceCode = str_replace("(ImagickDemo\\ControlElement\\", "(\\ImagickDemo\\ControlElement\\", $sourceCode);
-        $sourceCode = str_replace(", ImagickDemo\\ControlElement\\", ", \\ImagickDemo\\ControlElement\\", $sourceCode);
-        $sourceCode = str_replace('implements Example\CompositeInterface', 'implements \Example\CompositeInterface', $sourceCode);
-        $sourceCode = str_replace('implements ImagickDemo\Control', 'implements \ImagickDemo\Control', $sourceCode);
-
-        return $sourceCode;
-    }
 
     /**
      * @param ClassReflection $reflector

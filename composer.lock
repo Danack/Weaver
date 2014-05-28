@@ -3,21 +3,44 @@
         "This file locks the dependencies of your project to a known state",
         "Read more about it at http://getcomposer.org/doc/01-basic-usage.md#composer-lock-the-lock-file"
     ],
-    "hash": "ca1942bfcf5e6a000e262d28085cdcb0",
+    "hash": "e95378aa7f6e6754fb78c71432263342",
     "packages": [
+        {
+            "name": "danack/danack-code",
+            "version": "2.3.2",
+            "dist": {
+                "type": "zip",
+                "url": "http://satis.basereality.com/packages/Danack/DanackCode/Danack_DanackCode_2.3.2.zip",
+                "reference": "Danack_DanackCode_2.3.2.zip",
+                "shasum": "43df745ef46c5c3bc050cf3262d243393bd48f2e"
+            },
+            "require": {
+                "php": ">=5.3.23",
+                "zendframework/zend-eventmanager": "~2.3"
+            },
+            "type": "library",
+            "autoload": {
+                "psr-0": {
+                    "Danack\\Code\\": ""
+                }
+            },
+            "license": [
+                "BSD-3-Clause"
+            ],
+            "description": "provides facilities to generate arbitrary code using an object oriented interface",
+            "keywords": [
+                "code",
+                "zf2"
+            ]
+        },
         {
             "name": "intahwebz/core",
             "version": "0.2.0",
-            "source": {
-                "type": "git",
-                "url": "https://github.com/Danack/intahwebz-core.git",
-                "reference": "b25e5e41d4305c6720ab44feccaa757efea9dd88"
-            },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/Danack/intahwebz-core/zipball/b25e5e41d4305c6720ab44feccaa757efea9dd88",
-                "reference": "b25e5e41d4305c6720ab44feccaa757efea9dd88",
-                "shasum": ""
+                "url": "http://satis.basereality.com/packages/Danack/intahwebz-core/Danack_intahwebz-core_0.2.0.zip",
+                "reference": "Danack_intahwebz-core_0.2.0.zip",
+                "shasum": "eac6cef98a60b8bfd49d8994ba1837e844a4327a"
             },
             "require": {
                 "psr/log": "~1.0"
@@ -28,7 +51,6 @@
                     "Intahwebz": "src/"
                 }
             },
-            "notification-url": "https://packagist.org/downloads/",
             "license": [
                 "MIT"
             ],
@@ -36,8 +58,7 @@
                 {
                     "name": "Dan Ackroyd",
                     "email": "Danack@basereality.com",
-                    "homepage": "http://www.basereality.com",
-                    "role": "Creator / Main Developer / Cake baker"
+                    "homepage": "http://www.basereality.com"
                 }
             ],
             "description": "Core library that defines common interfaces used by the rest of the intahwebz..",
@@ -45,8 +66,7 @@
                 "core",
                 "intahwebz",
                 "library"
-            ],
-            "time": "2014-02-23 20:37:51"
+            ]
         },
         {
             "name": "psr/log",
@@ -87,69 +107,14 @@
             "time": "2012-12-21 11:40:51"
         },
         {
-            "name": "zendframework/zend-code",
-            "version": "2.3.0",
-            "target-dir": "Zend/Code",
-            "source": {
-                "type": "git",
-                "url": "https://github.com/zendframework/Component_ZendCode.git",
-                "reference": "7eb108341ff6c9ec240764a11270f2d12934b733"
-            },
-            "dist": {
-                "type": "zip",
-                "url": "https://api.github.com/repos/zendframework/Component_ZendCode/zipball/7eb108341ff6c9ec240764a11270f2d12934b733",
-                "reference": "7eb108341ff6c9ec240764a11270f2d12934b733",
-                "shasum": ""
-            },
-            "require": {
-                "php": ">=5.3.23",
-                "zendframework/zend-eventmanager": "self.version"
-            },
-            "require-dev": {
-                "doctrine/common": ">=2.1",
-                "zendframework/zend-stdlib": "self.version"
-            },
-            "suggest": {
-                "doctrine/common": "Doctrine\\Common >=2.1 for annotation features",
-                "zendframework/zend-stdlib": "Zend\\Stdlib component"
-            },
-            "type": "library",
-            "extra": {
-                "branch-alias": {
-                    "dev-master": "2.2-dev",
-                    "dev-develop": "2.3-dev"
-                }
-            },
-            "autoload": {
-                "psr-0": {
-                    "Zend\\Code\\": ""
-                }
-            },
-            "notification-url": "https://packagist.org/downloads/",
-            "license": [
-                "BSD-3-Clause"
-            ],
-            "description": "provides facilities to generate arbitrary code using an object oriented interface",
-            "keywords": [
-                "code",
-                "zf2"
-            ],
-            "time": "2014-03-14 16:20:47"
-        },
-        {
             "name": "zendframework/zend-eventmanager",
             "version": "2.3.0",
             "target-dir": "Zend/EventManager",
-            "source": {
-                "type": "git",
-                "url": "https://github.com/zendframework/Component_ZendEventManager.git",
-                "reference": "048164ee81854942667ffdda3030ce06caa79bb5"
-            },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/zendframework/Component_ZendEventManager/zipball/048164ee81854942667ffdda3030ce06caa79bb5",
-                "reference": "048164ee81854942667ffdda3030ce06caa79bb5",
-                "shasum": ""
+                "url": "http://satis.basereality.com/packages/zendframework/Component_ZendEventManager/zendframework_Component_ZendEventManager_2.3.0.zip",
+                "reference": "zendframework_Component_ZendEventManager_2.3.0.zip",
+                "shasum": "19683eab8f6622d013f7d97ea8e308b97f663847"
             },
             "require": {
                 "php": ">=5.3.23",
@@ -167,30 +132,24 @@
                     "Zend\\EventManager\\": ""
                 }
             },
-            "notification-url": "https://packagist.org/downloads/",
             "license": [
                 "BSD-3-Clause"
             ],
+            "description": " ",
             "keywords": [
                 "eventmanager",
                 "zf2"
-            ],
-            "time": "2014-03-14 16:21:05"
+            ]
         },
         {
             "name": "zendframework/zend-stdlib",
             "version": "2.3.0",
             "target-dir": "Zend/Stdlib",
-            "source": {
-                "type": "git",
-                "url": "https://github.com/zendframework/Component_ZendStdlib.git",
-                "reference": "d1c481b8a43f2f079b16d3567960ba539e9dacaa"
-            },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/zendframework/Component_ZendStdlib/zipball/d1c481b8a43f2f079b16d3567960ba539e9dacaa",
-                "reference": "d1c481b8a43f2f079b16d3567960ba539e9dacaa",
-                "shasum": ""
+                "url": "http://satis.basereality.com/packages/zendframework/Component_ZendStdlib/zendframework_Component_ZendStdlib_2.3.0.zip",
+                "reference": "zendframework_Component_ZendStdlib_2.3.0.zip",
+                "shasum": "c61a659a0fa2afcbf915e1e6ea22017c2ee9b81d"
             },
             "require": {
                 "php": ">=5.3.23"
@@ -217,15 +176,14 @@
                     "Zend\\Stdlib\\": ""
                 }
             },
-            "notification-url": "https://packagist.org/downloads/",
             "license": [
                 "BSD-3-Clause"
             ],
+            "description": " ",
             "keywords": [
                 "stdlib",
                 "zf2"
-            ],
-            "time": "2014-03-14 16:22:22"
+            ]
         }
     ],
     "packages-dev": [
@@ -294,16 +252,11 @@
         {
             "name": "phpunit/php-code-coverage",
             "version": "1.2.17",
-            "source": {
-                "type": "git",
-                "url": "https://github.com/sebastianbergmann/php-code-coverage.git",
-                "reference": "6ef2bf3a1c47eca07ea95f0d8a902a6340390b34"
-            },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/sebastianbergmann/php-code-coverage/zipball/6ef2bf3a1c47eca07ea95f0d8a902a6340390b34",
-                "reference": "6ef2bf3a1c47eca07ea95f0d8a902a6340390b34",
-                "shasum": ""
+                "url": "http://satis.basereality.com/packages/sebastianbergmann/php-code-coverage/sebastianbergmann_php-code-coverage_1.2.17.zip",
+                "reference": "sebastianbergmann_php-code-coverage_1.2.17.zip",
+                "shasum": "388162a31ad80d01b75e936ce12e58a52c959a44"
             },
             "require": {
                 "php": ">=5.3.3",
@@ -329,7 +282,6 @@
                     "PHP/"
                 ]
             },
-            "notification-url": "https://packagist.org/downloads/",
             "include-path": [
                 ""
             ],
@@ -350,7 +302,10 @@
                 "testing",
                 "xunit"
             ],
-            "time": "2014-03-28 10:53:45"
+            "support": {
+                "issues": "https://github.com/sebastianbergmann/php-code-coverage/issues",
+                "irc": "irc://irc.freenode.net/phpunit"
+            }
         },
         {
             "name": "phpunit/php-file-iterator",
@@ -538,16 +493,11 @@
         {
             "name": "phpunit/phpunit",
             "version": "3.7.37",
-            "source": {
-                "type": "git",
-                "url": "https://github.com/sebastianbergmann/phpunit.git",
-                "reference": "ae6cefd7cc84586a5ef27e04bae11ee940ec63dc"
-            },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/sebastianbergmann/phpunit/zipball/ae6cefd7cc84586a5ef27e04bae11ee940ec63dc",
-                "reference": "ae6cefd7cc84586a5ef27e04bae11ee940ec63dc",
-                "shasum": ""
+                "url": "http://satis.basereality.com/packages/sebastianbergmann/phpunit/sebastianbergmann_phpunit_3.7.37.zip",
+                "reference": "sebastianbergmann_phpunit_3.7.37.zip",
+                "shasum": "f6c33a4328185bdc4dac7f2f54efda81fcbd83de"
             },
             "require": {
                 "ext-ctype": "*",
@@ -584,7 +534,6 @@
                     "PHPUnit/"
                 ]
             },
-            "notification-url": "https://packagist.org/downloads/",
             "include-path": [
                 "",
                 "../../symfony/yaml/"
@@ -606,7 +555,10 @@
                 "testing",
                 "xunit"
             ],
-            "time": "2014-04-30 12:24:19"
+            "support": {
+                "issues": "https://github.com/sebastianbergmann/phpunit/issues",
+                "irc": "irc://irc.freenode.net/phpunit"
+            }
         },
         {
             "name": "phpunit/phpunit-mock-objects",
@@ -711,18 +663,13 @@
         },
         {
             "name": "symfony/yaml",
-            "version": "v2.4.4",
+            "version": "v2.4.5",
             "target-dir": "Symfony/Component/Yaml",
-            "source": {
-                "type": "git",
-                "url": "https://github.com/symfony/Yaml.git",
-                "reference": "65539ecde838f9c0d18b006b2101e3deb4b5c9ff"
-            },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/symfony/Yaml/zipball/65539ecde838f9c0d18b006b2101e3deb4b5c9ff",
-                "reference": "65539ecde838f9c0d18b006b2101e3deb4b5c9ff",
-                "shasum": ""
+                "url": "http://satis.basereality.com/packages/symfony/yaml/symfony_yaml_v2.4.5.zip",
+                "reference": "symfony_yaml_v2.4.5.zip",
+                "shasum": "ae3e07aae74c753864dc7893ea8eb5f56e9a0e1a"
             },
             "require": {
                 "php": ">=5.3.3"
@@ -738,16 +685,13 @@
                     "Symfony\\Component\\Yaml\\": ""
                 }
             },
-            "notification-url": "https://packagist.org/downloads/",
             "license": [
                 "MIT"
             ],
             "authors": [
                 {
                     "name": "Fabien Potencier",
-                    "email": "fabien@symfony.com",
-                    "homepage": "http://fabien.potencier.org",
-                    "role": "Lead Developer"
+                    "email": "fabien@symfony.com"
                 },
                 {
                     "name": "Symfony Community",
@@ -755,8 +699,7 @@
                 }
             ],
             "description": "Symfony Yaml Component",
-            "homepage": "http://symfony.com",
-            "time": "2014-04-18 20:37:09"
+            "homepage": "http://symfony.com"
         },
         {
             "name": "whatthejeff/fab",

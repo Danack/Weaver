@@ -4,7 +4,7 @@
 namespace Weaver;
 
 
-use Zend\Code\Generator\ParameterGenerator;
+use Danack\Code\Generator\ParameterGenerator;
 
 class ImplementsWeaveInfo {
 
@@ -53,6 +53,10 @@ class ImplementsWeaveInfo {
         $this->lazyPropertyName = $lazyPropertyName;
         $this->interface = $interface;
         
+        if (interface_exists($interface) == false) {
+            throw new WeaveException("Error in ImplementsWeaveInfo: ".$interface." does not exist");
+        }
+
         if ((is_array($lazyFactory) == true && count($lazyFactory) == 2)  || 
             is_string($lazyFactory) ||
             $lazyFactory === null) {

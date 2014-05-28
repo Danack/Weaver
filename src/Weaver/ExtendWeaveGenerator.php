@@ -3,12 +3,12 @@
 
 namespace Weaver;
 
-use Zend\Code\Generator\ClassGenerator;
+use Danack\Code\Generator\ClassGenerator;
 
-use Zend\Code\Generator\MethodGenerator;
-use Zend\Code\Generator\ParameterGenerator;
-use Zend\Code\Reflection\MethodReflection;
-use Zend\Code\Reflection\ClassReflection;
+use Danack\Code\Generator\MethodGenerator;
+use Danack\Code\Generator\ParameterGenerator;
+use Danack\Code\Reflection\MethodReflection;
+use Danack\Code\Reflection\ClassReflection;
 
 class ExtendWeaveGenerator extends SingleClassWeaveGenerator {
 

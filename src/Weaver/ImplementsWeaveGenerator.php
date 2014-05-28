@@ -4,14 +4,14 @@
 namespace Weaver;
 
 
-use Zend\Code\Generator\ClassGenerator;
-use Zend\Code\Generator\DocBlockGenerator;
-use Zend\Code\Generator\MethodGenerator;
-use Zend\Code\Generator\ParameterGenerator;
-use Zend\Code\Reflection\MethodReflection;
-use Zend\Code\Reflection\ClassReflection;
-use Zend\Code\Reflection\FunctionReflection;
-use Zend\Code\Generator\PropertyGenerator;
+use Danack\Code\Generator\ClassGenerator;
+use Danack\Code\Generator\DocBlockGenerator;
+use Danack\Code\Generator\MethodGenerator;
+use Danack\Code\Generator\ParameterGenerator;
+use Danack\Code\Reflection\MethodReflection;
+use Danack\Code\Reflection\ClassReflection;
+use Danack\Code\Reflection\FunctionReflection;
+use Danack\Code\Generator\PropertyGenerator;
 
 /**
  * @param ParameterGenerator[] $parameters
@@ -87,7 +87,7 @@ class ImplementsWeaveGenerator extends SingleClassWeaveGenerator  {
             $variableName = lcfirst(getClassName($factoryClassname)); 
             $newProperty = new PropertyGenerator($variableName);
             $newProperty->setStandardDocBlock($factoryClassname);
-            $newProperty->setVisibility(\Zend\Code\Generator\AbstractMemberGenerator::FLAG_PRIVATE);
+            $newProperty->setVisibility(\Danack\Code\Generator\AbstractMemberGenerator::FLAG_PRIVATE);
             $this->generator->addPropertyFromGenerator($newProperty);
         }
 
@@ -190,7 +190,7 @@ class ImplementsWeaveGenerator extends SingleClassWeaveGenerator  {
     /**
      * @param MethodReflection $sourceConstructorMethod
      * @param MethodReflection $decoratorConstructorMethod
-     * @return \Zend\Code\Reflection\ParameterReflection[]
+     * @return \Danack\Code\Reflection\ParameterReflection[]
      */
     function addInitMethod() {
         $lazyPropertyName = $this->implementsWeaveInfo->getLazyPropertyName();

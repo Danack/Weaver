@@ -2,6 +2,7 @@
 
 namespace Example;
 
+//use Example\TypeHintClass;
 
 class TestClassWithTypeHintedParameter implements TestInterface {
 
@@ -9,7 +10,7 @@ class TestClassWithTypeHintedParameter implements TestInterface {
     
     private $dependency;
     
-    function __construct($queryString, TypeHintClass $dependency) {
+    function __construct($queryString, \Example\TypeHintClass $dependency) {
         $this->queryString = $queryString;
         $this->dependency = $dependency;
     }

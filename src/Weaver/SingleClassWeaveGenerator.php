@@ -3,18 +3,18 @@
 
 namespace Weaver;
 
-use Zend\Code\Generator\DocBlockGenerator;
-use Zend\Code\Generator\MethodGenerator;
-use Zend\Code\Generator\ParameterGenerator;
-use Zend\Code\Generator\PropertyGenerator;
-use Zend\Code\Reflection\MethodReflection;
-use Zend\Code\Reflection\ClassReflection;
+use Danack\Code\Generator\DocBlockGenerator;
+use Danack\Code\Generator\MethodGenerator;
+use Danack\Code\Generator\ParameterGenerator;
+use Danack\Code\Generator\PropertyGenerator;
+use Danack\Code\Reflection\MethodReflection;
+use Danack\Code\Reflection\ClassReflection;
 
 
 abstract class SingleClassWeaveGenerator implements WeaveGenerator {
 
     /**
-     * @var \Zend\Code\Generator\ClassGenerator
+     * @var \Danack\Code\Generator\ClassGenerator
      */
     protected $generator;
 
@@ -85,7 +85,7 @@ abstract class SingleClassWeaveGenerator implements WeaveGenerator {
         $properties = $reflector->getProperties();
         foreach ($properties as $property) {
             $newProperty = PropertyGenerator::fromReflection($property);
-            $newProperty->setVisibility(\Zend\Code\Generator\AbstractMemberGenerator::FLAG_PRIVATE);
+            $newProperty->setVisibility(\Danack\Code\Generator\AbstractMemberGenerator::FLAG_PRIVATE);
             $this->generator->addPropertyFromGenerator($newProperty);
         }
     }

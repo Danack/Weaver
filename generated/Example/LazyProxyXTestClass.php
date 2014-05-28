@@ -6,7 +6,7 @@
 //
 namespace Example;
 
-class LazyProxyXTestClass implements TestInterface
+class LazyProxyXTestClass implements \Example\TestInterface
 {
 
     protected $queryString = null;

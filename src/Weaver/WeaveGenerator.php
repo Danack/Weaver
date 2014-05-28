@@ -5,7 +5,7 @@ namespace Weaver;
 
 use Weaver\WeaveException;
 
-use Zend\Code\Generator\ParameterGenerator;
+use Danack\Code\Generator\ParameterGenerator;
 
 /**
  * @param $savePath

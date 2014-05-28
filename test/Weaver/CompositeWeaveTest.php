@@ -27,7 +27,9 @@ class CompositeWeaveTest extends \PHPUnit_Framework_TestCase {
             ]
         );
         $weaveMethod = new CompositeWeaveGenerator($compositeWeaveInfo);
+        
         $weaveMethod->writeClass($this->outputDir);
+        
 
         $injector = createProvider([], []);
         
@@ -35,7 +37,6 @@ class CompositeWeaveTest extends \PHPUnit_Framework_TestCase {
         $injector->defineParam('component2Arg', 'bar');
         $injector->defineParam('testValue', 5);
         
-
         
         $composite = $injector->make('Example\CompositeHolderComponent1Component2');
 

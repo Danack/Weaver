@@ -17,6 +17,23 @@ class ImplementsWeaveTest extends \PHPUnit_Framework_TestCase {
         $this->outputDir = dirname(__FILE__).'/../../generated/';
     }
 
+
+    function testMissingInterface() {
+
+        $this->setExpectedException('Weaver\WeaveException');
+        
+        $lazyWeaveInfo = new ImplementsWeaveInfo(
+            'Example\TestClass',
+            'Weaver\Weave\LazyProxy',
+            'ThisInterfaceDoesNotExist',
+            'init',
+            'lazyInstance', //This is not actually really used?
+            ['Example\TestClassFactory', 'create']
+        );
+        
+    }
+    
+    
     /**
      * 
      */
@@ -25,7 +42,7 @@ class ImplementsWeaveTest extends \PHPUnit_Framework_TestCase {
         $lazyWeaveInfo = new ImplementsWeaveInfo(
             'Example\TestClass',
             'Weaver\Weave\LazyProxy',
-            'TestInterface',
+            'Example\TestInterface',
             'init',
             'lazyInstance', //This is not actually really used?
             ['Example\TestClassFactory', 'create']
@@ -33,6 +50,8 @@ class ImplementsWeaveTest extends \PHPUnit_Framework_TestCase {
 
         $weaver = new ImplementsWeaveGenerator($lazyWeaveInfo);
         $previousClass = $weaver->writeClass($this->outputDir);
+
+        
         $closureFactoryInfo = $weaver->generateClosureFactoryInfo('Example\StandardTestClassFactory');
         $injector = createProvider([], []);
 
@@ -57,7 +76,7 @@ class ImplementsWeaveTest extends \PHPUnit_Framework_TestCase {
         $lazyWeaveInfo = new ImplementsWeaveInfo(
             'Example\TestClass',
             'Weaver\Weave\LazyProxy',
-            'TestInterface',
+            'Example\TestInterface',
             'init',
             'lazyInstance'
             // dont set a factory ['Example\TestClassFactory', 'create']
@@ -72,7 +91,7 @@ class ImplementsWeaveTest extends \PHPUnit_Framework_TestCase {
         $lazyWeaveInfo = new ImplementsWeaveInfo(
             'Example\TestClass',
             'Weaver\Weave\LazyProxy',
-            'TestInterface',
+            'Example\TestInterface',
             'init',
             'lazyInstance',
             'createTestClass'//not a valid factory
@@ -92,7 +111,7 @@ class ImplementsWeaveTest extends \PHPUnit_Framework_TestCase {
         $lazyWeaveInfo = new ImplementsWeaveInfo(
             'Example\TestClass',
             'Weaver\Weave\LazyProxy',
-            'TestInterface',
+            'Example\TestInterface',
             'init',
             'lazyInstance',
             new \stdClass()//not a valid factory
@@ -107,7 +126,7 @@ class ImplementsWeaveTest extends \PHPUnit_Framework_TestCase {
         $lazyWeaveInfo = new ImplementsWeaveInfo(
             'Example\TestClassWithTypeHintedParameter',
             'Example\LazyProxyWithDependency',
-            'TestInterface',
+            'Example\TestInterface',
             'init',
             'lazyInstance'
         );
@@ -124,7 +143,7 @@ class ImplementsWeaveTest extends \PHPUnit_Framework_TestCase {
         $lazyWeaveInfo = new ImplementsWeaveInfo(
             'Example\TestClassWithTypeHintedParameter',
             'Example\LazyProxyWithDependencyNamedDependency',
-            'TestInterface',
+            'Example\TestInterface',
             'init',
             'lazyInstance'
         );
@@ -140,7 +159,6 @@ class ImplementsWeaveTest extends \PHPUnit_Framework_TestCase {
         $injector->defineParam('dependencyNotInProxiedClass', true);
         
         $proxiedClass = $injector->make($outputClassName, [':queryString' => 'testQueryString']);
-
 
         $closureFactoryInfo = $weaver->generateClosureFactoryInfo('Example\StandardTestClassFactory');
         //$injector = createProvider([], []);
