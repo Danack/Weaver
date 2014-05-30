@@ -3,16 +3,16 @@
         "This file locks the dependencies of your project to a known state",
         "Read more about it at http://getcomposer.org/doc/01-basic-usage.md#composer-lock-the-lock-file"
     ],
-    "hash": "e95378aa7f6e6754fb78c71432263342",
+    "hash": "cd1563f196f4f0660a95eae0af61b3a2",
     "packages": [
         {
             "name": "danack/danack-code",
-            "version": "2.3.2",
+            "version": "2.3.4",
             "dist": {
                 "type": "zip",
-                "url": "http://satis.basereality.com/packages/Danack/DanackCode/Danack_DanackCode_2.3.2.zip",
-                "reference": "Danack_DanackCode_2.3.2.zip",
-                "shasum": "43df745ef46c5c3bc050cf3262d243393bd48f2e"
+                "url": "http://satis.basereality.com/packages/Danack/DanackCode/Danack_DanackCode_2.3.4.zip",
+                "reference": "Danack_DanackCode_2.3.4.zip",
+                "shasum": "f170d7811841bdf479fafe2feac46fff1d73e0be"
             },
             "require": {
                 "php": ">=5.3.23",
@@ -35,12 +35,12 @@
         },
         {
             "name": "intahwebz/core",
-            "version": "0.2.0",
+            "version": "0.2.1",
             "dist": {
                 "type": "zip",
-                "url": "http://satis.basereality.com/packages/Danack/intahwebz-core/Danack_intahwebz-core_0.2.0.zip",
-                "reference": "Danack_intahwebz-core_0.2.0.zip",
-                "shasum": "eac6cef98a60b8bfd49d8994ba1837e844a4327a"
+                "url": "http://satis.basereality.com/packages/Danack/intahwebz-core/Danack_intahwebz-core_0.2.1.zip",
+                "reference": "Danack_intahwebz-core_0.2.1.zip",
+                "shasum": "24af5476e4c00aa1ec7ba3686627751013c7b288"
             },
             "require": {
                 "psr/log": "~1.0"
