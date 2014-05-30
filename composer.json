@@ -14,18 +14,21 @@
     ],
     "repositories": [
         {
-            "type": "vcs",
-            "url": "https://github.com/Danack/Auryn"
+            "packagist": false
         },
-
+        { 
+            "type": "composer",
+            "url": "http://satis.basereality.com" 
+        },
         {
             "type": "vcs",
             "url": "https://github.com/Danack/intahwebz"
-        },
+        },        
         {
             "type": "vcs",
-            "url": "/documents/projects/github/AutoloaderSpeedTest"
+            "url": "https://github.com/Danack/Auryn"
         },
+        
         {
             "type": "artifact",
             "url": "./artifact"
