@@ -326,6 +326,31 @@ class ImplementsWeaveGenerator extends SingleClassWeaveGenerator  {
     }
 
     /**
+     * @return null|MethodReflection
+     */
+    function addProxyMethods() {
+        $methods = $this->sourceReflector->getMethods();
+
+        foreach ($methods as $method) {
+            $name = $method->getName();
+
+            if ($name == '__construct') {
+                continue;
+            }
+
+            $methodGenerator = MethodGenerator::fromReflection($method);
+            $newBody = $this->generateProxyMethodBody($method);
+
+            if ($newBody) {
+                //TODO - document why this is only added when newBody is set.
+                $methodGenerator->setBody($newBody);
+                $this->generator->addMethodFromGenerator($methodGenerator);
+            }
+        }
+    }
+    
+    
+    /**
      * @param $originalSourceClass
      * @param $decoratorConstructorParameters MethodReflection[]
      * @return array

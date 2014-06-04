@@ -45,11 +45,11 @@ class ExtendWeaveGenerator extends SingleClassWeaveGenerator {
      * @return null|string
      */
     function writeClass($outputDir, $outputClassname = null) {
-        $this->addProxyMethods();
+
+        $this->addWeavedMethods();
         $this->addDecoratorMethods();
         $this->addProxyConstructor();
         $this->addPropertiesAndConstantsForReflector($this->decoratorReflector);
-        $this->addPropertiesAndConstantsForReflector($this->sourceReflector);
 
         $fqcn = $this->getFQCN();
 
@@ -60,23 +60,48 @@ class ExtendWeaveGenerator extends SingleClassWeaveGenerator {
         $this->generator->setName($fqcn);
         \Weaver\saveFile($outputDir, $fqcn, $this->generator->generate());
         
-        return $this->getFQCN();
+        return $fqcn;
     }
 
 
-    /**
-     * @param $name
-     * @return null|MethodBinding
-     */
-    function getMethodBindingForMethod($name) {
-        foreach ($this->extendWeaveInfo->getMethodBindingArray() as $methodBinding) {
-            if ($methodBinding->matchesMethod($name) == true) {
-                return $methodBinding;
+    function addWeavedMethods() {
+        $methodBindingArray = $this->extendWeaveInfo->getMethodBindingArray();
+        foreach ($methodBindingArray as $methodBinding) {
+            $decoratorMethod = $methodBinding->getMethod();
+            $decoratorMethodReflection = $this->decoratorReflector->getMethod($decoratorMethod);
+
+            foreach ($this->sourceReflector->getMethods() as $sourceMethod) {
+
+                if ($methodBinding->matchesMethod($sourceMethod->getName()) ) {
+                    $weavedMethod = MethodGenerator::fromReflection($sourceMethod);
+                    $newBody = $decoratorMethodReflection->getBody();
+                    $parameters = $sourceMethod->getParameters();
+
+                    $paramArray = [];
+                    $searchArray = [];
+                    
+                    $count = 0;
+                    foreach ($parameters as $parameter) {
+                        $searchArray[] = '$param'.$count;
+                        $paramArray[] = '$'.$parameter->getName();
+                    }
+
+                    $paramList = implode(', ', $paramArray);
+
+                    $newBody = str_replace(
+                        '$this->__prototype()',
+                        'parent::'.$sourceMethod->getName()."($paramList)",
+                        $newBody
+                    );
+
+                    $newBody = str_replace($searchArray, $paramArray, $newBody);
+                    $weavedMethod->setBody($newBody);
+                    $this->generator->addMethodFromGenerator($weavedMethod);
+                }
             }
         }
-
-        return null;
     }
+
 
     /**
      * @param MethodReflection $sourceConstructorMethod
@@ -126,53 +151,53 @@ class ExtendWeaveGenerator extends SingleClassWeaveGenerator {
     }
 
 
-    /**
-     * @param MethodReflection $method
-     * @return bool|string
-     */
-    function generateProxyMethodBody(MethodReflection $method) {
-        $name = $method->getName();
-        $methodBinding = $this->getMethodBindingForMethod($name);
-
-        if (!$methodBinding) {
-            return false;
-        }
-
-        $newBody = '';
-        $beforeFunction = $methodBinding->getBefore();
-        
-        if ($beforeFunction) {
-            $newBody .= $beforeFunction."\n";
-        }
-
-        if ($methodBinding->getHasResult()) {
-            $newBody .= '$result = parent::'.$method->getName()."(";
-        }
-        else {
-            $newBody .= 'parent::'.$method->getName()."(";
-        }
-        $parameters = $method->getParameters();
-        $separator = '';
-
-        foreach ($parameters as $reflectionParameter) {
-            $newBody .= $separator.'$'.$reflectionParameter->getName();
-            $separator = ', ';
-        }
-
-        $newBody .= ");\n";
-
-        $afterFunction = $methodBinding->getAfter();
-
-        if ($afterFunction) {
-            $newBody .= $afterFunction."\n\n";
-        }
-
-        if ($methodBinding->getHasResult()) {
-            $newBody .= 'return $result;'."\n";
-        }
-
-        return $newBody;
-    }
+//    /**
+//     * @param MethodReflection $method
+//     * @return bool|string
+//     */
+//    function generateProxyMethodBody(MethodReflection $method) {
+//        $name = $method->getName();
+//        $methodBinding = $this->getMethodBindingForMethod($name);
+//
+//        if (!$methodBinding) {
+//            return false;
+//        }
+//
+//        $newBody = '';
+//        $beforeFunction = $methodBinding->getBefore();
+//        
+//        if ($beforeFunction) {
+//            $newBody .= $beforeFunction."\n";
+//        }
+//
+//        if ($methodBinding->getHasResult()) {
+//            $newBody .= '$result = parent::'.$method->getName()."(";
+//        }
+//        else {
+//            $newBody .= 'parent::'.$method->getName()."(";
+//        }
+//        $parameters = $method->getParameters();
+//        $separator = '';
+//
+//        foreach ($parameters as $reflectionParameter) {
+//            $newBody .= $separator.'$'.$reflectionParameter->getName();
+//            $separator = ', ';
+//        }
+//
+//        $newBody .= ");\n";
+//
+//        $afterFunction = $methodBinding->getAfter();
+//
+//        if ($afterFunction) {
+//            $newBody .= $afterFunction."\n\n";
+//        }
+//
+//        if ($methodBinding->getHasResult()) {
+//            $newBody .= 'return $result;'."\n";
+//        }
+//
+//        return $newBody;
+//    } 
 }
 
  

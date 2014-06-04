@@ -69,7 +69,7 @@ function createProvider($implementations = array(), $shareClasses = array()) {
     $standardLogger = createStandardLogger();
     
     $standardImplementations = [
-        'Intahwebz\ObjectCache' => 'Intahwebz\Cache\APCObjectCache',
+        'Intahwebz\ObjectCache' => 'Intahwebz\Cache\InMemoryCache',
         'Psr\Log\LoggerInterface' => $standardLogger
     ];
 

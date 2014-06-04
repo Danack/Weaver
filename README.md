@@ -1,9 +1,10 @@
 # Weaver
 
 
-An experiment in compositional programming. 
+An experiment in compositional programming.  Inspired by https://github.com/Ocramius/ProxyManager and https://github.com/ejsmont-artur/phpProxyBuilder
 
-This is poor mans version of a proxy builder. Inspired by https://github.com/Ocramius/ProxyManager and https://github.com/ejsmont-artur/phpProxyBuilder
+    
+[![Build Status](https://travis-ci.org/Danack/Weaver.svg?branch=master)](https://travis-ci.org/Danack/Weaver)
 
 
 ## Why?

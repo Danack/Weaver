@@ -28,11 +28,11 @@ abstract class SingleClassWeaveGenerator implements WeaveGenerator {
      */
     protected $decoratorReflector;
 
-    /**
-     * @param MethodReflection $methodReflection
-     * @return mixed
-     */
-    abstract function generateProxyMethodBody(MethodReflection $methodReflection);
+//    /**
+//     * @param MethodReflection $methodReflection
+//     * @return mixed
+//     */
+//    abstract function generateProxyMethodBody(MethodReflection $methodReflection);
 
     /**
      * @return string
@@ -48,29 +48,7 @@ abstract class SingleClassWeaveGenerator implements WeaveGenerator {
         return $this->decoratorReflector->getShortName()."X".$this->sourceReflector->getShortName();
     }
 
-    /**
-     * @return null|MethodReflection
-     */
-    function addProxyMethods() {
-        $methods = $this->sourceReflector->getMethods();
 
-        foreach ($methods as $method) {
-            $name = $method->getName();
-
-            if ($name == '__construct') {
-                continue;
-            }
-
-            $methodGenerator = MethodGenerator::fromReflection($method);
-            $newBody = $this->generateProxyMethodBody($method);
-
-            if ($newBody) {
-                //TODO - document why this is only added when newBody is set.
-                $methodGenerator->setBody($newBody);
-                $this->generator->addMethodFromGenerator($methodGenerator);
-            }
-        }
-    }
 
     /**
      * @param ClassReflection $reflector
@@ -99,7 +77,7 @@ abstract class SingleClassWeaveGenerator implements WeaveGenerator {
         foreach ($methods as $method) {
             $name = $method->getName();
 
-            if ($name == '__construct') {
+            if ($name === '__construct' || $name === '__prototype' || $name == '__extend') {
                 continue;
             }
 

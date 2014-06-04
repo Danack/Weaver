@@ -7,41 +7,15 @@ namespace Weaver;
 class MethodBinding {
 
     private $methodMatcher;
-    private $before;
-    private $after;
+    private $method;
 
     /**
-     * @param MethodMatcher $methodMatcher
-     * @param $before
-     * @param $after
-     * @param bool $hasResult
+     * @param $method - The method in the decorating class.
+     * @param MethodMatcher $methodMatcher - The methods in the source class to decorate.
      */
-    function __construct(MethodMatcher $methodMatcher, $before, $after, $hasResult = true) {
+    function __construct($method, MethodMatcher $methodMatcher) {
+        $this->method = $method;
         $this->methodMatcher = $methodMatcher;
-        $this->before = $before;
-        $this->after = $after;
-        $this->hasResult = $hasResult;
-    }
-
-    /**
-     * @return boolean
-     */
-    public function getHasResult() {
-        return $this->hasResult;
-    }
-
-    /**
-     * @return mixed
-     */
-    public function getAfter() {
-        return $this->after;
-    }
-
-    /**
-     * @return mixed
-     */
-    public function getBefore() {
-        return $this->before;
     }
 
     /**
@@ -50,6 +24,13 @@ class MethodBinding {
      */
     function matchesMethod($methodName) {
         return $this->methodMatcher->matches($methodName);
+    }
+
+    /**
+     * @return mixed
+     */
+    public function getMethod() {
+        return $this->method;
     }
 }
 

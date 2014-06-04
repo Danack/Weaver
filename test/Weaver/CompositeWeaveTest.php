@@ -27,19 +27,17 @@ class CompositeWeaveTest extends \PHPUnit_Framework_TestCase {
             ]
         );
         $weaveMethod = new CompositeWeaveGenerator($compositeWeaveInfo);
-        
-        $weaveMethod->writeClass($this->outputDir);
-        
+
+        $outputClassname = 'Example\Coverage\CompositeHolderComponent1Component2';
+        $weaveMethod->writeClass($this->outputDir, $outputClassname);
 
         $injector = createProvider([], []);
         
         $injector->defineParam('component1Arg', 'foo');
         $injector->defineParam('component2Arg', 'bar');
         $injector->defineParam('testValue', 5);
-        
-        
-        $composite = $injector->make('Example\CompositeHolderComponent1Component2');
 
+        $composite = $injector->make($outputClassname);
         $output = $composite->render();
         
         $this->assertContains('component1', $output);
@@ -63,7 +61,7 @@ class CompositeWeaveTest extends \PHPUnit_Framework_TestCase {
             ]
         );
         $weaveMethod = new CompositeWeaveGenerator($compositeWeaveInfo);
-        $weaveMethod->writeClass($this->outputDir, 'Example\CompositeRenamed');
+        $weaveMethod->writeClass($this->outputDir, 'Example\Coverage\CompositeRenamed');
 
         $injector = createProvider([], []);
 
@@ -71,7 +69,7 @@ class CompositeWeaveTest extends \PHPUnit_Framework_TestCase {
         $injector->defineParam('component2Arg', 'bar');
         $injector->defineParam('testValue', 5);
 
-        $composite = $injector->make('Example\CompositeRenamed');
+        $composite = $injector->make('Example\Coverage\CompositeRenamed');
     }
 
     function testCompositeWeaveGlobalNamespaceClassname() {
@@ -89,7 +87,7 @@ class CompositeWeaveTest extends \PHPUnit_Framework_TestCase {
             ]
         );
         $weaveMethod = new CompositeWeaveGenerator($compositeWeaveInfo);
-        $weaveMethod->writeClass($this->outputDir, 'GlobalNamespaceCompositeRenamed');
+        $weaveMethod->writeClass($this->outputDir, 'GlobalNamespaceTest');
 
         $injector = createProvider([], []);
 
@@ -97,7 +95,7 @@ class CompositeWeaveTest extends \PHPUnit_Framework_TestCase {
         $injector->defineParam('component2Arg', 'bar');
         $injector->defineParam('testValue', 5);
 
-        $composite = $injector->make('GlobalNamespaceCompositeRenamed');
+        $composite = $injector->make('GlobalNamespaceTest');
     }
 
 
@@ -116,7 +114,7 @@ class CompositeWeaveTest extends \PHPUnit_Framework_TestCase {
             ]
         );
         $weaveMethod = new CompositeWeaveGenerator($compositeWeaveInfo);
-        $classname = $weaveMethod->writeClass($this->outputDir);
+        $classname = $weaveMethod->writeClass($this->outputDir, 'Example\Coverage\ArrayReturn');
         $injector = createProvider([], []);
         $composite = $injector->make($classname);
     }
@@ -138,7 +136,7 @@ class CompositeWeaveTest extends \PHPUnit_Framework_TestCase {
             ]
         );
         $weaveMethod = new CompositeWeaveGenerator($compositeWeaveInfo);
-        $classname = $weaveMethod->writeClass($this->outputDir);
+        $classname = $weaveMethod->writeClass($this->outputDir, 'Example\Coverage\UnknownComposite');
     }
     
 }

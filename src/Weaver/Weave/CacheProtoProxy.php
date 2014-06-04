@@ -6,7 +6,7 @@ namespace Weaver\Weave;
 use Intahwebz\ObjectCache;
 
 
-class CacheProxy {
+class CacheProtoProxy {
 
     /**
      * @var \Intahwebz\ObjectCache
@@ -19,7 +19,6 @@ class CacheProxy {
     
     function getCacheKey() {
         $args = func_get_args();
-
         $cacheKey = '';
 
         foreach($args as $arg) {
@@ -31,42 +30,25 @@ class CacheProxy {
             else {
                 $cacheKey = hash("sha256", $cacheKey.$arg);
             }
-            //blah
         }
 
         return $cacheKey;
     }
 
-//    //TODO - would it be better to define the binding like this?
-//    function __prototype() {
-//        $cacheKey = $this->getCacheKey($queryString);
-//        $cachedValue = $this->cache->get($cacheKey);
-//
-//        if ($cachedValue) {
-//            return $cachedValue;
-//        }
-//        $result = parent::__prototype();
-//        $this->cache->put($cacheKey, $result);
-//        return $result;
-//    }
-
+    function __prototype() {
+        return 'value';
+    }
 
     function __extend() {
-        $cacheKey = $this->getCacheKey($this->queryString);
+        $cacheKey = call_user_func_array([$this, 'getCacheKey'], func_get_args());
         $cachedValue = $this->cache->get($cacheKey);
         
         if ($cachedValue) {
-           echo "Result is in cache.\n";
            return $cachedValue;
         }
 
-        $result = parent::__prototype();
-        
-        echo "Result was not in cache\n";
-        $this->cache->put($cacheKey, $result);
+        $result = $this->__prototype();
+        $this->cache->put($cacheKey, $result, 360);
         return $result;
     }
-
-
-
 }

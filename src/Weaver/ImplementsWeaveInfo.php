@@ -41,18 +41,29 @@ class ImplementsWeaveInfo {
         $sourceClass,
         $decoratorClass, 
         $interface,
-        $initMethodName,
-        $lazyPropertyName,
-        $lazyFactory = null
-
+        $lazyFactory = null,
+        $initMethodName = null,
+        $lazyPropertyName = null
     ) {
         $this->sourceClass = $sourceClass;
         $this->decoratorClass = $decoratorClass;
         $this->methodBindingArray = [];
-        $this->initMethodName = $initMethodName;
-        $this->lazyPropertyName = $lazyPropertyName;
         $this->interface = $interface;
-        
+
+        if ($initMethodName) {
+            $this->initMethodName = $initMethodName;
+        }
+        else {
+            $this->initMethodName = 'init';
+        }
+
+        if ($lazyPropertyName) {
+            $this->lazyPropertyName = $lazyPropertyName;
+        }
+        else {
+            $this->lazyPropertyName = 'lazyInstance';
+        }
+
         if (interface_exists($interface) == false) {
             throw new WeaveException("Error in ImplementsWeaveInfo: ".$interface." does not exist");
         }
@@ -63,7 +74,7 @@ class ImplementsWeaveInfo {
             //It's acceptable
         }
         else{
-            throw new WeaveException("lazyFactory must either be a function, or an [interafaceName, method].");
+            throw new WeaveException("lazyFactory must either be a function, or in the form [InterfaceName, method].");
         }
 
         $this->lazyFactory = $lazyFactory;

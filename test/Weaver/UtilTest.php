@@ -26,10 +26,11 @@ class UtilTest extends \PHPUnit_Framework_TestCase {
         $this->outputDir = dirname(__FILE__).'/../../generated/';
     }
 
+    /** 
+     * This test exists solely to get coverage of when writing the output fails. 
+     */
     function testExtendWeave_cacheProxy() {
-        
         $this->setExpectedException('Weaver\WeaveException');
-        
         $cacheWeaveInfo = new ExtendWeaveInfo(
             'Example\TestClass',
             'Weaver\Weave\CacheProxy',
@@ -37,13 +38,9 @@ class UtilTest extends \PHPUnit_Framework_TestCase {
         );
 
         $GLOBALS['mockFilePutContents'] = true;
-        
         $weaver = new ExtendWeaveGenerator($cacheWeaveInfo);
         $weaver->writeClass($this->outputDir);
-        
-       
     }
-    
 }
 
 }

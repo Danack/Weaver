@@ -4,7 +4,7 @@
 namespace Example;
 
 
-interface TestClassFactory {
+interface DBConnectionFactory {
 
     /**
      * @param $queryString
