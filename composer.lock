@@ -3,7 +3,7 @@
         "This file locks the dependencies of your project to a known state",
         "Read more about it at http://getcomposer.org/doc/01-basic-usage.md#composer-lock-the-lock-file"
     ],
-    "hash": "d5d4dba2e5f7a78dd211a96ed4d37082",
+    "hash": "b21954135e021695a1eb2d81f8c68258",
     "packages": [
         {
             "name": "danack/danack-code",
@@ -35,12 +35,12 @@
         },
         {
             "name": "intahwebz/core",
-            "version": "0.2.1",
+            "version": "0.2.2",
             "dist": {
                 "type": "zip",
-                "url": "http://satis.basereality.com/packages/Danack/intahwebz-core/Danack_intahwebz-core_0.2.1.zip",
-                "reference": "Danack_intahwebz-core_0.2.1.zip",
-                "shasum": "24af5476e4c00aa1ec7ba3686627751013c7b288"
+                "url": "http://satis.basereality.com/packages/Danack/intahwebz-core/Danack_intahwebz-core_0.2.2.zip",
+                "reference": "Danack_intahwebz-core_0.2.2.zip",
+                "shasum": "a1de80676f43a62fa66de16255125eda788529e8"
             },
             "require": {
                 "psr/log": "~1.0"

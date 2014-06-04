@@ -34,7 +34,7 @@
     },
 
     "require": {
-        "intahwebz/core": ">=0.1.2",
+        "intahwebz/core": ">=0.2.2",
         "php": ">=5.4.0",
         "Danack/danack-code": "2.4.0"
     },
