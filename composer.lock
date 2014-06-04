@@ -3,16 +3,16 @@
         "This file locks the dependencies of your project to a known state",
         "Read more about it at http://getcomposer.org/doc/01-basic-usage.md#composer-lock-the-lock-file"
     ],
-    "hash": "cd1563f196f4f0660a95eae0af61b3a2",
+    "hash": "d5d4dba2e5f7a78dd211a96ed4d37082",
     "packages": [
         {
             "name": "danack/danack-code",
-            "version": "2.3.4",
+            "version": "2.4.0",
             "dist": {
                 "type": "zip",
-                "url": "http://satis.basereality.com/packages/Danack/DanackCode/Danack_DanackCode_2.3.4.zip",
-                "reference": "Danack_DanackCode_2.3.4.zip",
-                "shasum": "f170d7811841bdf479fafe2feac46fff1d73e0be"
+                "url": "http://satis.basereality.com/packages/Danack/DanackCode/Danack_DanackCode_2.4.0.zip",
+                "reference": "Danack_DanackCode_2.4.0.zip",
+                "shasum": "a9b7535541c6c3f156036a8abccb59bf874f646c"
             },
             "require": {
                 "php": ">=5.3.23",
@@ -663,13 +663,13 @@
         },
         {
             "name": "symfony/yaml",
-            "version": "v2.4.5",
+            "version": "v2.5.0",
             "target-dir": "Symfony/Component/Yaml",
             "dist": {
                 "type": "zip",
-                "url": "http://satis.basereality.com/packages/symfony/yaml/symfony_yaml_v2.4.5.zip",
-                "reference": "symfony_yaml_v2.4.5.zip",
-                "shasum": "ae3e07aae74c753864dc7893ea8eb5f56e9a0e1a"
+                "url": "http://satis.basereality.com/packages/symfony/yaml/symfony_yaml_v2.5.0.zip",
+                "reference": "symfony_yaml_v2.5.0.zip",
+                "shasum": "88c3a8f1e39b3c1549e0bb34dcc7aabd05f4a55e"
             },
             "require": {
                 "php": ">=5.3.3"
@@ -677,7 +677,7 @@
             "type": "library",
             "extra": {
                 "branch-alias": {
-                    "dev-master": "2.4-dev"
+                    "dev-master": "2.5-dev"
                 }
             },
             "autoload": {
