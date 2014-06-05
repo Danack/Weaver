@@ -19,16 +19,15 @@ class ExtendWeaveTest extends \PHPUnit_Framework_TestCase {
         );
 
         $cacheWeaveInfo = new ExtendWeaveInfo(
-            'Example\Twitter',
             'Weaver\Weave\CacheProtoProxy',
             [$cacheMethodBinding]
         );
 
-        $weaver = new ExtendWeaveGenerator($cacheWeaveInfo);
-        $previousClass = $weaver->writeClass($this->outputDir, 'Example\CachedTwitter');
+        $result = Weaver::weave('Example\Twitter', $cacheWeaveInfo);
+        $result->writeFile($this->outputDir, 'Example\CachedTwitter');
         $injector = createProvider([], []);
         $injector->defineParam('twitterKey', 123456);
-        $composite = $injector->make($previousClass, [':queryString' => 'testQueryString']);
+        $composite = $injector->make('Example\CachedTwitter', [':queryString' => 'testQueryString']);
     }
 
 
@@ -40,33 +39,27 @@ class ExtendWeaveTest extends \PHPUnit_Framework_TestCase {
         );
 
         $timerWeaveInfo = new ExtendWeaveInfo(
-            'Example\Twitter',
             'Weaver\Weave\TimerProtoProxy',
             [$timerMethodBinding]
         );
 
-        $weaver = new ExtendWeaveGenerator($timerWeaveInfo);
-        $previousClass = $weaver->writeClass($this->outputDir, 'Example\TimedTwitter');
+        $result = Weaver::weave('Example\Twitter', $timerWeaveInfo);
+        $previousClass = $result->writeFile($this->outputDir, 'Example\TimedTwitter');
         $this->checkTweetResult($previousClass, 3);
-        
-        
+
         $cacheMethodBinding = new MethodBinding(
             '__extend',
             new MethodMatcher(['getTweet'])
         );
 
-        $timerWeaveInfo = new ExtendWeaveInfo(
-            $previousClass,
+        $cacheWeaveInfo = new ExtendWeaveInfo(
             'Weaver\Weave\CacheProtoProxy',
             [$cacheMethodBinding]
         );
 
-        $weaver = new ExtendWeaveGenerator($timerWeaveInfo);
-        $previousClass = $weaver->writeClass($this->outputDir, 'Example\CachedTimedTwitter');
-        
-        
+        $result = Weaver::weave($previousClass, $cacheWeaveInfo);
+        $previousClass = $result->writeFile($this->outputDir, 'Example\CachedTimedTwitter');
         $this->checkTweetResult($previousClass, 2);
-
     }
 
     function checkTweetResult($classToMake, $expectedTimingEntries) {
@@ -89,13 +82,12 @@ class ExtendWeaveTest extends \PHPUnit_Framework_TestCase {
         );
 
         $timerWeaveInfo = new ExtendWeaveInfo(
-            'Example\Twitter',
             'Weaver\Weave\TimerProtoProxy',
             [$timerMethodBinding]
         );
 
-        $weaver = new ExtendWeaveGenerator($timerWeaveInfo);
-        $previousClass = $weaver->writeClass($this->outputDir, 'Example\TimedTwitter');
+        $result = Weaver::weave('Example\Twitter', $timerWeaveInfo);
+        $previousClass = $result->writeFile($this->outputDir, 'Example\TimedTwitter');
 
         $injector = createProvider([], []);
         $injector->defineParam('twitterKey', 123456);
@@ -106,17 +98,16 @@ class ExtendWeaveTest extends \PHPUnit_Framework_TestCase {
      * 
      */
     function testConst() {
-
         $timerWeaveInfo = new ExtendWeaveInfo(
-            'Example\TestClass',
             '\Example\Proxy\ProxyWithConstant', 
             []
         );
 
         $outputClassname = 'Example\Coverage\ProxyWithConstantXTestClass';
 
-        $weaver = new ExtendWeaveGenerator($timerWeaveInfo);
-        $weaver->writeClass($this->outputDir, $outputClassname);
+        $result = Weaver::weave('Example\TestClass', $timerWeaveInfo);
+        $result->writeFile($this->outputDir, $outputClassname);
+
         $injector = createProvider([], []);
         $original = $injector->make('Example\Proxy\ProxyWithConstant');
         $weaved =  $injector->make($outputClassname, [':queryString' => 'testQuery']);

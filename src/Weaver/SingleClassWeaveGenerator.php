@@ -11,7 +11,7 @@ use Danack\Code\Reflection\MethodReflection;
 use Danack\Code\Reflection\ClassReflection;
 
 
-abstract class SingleClassWeaveGenerator implements WeaveGenerator {
+abstract class SingleClassWeaveGenerator {
 
     /**
      * @var \Danack\Code\Generator\ClassGenerator
@@ -21,46 +21,39 @@ abstract class SingleClassWeaveGenerator implements WeaveGenerator {
     /**
      * @var ClassReflection
      */
-    protected $sourceReflector;
+    protected $sourceReflection;
 
     /**
      * @var ClassReflection
      */
-    protected $decoratorReflector;
-
-//    /**
-//     * @param MethodReflection $methodReflection
-//     * @return mixed
-//     */
-//    abstract function generateProxyMethodBody(MethodReflection $methodReflection);
+    protected $decoratorReflection;
 
     /**
      * @return string
      */
     function getNamespaceName() {
-        return $this->sourceReflector->getNamespaceName();
+        return $this->sourceReflection->getNamespaceName();
     }
 
     /**
      * @return string
      */
     function getProxiedName() {
-        return $this->decoratorReflector->getShortName()."X".$this->sourceReflector->getShortName();
+        return $this->decoratorReflection->getShortName()."X".$this->sourceReflection->getShortName();
     }
 
 
-
     /**
-     * @param ClassReflection $reflector
+     * @param ClassReflection $classReflection
      * @param $originalSourceClass
      */
-    function addPropertiesAndConstantsForReflector(ClassReflection $reflector ) {
-        $constants = $reflector->getConstants();
+    function addPropertiesAndConstantsFromReflection(ClassReflection $classReflection ) {
+        $constants = $classReflection->getConstants();
         foreach ($constants as $name => $value) {
             $this->generator->addProperty($name, $value, PropertyGenerator::FLAG_CONSTANT);
         }
 
-        $properties = $reflector->getProperties();
+        $properties = $classReflection->getProperties();
         foreach ($properties as $property) {
             $newProperty = PropertyGenerator::fromReflection($property);
             $newProperty->setVisibility(\Danack\Code\Generator\AbstractMemberGenerator::FLAG_PRIVATE);
@@ -72,7 +65,7 @@ abstract class SingleClassWeaveGenerator implements WeaveGenerator {
      * @return null|MethodReflection
      */
     function addDecoratorMethods() {
-        $methods = $this->decoratorReflector->getMethods();
+        $methods = $this->decoratorReflection->getMethods();
 
         foreach ($methods as $method) {
             $name = $method->getName();

@@ -21,16 +21,16 @@ class CompositeWeaveTest extends \PHPUnit_Framework_TestCase {
 
         $compositeWeaveInfo = new \Weaver\CompositeWeaveInfo(
             'Example\CompositeHolder',
-            $components,
             [
                 'renderElement' => 'string',
             ]
         );
-        $weaveMethod = new CompositeWeaveGenerator($compositeWeaveInfo);
 
         $outputClassname = 'Example\Coverage\CompositeHolderComponent1Component2';
-        $weaveMethod->writeClass($this->outputDir, $outputClassname);
 
+        $result = Weaver::weave($components, $compositeWeaveInfo);
+        $result->writeFile($this->outputDir, $outputClassname);
+        
         $injector = createProvider([], []);
         
         $injector->defineParam('component1Arg', 'foo');
@@ -55,13 +55,13 @@ class CompositeWeaveTest extends \PHPUnit_Framework_TestCase {
 
         $compositeWeaveInfo = new \Weaver\CompositeWeaveInfo(
             'Example\CompositeHolder',
-            $components,
             [
                 'renderElement' => 'string',
             ]
         );
-        $weaveMethod = new CompositeWeaveGenerator($compositeWeaveInfo);
-        $weaveMethod->writeClass($this->outputDir, 'Example\Coverage\CompositeRenamed');
+
+        $result = Weaver::weave($components, $compositeWeaveInfo);
+        $result->writeFile($this->outputDir, 'Example\Coverage\CompositeRenamed');
 
         $injector = createProvider([], []);
 
@@ -81,13 +81,13 @@ class CompositeWeaveTest extends \PHPUnit_Framework_TestCase {
 
         $compositeWeaveInfo = new \Weaver\CompositeWeaveInfo(
             'Example\CompositeHolder',
-            $components,
             [
                 'renderElement' => 'string',
             ]
         );
-        $weaveMethod = new CompositeWeaveGenerator($compositeWeaveInfo);
-        $weaveMethod->writeClass($this->outputDir, 'GlobalNamespaceTest');
+
+        $result = Weaver::weave($components, $compositeWeaveInfo);
+        $result->writeFile($this->outputDir, 'GlobalNamespaceTest');
 
         $injector = createProvider([], []);
 
@@ -100,7 +100,6 @@ class CompositeWeaveTest extends \PHPUnit_Framework_TestCase {
 
 
     function testCompositeWeaveArrayReturn() {
-
         $components = [
             'Example\ComponentParams1',
             'Example\ComponentParams2'
@@ -108,19 +107,19 @@ class CompositeWeaveTest extends \PHPUnit_Framework_TestCase {
 
         $compositeWeaveInfo = new \Weaver\CompositeWeaveInfo(
             'Example\CompositeParamsHolder',
-            $components,
             [
                 'getParams' => 'array',
             ]
         );
-        $weaveMethod = new CompositeWeaveGenerator($compositeWeaveInfo);
-        $classname = $weaveMethod->writeClass($this->outputDir, 'Example\Coverage\ArrayReturn');
+
+        $result = Weaver::weave($components, $compositeWeaveInfo);
+        $classname = $result->writeFile($this->outputDir, 'Example\Coverage\ArrayReturn');
+
         $injector = createProvider([], []);
         $composite = $injector->make($classname);
     }
     
     function testUnknownCompositeType() {
-
         $this->setExpectedException('Weaver\WeaveException');
 
         $components = [
@@ -130,13 +129,12 @@ class CompositeWeaveTest extends \PHPUnit_Framework_TestCase {
 
         $compositeWeaveInfo = new \Weaver\CompositeWeaveInfo(
             'Example\CompositeParamsHolder',
-            $components,
             [
                 'getParams' => 'blob',
             ]
         );
-        $weaveMethod = new CompositeWeaveGenerator($compositeWeaveInfo);
-        $classname = $weaveMethod->writeClass($this->outputDir, 'Example\Coverage\UnknownComposite');
+
+        $result = Weaver::weave($components, $compositeWeaveInfo);
+        $classname = $result->writeFile($this->outputDir, 'Example\Coverage\UnknownComposite');
     }
-    
 }

@@ -17,27 +17,17 @@ class ImplementsWeaveTest extends \PHPUnit_Framework_TestCase {
         $this->outputDir = dirname(__FILE__).'/../../generated/';
     }
 
-
     function testMissingInterface() {
-
         $this->setExpectedException('Weaver\WeaveException');
-        
         $lazyWeaveInfo = new ImplementsWeaveInfo(
-            'Example\TestClass',
             'Weaver\Weave\LazyProxy',
             'ThisInterfaceDoesNotExist'
         );
     }
 
-    
-    
-    /**
-     * 
-     */
     function testInstanceWeave() {
 
         $lazyWeaveInfo = new ImplementsWeaveInfo(
-            'Example\MySQLConnection',  //The class to proxy
             'Weaver\Weave\LazyProxy',    //The decorating class
             'Example\DBConnection',      //The interface to expose TODO allow multiple interfaces
             ['Example\DBConnectionFactory', 'create'], //Optional factory method to use to create instances
@@ -45,50 +35,40 @@ class ImplementsWeaveTest extends \PHPUnit_Framework_TestCase {
             'lazyInstance'               //Optional, what to call the instance property, default 'lazyInstance'
         );
 
-        $weaver = new ImplementsWeaveGenerator($lazyWeaveInfo);
-        $previousClass = $weaver->writeClass($this->outputDir, 'Example\LazyMySQLConnection');
+        $result = Weaver::weave('Example\MySQLConnection', $lazyWeaveInfo);
+        $classname = $result->writeFile($this->outputDir, 'Example\LazyMySQLConnection');
 
-        /*
-        $closureFactoryInfo = $weaver->generateClosureFactoryInfo('Example\StandardTestClassFactory');
-        $injector = createProvider([], []);
-
-        //TODO - eval this?
-        $fileHandle = fopen($this->outputDir."testInstanceWeave.php", 'wb');
-        fwrite($fileHandle, "<?php\n");
-        fwrite($fileHandle, $closureFactoryInfo->__toString());
-        fclose($fileHandle);
-        
-        require_once($this->outputDir."testInstanceWeave.php");
-*/
+////TODO - eval this?
+//        $fileHandle = fopen($this->outputDir."testInstanceWeave.php", 'wb');
+//        fwrite($fileHandle, "<?php\n");
+//        fwrite($fileHandle, $closureFactoryInfo->__toString());
+//        fclose($fileHandle);        
     }
 
     /**
      *
      */
     function testImplementsWeaveWithoutFactory() {
-        $weaver = new Weaver();
-
         $lazyWeaveInfo = new ImplementsWeaveInfo(
-            'Example\TestClass',
             'Weaver\Weave\LazyProxy',
             'Example\TestInterface'
         );
 
-        $weaver = new ImplementsWeaveGenerator($lazyWeaveInfo);
-        $weaver->writeClass($this->outputDir, 'Example\Coverage\LazyProxyXTestClass');
+        $result = Weaver::weave('Example\TestClass', $lazyWeaveInfo);
+        $classname = $result->writeFile($this->outputDir, 'Example\Coverage\LazyProxyXTestClass');
     }
 
 
     function testFunctionFactoryIsAllowed() {
         $lazyWeaveInfo = new ImplementsWeaveInfo(
-            'Example\TestClass',
             'Weaver\Weave\LazyProxy',
             'Example\TestInterface',
-            'createTestClass'//not a valid factory
+            'createTestClass'
         );
 
-        $weaver = new ImplementsWeaveGenerator($lazyWeaveInfo);
-        $weaver->writeClass($this->outputDir, 'Example\Coverage\FunctionFactory');
+        $result = Weaver::weave('Example\TestClass', $lazyWeaveInfo);
+        $classname = $result->writeFile($this->outputDir, 'Example\Coverage\FunctionFactory');
+        //TODO - write the factory method
     }
 
 
@@ -96,25 +76,24 @@ class ImplementsWeaveTest extends \PHPUnit_Framework_TestCase {
         $this->setExpectedException('Weaver\WeaveException');
 
         $lazyWeaveInfo = new ImplementsWeaveInfo(
-            'Example\TestClass',
             'Weaver\Weave\LazyProxy',
             'Example\TestInterface',
             new \stdClass()//not a valid factory
         );
 
-        $weaver = new ImplementsWeaveGenerator($lazyWeaveInfo);
+        $result = Weaver::weave('Example\TestClass', $lazyWeaveInfo);
+        $result->writeFile($this->outputDir);
     }
 
     
     function testTypeHintedParameter() {
         $lazyWeaveInfo = new ImplementsWeaveInfo(
-            'Example\TestClassWithTypeHintedParameter',
             'Example\LazyProxyWithDependency',
             'Example\TestInterface'
         );
 
-        $weaver = new ImplementsWeaveGenerator($lazyWeaveInfo);
-        $className = $weaver->writeClass($this->outputDir, 'Example\Coverage\TypeHintedParam');
+        $result = Weaver::weave('Example\TestClassWithTypeHintedParameter', $lazyWeaveInfo);
+        $className = $result->writeFile($this->outputDir, 'Example\Coverage\TypeHintedParam');
 
         $injector = createProvider([], []);
         $proxiedClass = $injector->make($className, [':queryString' => 'testQueryString']);
@@ -123,25 +102,26 @@ class ImplementsWeaveTest extends \PHPUnit_Framework_TestCase {
 
     function testTypeHintedParameterWithOutputClassnameDefined() {
         $lazyWeaveInfo = new ImplementsWeaveInfo(
-            'Example\TestClassWithTypeHintedParameter',
             'Example\LazyProxyWithDependencyNamedDependency',
             'Example\TestInterface'
         );
 
-        $weaver = new ImplementsWeaveGenerator($lazyWeaveInfo);
         $outputClassName = 'Example\Coverage\ProxyWithDependency';
-        $resultOutputClassName = $weaver->writeClass($this->outputDir, $outputClassName);
+
+        $result = Weaver::weave('Example\TestClassWithTypeHintedParameter', $lazyWeaveInfo);
+        $resultOutputClassName = $result->writeFile($this->outputDir, $outputClassName);
 
         $this->assertEquals($resultOutputClassName, $outputClassName);
 
         $injector = createProvider([], []);
         $injector->defineParam('dependencyNotInProxiedClass', true);
         $proxiedClass = $injector->make($outputClassName, [':queryString' => 'testQueryString']);
-        $closureFactoryInfo = $weaver->generateClosureFactoryInfo('Example\StandardTestClassFactory');
+
+        $factoryFunction = $result->generateFactory('Example\StandardTestClassFactory');
 
         //TODO - eval this?
         $fileHandle = fopen($this->outputDir."testTypeHintedParameterWithOutputClassnameDefined.php", 'wb');
         fwrite($fileHandle, "<?php\n");
-        fwrite($fileHandle, $closureFactoryInfo->__toString());
+        fwrite($fileHandle, $factoryFunction);
     }
 }

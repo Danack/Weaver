@@ -4,18 +4,14 @@
 namespace Weaver;
 
 use Danack\Code\Generator\ClassGenerator;
-
-use Danack\Code\Generator\DocBlockGenerator;
 use Danack\Code\Generator\MethodGenerator;
 use Danack\Code\Generator\ParameterGenerator;
 use Danack\Code\Generator\PropertyGenerator;
 use Danack\Code\Reflection\MethodReflection;
 use Danack\Code\Reflection\ClassReflection;
 
-use Danack\Code\Generator\AbstractMemberGenerator;
 
-
-class CompositeWeaveGenerator implements WeaveGenerator {
+class CompositeWeaveGenerator {
 
     /**
      * @var CompositeWeaveInfo
@@ -41,12 +37,12 @@ class CompositeWeaveGenerator implements WeaveGenerator {
      * @param $methodBindingArray
      * @internal param \Weaver\MethodBinding[] $methodBinding
      */
-    function __construct(CompositeWeaveInfo $weaveInfo) {
+    function __construct($composites, CompositeWeaveInfo $weaveInfo) {
         $this->generator = new ClassGenerator();
         $this->weaveInfo = $weaveInfo;
 
         $this->containerClassReflection = new ClassReflection($weaveInfo->getDecoratorClass());
-        foreach ($weaveInfo->getComposites() as $composite) {
+        foreach ($composites as $composite) {
             $this->compositeClassReflectionArray[] = new ClassReflection($composite);
         }
     }
@@ -54,12 +50,11 @@ class CompositeWeaveGenerator implements WeaveGenerator {
     /**
      * @param $outputDir
      */
-    function writeClass($outputDir, $outputClassname = null) {
-
+    function generate() {
         $interfaces = $this->containerClassReflection->getInterfaces();
 
-        $function = function (ClassReflection $interfaceRefelection) {
-            return $interfaceRefelection->getName();
+        $function = function (ClassReflection $interfaceReflection) {
+            return $interfaceReflection->getName();
         };
         
         $interfaces = array_map($function, $interfaces);
@@ -68,18 +63,10 @@ class CompositeWeaveGenerator implements WeaveGenerator {
         $this->addConstructorMethod();
         $this->addMethods();
         $this->addEncapsulatedMethods();
+        $this->generator->setName($this->getFQCN());
 
-        $fqcn = $this->getFQCN();
-        
-        if ($outputClassname) {
-            $fqcn = $outputClassname;
-        }
-
-        $this->generator->setName($fqcn);
-        $text = $this->generator->generate();
-        \Weaver\saveFile($outputDir, $fqcn, $text);
-
-        return $fqcn;
+        //TODO - generate a FactoryGenerator
+        return new WeaveResult($this->generator, null);
     }
 
     /**
@@ -288,11 +275,10 @@ class CompositeWeaveGenerator implements WeaveGenerator {
             $body .= "return \$result;\n";
             
             $methodGenerator = new MethodGenerator(
-                $encapsulatedMethod, //          $name = null, 
+                $encapsulatedMethod, 
                 [], 
-                MethodGenerator::FLAG_PUBLIC, //$flags = self::FLAG_PUBLIC, 
+                MethodGenerator::FLAG_PUBLIC, 
                 $body
-                //$docBlock = null
             );
 
             $this->generator->addMethodFromGenerator($methodGenerator);

@@ -19,13 +19,6 @@ class ClosureFactoryInfo {
     }
 
     /**
-     * @return mixed
-     */
-    public function getFunctionName() {
-        return $this->functionName;
-    }
-
-    /**
      * @return string
      */
     public function __toString() {

@@ -8,7 +8,7 @@ use Danack\Code\Generator\ParameterGenerator;
 
 class ImplementsWeaveInfo {
 
-    protected $sourceClass;
+//    protected $sourceClass;
 
     /**
      * The classname that the subject class(es) gets weaved with.
@@ -38,14 +38,14 @@ class ImplementsWeaveInfo {
      * @param $instanceFactoryMethod
      */
     function __construct(
-        $sourceClass,
+//        $sourceClass,
         $decoratorClass, 
         $interface,
         $lazyFactory = null,
         $initMethodName = null,
         $lazyPropertyName = null
     ) {
-        $this->sourceClass = $sourceClass;
+        //$this->sourceClass = $sourceClass;
         $this->decoratorClass = $decoratorClass;
         $this->methodBindingArray = [];
         $this->interface = $interface;
@@ -81,12 +81,12 @@ class ImplementsWeaveInfo {
         $this->lazyFactory = $lazyFactory;
     }
 
-    /**
-     * @return string
-     */
-    public function getSourceClass() {
-        return $this->sourceClass;
-    }
+//    /**
+//     * @return string
+//     */
+//    public function getSourceClass() {
+//        return $this->sourceClass;
+//    }
 
     /**
      * @return string
@@ -96,7 +96,6 @@ class ImplementsWeaveInfo {
     }
 
     /**
-     * @TODO - this is not used in all sub-classes.
      * @return MethodBinding[]
      */
     function getMethodBindingArray() {

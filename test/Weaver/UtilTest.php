@@ -32,15 +32,22 @@ class UtilTest extends \PHPUnit_Framework_TestCase {
     function testExtendWeave_cacheProxy() {
         $this->setExpectedException('Weaver\WeaveException');
         $cacheWeaveInfo = new ExtendWeaveInfo(
-            'Example\TestClass',
             'Weaver\Weave\CacheProxy',
             []
         );
 
         $GLOBALS['mockFilePutContents'] = true;
-        $weaver = new ExtendWeaveGenerator($cacheWeaveInfo);
-        $weaver->writeClass($this->outputDir);
+
+        $result = Weaver::weave('Example\TestClass', $cacheWeaveInfo);
+        $result->writeFile($this->outputDir, 'Example\CachedTwitter');
     }
+    
+    
+    function testUnknownWeaverType() {
+        $this->setExpectedException('Weaver\WeaveException');
+        $result = Weaver::weave('Example\TestClass', new \stdClass());
+    }
+    
 }
 
 }
