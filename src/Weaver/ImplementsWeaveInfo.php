@@ -68,6 +68,7 @@ class ImplementsWeaveInfo {
             throw new WeaveException("Error in ImplementsWeaveInfo: ".$interface." does not exist");
         }
 
+        //TODO - check no slashes in name
         if ((is_array($lazyFactory) == true && count($lazyFactory) == 2)  || 
             is_string($lazyFactory) ||
             $lazyFactory === null) {

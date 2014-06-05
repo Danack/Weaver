@@ -6,6 +6,8 @@ namespace Example;
 class MySQLConnection implements DBConnection {
 
     protected $queryString;
+
+    private $forceUTF8Names = false;
     
     function __construct($host, $username, $password) {
 

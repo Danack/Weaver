@@ -70,7 +70,6 @@ class ImplementsWeaveGenerator extends SingleClassWeaveGenerator  {
      */
     function writeClass($savePath, $outputClassname = null) {
         $this->addPropertiesAndConstantsForReflector($this->decoratorReflector);
-        //$this->addPropertiesAndConstantsForReflector($this->sourceReflector);
 
         $lazyPropertyName = $this->implementsWeaveInfo->getLazyPropertyName();
 
@@ -80,7 +79,6 @@ class ImplementsWeaveGenerator extends SingleClassWeaveGenerator  {
             $this->generator->addPropertyFromGenerator($lazyProperty);
         }
 
-        //$factoryClassname = $this->implementsWeaveInfo->getInstanceFactoryClassName();
         $factoryClassname = $this->implementsWeaveInfo->getLazyFactory();
 
         if ($factoryClassname) {
