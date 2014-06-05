@@ -23,17 +23,17 @@ function getParamsAsString($parameters, $includeTypeHints = false) {
     $separator = '';
 
     foreach ($parameters as $parameter) {
+
         $string .= $separator;
 
-        /** @var $parameter ParameterGenerator */
-        if ($includeTypeHints) {
-            $typeHint = $parameter->getType();
-            if ($typeHint) {
-                $string .= $typeHint.' ';
-            }
+        if ($includeTypeHints == true) {
+            $paramGenerator = ParameterGenerator::fromReflection($parameter);
+            $string .= $paramGenerator->generate();
+        }
+        else {
+            $string .= '$'.$parameter->getName();
         }
 
-        $string .= '$'.$parameter->getName();
         $separator = ', ';
     }
 
@@ -70,7 +70,7 @@ class ImplementsWeaveGenerator extends SingleClassWeaveGenerator  {
      */
     function writeClass($savePath, $outputClassname = null) {
         $this->addPropertiesAndConstantsForReflector($this->decoratorReflector);
-        $this->addPropertiesAndConstantsForReflector($this->sourceReflector);
+        //$this->addPropertiesAndConstantsForReflector($this->sourceReflector);
 
         $lazyPropertyName = $this->implementsWeaveInfo->getLazyPropertyName();
 
@@ -293,7 +293,7 @@ class ImplementsWeaveGenerator extends SingleClassWeaveGenerator  {
      * @param \ReflectionParameter[] $sourceParameters
      * @return string
      */
-    function generateFactoryBody($decoratorParameters,  $sourceParameters, $closureFactoryName) {
+    function generateFactoryBody($decoratorParameters, $sourceParameters, $closureFactoryName) {
         
         $addedParams = $this->getAddedParameters($decoratorParameters, $sourceParameters);
         $useString = '';
