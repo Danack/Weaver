@@ -3,11 +3,6 @@
 
 namespace Weaver;
 
-use Weaver\ExtendWeaveInfo;
-use Weaver\MethodBinding;
-use Weaver\ImplementsWeaveInfo;
-
-
 
 class ImplementsWeaveTest extends \PHPUnit_Framework_TestCase {
 
@@ -25,25 +20,65 @@ class ImplementsWeaveTest extends \PHPUnit_Framework_TestCase {
         );
     }
 
-    function testInstanceWeave() {
+    function testInstanceWeaveIntegration() {
+        $timerMethodBinding = new MethodBinding(
+            '__extend',
+            new MethodMatcher(['execute', 'fetch', 'sendBigString', 'sendFile'])
+        );
+
+        $timerWeaveInfo = new ExtendWeaveInfo(
+            'Weaver\Weave\TimerProtoProxy',
+            [$timerMethodBinding]
+        );
+
+        $timedSQLIStatementWeave = Weaver::weave('Example\MySQLiStatement', $timerWeaveInfo);
+        $classname = $timedSQLIStatementWeave->writeFile($this->outputDir, 'Example\TimedPreparedStatement');
+        $statementFactoryMethod = $timedSQLIStatementWeave->generateFactory('Example\ClosureStatementFactory');
 
         $lazyWeaveInfo = new ImplementsWeaveInfo(
             'Weaver\Weave\LazyProxy',    //The decorating class
-            'Example\DBConnection',      //The interface to expose TODO allow multiple interfaces
-            ['Example\DBConnectionFactory', 'create'], //Optional factory method to use to create instances
-            'init',                      //Optional, what to call the init method, default init
-            'lazyInstance'               //Optional, what to call the instance property, default 'lazyInstance'
+            'Example\Connection'//,      //The interface to expose TODO allow multiple interfaces
         );
 
-        $result = Weaver::weave('Example\MySQLConnection', $lazyWeaveInfo);
+        $result = Weaver::weave('Example\MySQLiConnection', $lazyWeaveInfo);
         $classname = $result->writeFile($this->outputDir, 'Example\LazyMySQLConnection');
+        $connectionFactoryMethod = $result->generateFactory('Example\ClosureConnectionFactory');
 
-////TODO - eval this?
-//        $fileHandle = fopen($this->outputDir."testInstanceWeave.php", 'wb');
-//        fwrite($fileHandle, "<?php\n");
-//        fwrite($fileHandle, $closureFactoryInfo->__toString());
-//        fclose($fileHandle);        
+
+        $filename = $this->outputDir."createFactory.php";
+
+        $fileHandle = fopen($filename, 'wb');
+        fwrite($fileHandle, "<?php\n\n\n");
+        fwrite($fileHandle, $statementFactoryMethod);
+        fwrite($fileHandle, "\n\n\n");
+        fwrite($fileHandle, $connectionFactoryMethod);
+        fclose($fileHandle);
+        
+        
+        require_once $filename;
+
+        $injector = createProvider([], []);
+
+        $dbParams = array(
+            ':host'     => '127.0.0.1',
+            ':username' => 'username',
+            ':password' => '12345',
+            ':port'     => 3306,
+            ':socket'   => null
+        );
+        
+        //$connectionFactory = createLazyProxyXMySQLiConnectionFactory();
+        //$provider->delegate(Intahwebz\DB\Connection::class, [$connectionFactory, 'create'], $dbParams);
+
+        $injector->delegate('Example\ClosureConnectionFactory', 'createLazyMySQLConnectionFactory');
+        $injector->delegate('Example\Connection', ['Example\ClosureConnectionFactory', 'create'], $dbParams);
+        $injector->delegate('Example\StatementFactory', 'createTimedPreparedStatementFactory');
+        
+        $injector->make('Example\Connection');
     }
+
+
+
 
     /**
      *
@@ -71,25 +106,12 @@ class ImplementsWeaveTest extends \PHPUnit_Framework_TestCase {
         //TODO - write the factory method
     }
 
-
-    function testInvalidFactory() {
-        $this->setExpectedException('Weaver\WeaveException');
-
-        $lazyWeaveInfo = new ImplementsWeaveInfo(
-            'Weaver\Weave\LazyProxy',
-            'Example\TestInterface',
-            new \stdClass()//not a valid factory
-        );
-
-        $result = Weaver::weave('Example\TestClass', $lazyWeaveInfo);
-        $result->writeFile($this->outputDir);
-    }
-
-    
     function testTypeHintedParameter() {
         $lazyWeaveInfo = new ImplementsWeaveInfo(
             'Example\LazyProxyWithDependency',
-            'Example\TestInterface'
+            'Example\TestInterface',
+            'makeIt',
+            'lazyObject'
         );
 
         $result = Weaver::weave('Example\TestClassWithTypeHintedParameter', $lazyWeaveInfo);

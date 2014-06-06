@@ -6,6 +6,7 @@ namespace Weaver;
 use Danack\Code\Reflection\ClassReflection;
 use Danack\Code\Reflection\MethodReflection;
 use Danack\Code\Generator\ParameterGenerator;
+use Danack\Code\Reflection\ParameterReflection;
 
 
 /**
@@ -55,14 +56,15 @@ class FactoryGenerator {
         $this->decorationReflection = $decorationReflection;
     }
 
-    function generate($closureFactoryName, $fqcn) {
-        return $this->generateClosureFactoryInfo($closureFactoryName, $fqcn)->__toString();
+
+    function generate($factoryClass, $fqcn) {
+        return $this->generateClosureFactoryInfo($factoryClass, $fqcn)->__toString();
     }
 
     /**
      * @return ClosureFactoryInfo
      */
-    function generateClosureFactoryInfo($closureFactoryName, $fqcn) {
+    function generateClosureFactoryInfo($factoryClass, $fqcn) {
 
         $generatedClassname = getClassName($fqcn);
         $createClosureFactoryName = 'create'.$generatedClassname.'Factory';
@@ -80,20 +82,24 @@ class FactoryGenerator {
             $sourceParameters = $constructorReflection->getParameters();
         }
 
-        $body = $this->generateFactoryBody($decoratorParameters, $sourceParameters, $closureFactoryName, $fqcn);
+        $body = $this->generateClosureFactoryBody($factoryClass, $decoratorParameters, $sourceParameters, $fqcn);
+        
 
         $factoryInfo = new ClosureFactoryInfo(
             $createClosureFactoryName,
             $decoratorParameters,
-            $body
+            $body,
+            $factoryClass
         );
 
         return $factoryInfo;
     }
 
 
-    function generateFactoryBody($decoratorParameters, $sourceParameters, $closureFactoryName, $fqcn) {
+    function generateClosureFactoryBody($factoryClass, $decoratorParameters, $sourceParameters, $fqcn) {
 
+        $closureFactoryName = $factoryClass;
+        
         $addedParams = $this->getAddedParameters($decoratorParameters, $sourceParameters);
         $useString = '';
 
@@ -107,7 +113,7 @@ class FactoryGenerator {
         //TODO - need to not have dupes.
         $allParams = array_merge($sourceParameters, $decoratorParameters);
         $allParamsString = getParamsAsString($allParams);
-        $generatedClassname = $fqcn;//$this->generator->getFQCN();
+        $generatedClassname = $fqcn;
 
         $body = "
         \$closure = function ($closureParamsString) $useString {
@@ -151,115 +157,6 @@ class FactoryGenerator {
 
         return $addedParameters;
     }
-
-
-
-//
-//
-//    /**
-//     * @return ClosureFactoryInfo
-//     */
-//    function generateClosureFactoryInfo($closureFactoryName) {
-//
-//        $generatedClassname = getClassName($this->getFQCN());
-//        $createClosureFactoryName = 'create'.$generatedClassname.'Factory';
-//
-//        $decoratorParameters = [];
-//        $sourceParameters = [];
-//
-//        if ($this->decoratorReflector->hasMethod('__construct')){
-//            $constructorReflection = $this->decoratorReflector->getMethod('__construct');
-//            $decoratorParameters = $constructorReflection->getParameters();
-//        }
-//
-//        if ($this->sourceReflector->hasMethod('__construct')){
-//            $constructorReflection = $this->sourceReflector->getMethod('__construct');
-//            $sourceParameters = $constructorReflection->getParameters();
-//        }
-//
-//        $body = $this->generateFactoryBody($decoratorParameters, $sourceParameters, $closureFactoryName);
-//
-//        $factoryInfo = new ClosureFactoryInfo(
-//            $createClosureFactoryName,
-//            $decoratorParameters,
-//            $body
-//        );
-//
-//        return $factoryInfo;
-//    }
-//
-//    /**
-//     * @param \ReflectionParameter[] $decoratorParameters
-//     * @param \ReflectionParameter[] $sourceParameters
-//     * @return string
-//     */
-//    function generateFactoryBody($decoratorParameters, $sourceParameters, $closureFactoryName) {
-//
-//        $addedParams = $this->getAddedParameters($decoratorParameters, $sourceParameters);
-//        $useString = '';
-//
-//        if (count($addedParams)) {
-//            $useString = "use(".getParamsAsString($addedParams).")";
-//        }
-//
-//        $closureParamsString = getParamsAsString($sourceParameters, true);
-//
-//        //TODO - need to not have dupes.
-//        $allParams = array_merge($decoratorParameters, $sourceParameters);
-//        $allParamsString = getParamsAsString($allParams);
-//        $sourceClassname = $this->sourceReflector->getName();
-//
-//
-//        $body = "
-//        \$closure = function ($closureParamsString) $useString {
-//            \$object = new \\$sourceClassname(
-//                $allParamsString
-//            );
-//    
-//            return \$object;
-//        };
-//    
-//        return new $closureFactoryName(\$closure);  
-//    ";
-//
-//        return $body;
-//    }
-//
-
-//
-//
-//    /**
-//     * @param $originalSourceClass
-//     * @param $decoratorConstructorParameters MethodReflection[]
-//     * @return array
-//     */
-//    function getAddedParameters($decoratorConstructorParameters, $sourceConstructorParameters) {
-//
-//        $addedParameters = array();
-//
-//        foreach ($decoratorConstructorParameters as $constructorParameter) {
-//            $presentInOriginal = false;
-//
-//            foreach ($sourceConstructorParameters as $sourceConstructorParameter) {
-//                if ($constructorParameter->getName() == $sourceConstructorParameter->getName()) {
-//
-//                    //TODO - add type check.
-//                    $presentInOriginal = true;
-//                }
-//            }
-//
-//            if ($presentInOriginal == false) {
-//                $addedParameters[] = $constructorParameter;
-//            }
-//        }
-//
-//        return $addedParameters;
-//    }
-    
-    
-    
-
-    
 }
 
  

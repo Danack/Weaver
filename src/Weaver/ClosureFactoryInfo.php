@@ -16,6 +16,7 @@ class ClosureFactoryInfo {
         $this->functionName = $functionName;
         $this->params = $params;
         $this->body = $body;
+
     }
 
     /**

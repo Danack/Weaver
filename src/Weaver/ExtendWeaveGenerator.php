@@ -47,7 +47,7 @@ class ExtendWeaveGenerator extends SingleClassWeaveGenerator {
         $this->addPropertiesAndConstantsFromReflection($this->decoratorReflection);
         $fqcn = $this->getFQCN();
         $this->generator->setName($fqcn);
-        $factoryGenerator = new FactoryGenerator($this->sourceReflection, $this->decoratorReflection);
+        $factoryGenerator = new FactoryGenerator($this->sourceReflection, $this->decoratorReflection, null);
 
         return new WeaveResult($this->generator, $factoryGenerator);
     }

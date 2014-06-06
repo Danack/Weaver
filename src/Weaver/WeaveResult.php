@@ -5,9 +5,6 @@ namespace Weaver;
 
 
 use Danack\Code\Generator\ClassGenerator;
-use Danack\Code\Generator\MethodGenerator;
-use Danack\Code\Generator\ParameterGenerator;
-use Danack\Code\Reflection\MethodReflection;
 use Danack\Code\Reflection\ClassReflection;
 
 /**
@@ -58,7 +55,7 @@ class WeaveResult {
     }
 
     public function setFQCN($fqcn) {
-        $this->generator->setName($fqcn);
+        $this->generator->setFQCN($fqcn);
     }
     
     public function writeFile($outputDir, $outputClassname = null) {
@@ -72,13 +69,9 @@ class WeaveResult {
     }
     
     
-    public function generateFactory($closureFactoryName) {
-        return $this->factoryGenerator->generate($closureFactoryName, $this->generator->getFQCN());
+    public function generateFactory($factoryClass) {
+        return $this->factoryGenerator->generate($factoryClass, $this->generator->getFQCN());
     }
-
-
-
-
 }
 
  

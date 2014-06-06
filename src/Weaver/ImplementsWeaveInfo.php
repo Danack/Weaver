@@ -4,11 +4,7 @@
 namespace Weaver;
 
 
-use Danack\Code\Generator\ParameterGenerator;
-
 class ImplementsWeaveInfo {
-
-//    protected $sourceClass;
 
     /**
      * The classname that the subject class(es) gets weaved with.
@@ -26,7 +22,6 @@ class ImplementsWeaveInfo {
     private $initMethodName;
     private $lazyPropertyName;
     protected $interface = null;
-    private $lazyFactory;
 
     /**
      * @param $sourceClass - The class that you want to wrap in a proxy
@@ -38,14 +33,11 @@ class ImplementsWeaveInfo {
      * @param $instanceFactoryMethod
      */
     function __construct(
-//        $sourceClass,
         $decoratorClass, 
-        $interface,
-        $lazyFactory = null,
+        $interface, //TODO Allow multiple interfaces
         $initMethodName = null,
         $lazyPropertyName = null
     ) {
-        //$this->sourceClass = $sourceClass;
         $this->decoratorClass = $decoratorClass;
         $this->methodBindingArray = [];
         $this->interface = $interface;
@@ -67,26 +59,7 @@ class ImplementsWeaveInfo {
         if (interface_exists($interface) == false) {
             throw new WeaveException("Error in ImplementsWeaveInfo: ".$interface." does not exist");
         }
-
-        //TODO - check no slashes in name
-        if ((is_array($lazyFactory) == true && count($lazyFactory) == 2)  || 
-            is_string($lazyFactory) ||
-            $lazyFactory === null) {
-            //It's acceptable
-        }
-        else{
-            throw new WeaveException("lazyFactory must either be a function, or in the form [InterfaceName, method].");
-        }
-
-        $this->lazyFactory = $lazyFactory;
     }
-
-//    /**
-//     * @return string
-//     */
-//    public function getSourceClass() {
-//        return $this->sourceClass;
-//    }
 
     /**
      * @return string
@@ -116,53 +89,8 @@ class ImplementsWeaveInfo {
         return $this->lazyPropertyName;
     }
 
-    /**
-     * Returns the factory if specified by the config
-     * @return string
-     */
-    function getInstanceFactorySignature() {
-
-        if (!$this->lazyFactory) {
-            return null;
-        }
-
-        if (is_array($this->lazyFactory)) {
-            $factoryVar = lcfirst(getClassName($this->lazyFactory[0])); //byte-safe
-            return '$this->'.$factoryVar.'->'.$this->lazyFactory[1];
-        }
-
-        return $this->lazyFactory;
-    }
-
-    /**
-     * @return ParameterGenerator
-     */
-    function getFactoryParameterGenerator() {
-        if (!$this->lazyFactory) {
-            return null;
-        }
-        
-        if (is_string($this->lazyFactory)) {
-            //factories which are functions cannot be passed in yet
-            return null;
-        }
-
-        $name = lcfirst(getClassName($this->lazyFactory[0]));
-
-        return new ParameterGenerator($name, $this->lazyFactory[0]);
-    }
 
     function getInterface() {
         return $this->interface;
-    }
-
-    function getLazyFactory() {
-        if ($this->lazyFactory) {
-            if (is_array($this->lazyFactory)) {
-                return $this->lazyFactory[0];
-            }
-        }
-
-        return null;
     }
 }

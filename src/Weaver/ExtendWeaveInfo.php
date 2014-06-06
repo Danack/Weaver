@@ -6,8 +6,6 @@ namespace Weaver;
 
 class ExtendWeaveInfo {
 
-    //protected $sourceClass;
-
     /**
      * The classname that the subject class(es) gets weaved with.
      * @var string
@@ -31,13 +29,6 @@ class ExtendWeaveInfo {
         $this->decoratorClass = $decoratorClass;
         $this->methodBindingArray = $methodBinding;
     }
-
-//    /**
-//     * @return string
-//     */
-//    public function getSourceClass() {
-//        return $this->sourceClass;
-//    }
 
     /**
      * @return string

@@ -12,9 +12,6 @@ use Danack\Code\Reflection\ClassReflection;
 use Danack\Code\Generator\PropertyGenerator;
 
 
-
-
-
 class ImplementsWeaveGenerator extends SingleClassWeaveGenerator  {
     
     /**
@@ -23,6 +20,8 @@ class ImplementsWeaveGenerator extends SingleClassWeaveGenerator  {
      * @param $methodBindingArray MethodBinding[]
      */
     function __construct($sourceClass, ImplementsWeaveInfo $implementsWeaveInfo) {
+        //TODO - check sourceClass implements alleged interface(s)
+        //TODO - check sourceClass has properties that match the constructors parameters
         $this->implementsWeaveInfo = $implementsWeaveInfo;
         $this->sourceReflection = new ClassReflection($sourceClass);
         $this->decoratorReflection = new ClassReflection($implementsWeaveInfo->getDecoratorClass());
@@ -51,28 +50,33 @@ class ImplementsWeaveGenerator extends SingleClassWeaveGenerator  {
             $this->generator->addPropertyFromGenerator($lazyProperty);
         }
 
-        $factoryClassname = $this->implementsWeaveInfo->getLazyFactory();
-
-        if ($factoryClassname) {
-            $variableName = lcfirst(getClassName($factoryClassname)); 
-            $newProperty = new PropertyGenerator($variableName);
-            $newProperty->setStandardDocBlock($factoryClassname);
-            $newProperty->setVisibility(\Danack\Code\Generator\AbstractMemberGenerator::FLAG_PRIVATE);
-            $this->generator->addPropertyFromGenerator($newProperty);
-        }
-
+        $this->addPropertiesFromConstructor();
         $this->addProxyMethods();
         $this->addDecoratorMethods();
         $this->addInitMethod();
         $fqcn = $this->getFQCN();
         $this->generator->setName($fqcn);
-        $factoryGenerator = new FactoryGenerator($this->sourceReflection, $this->decoratorReflection);
+        $factoryGenerator = new FactoryGenerator(
+                                $this->sourceReflection,
+                                $this->decoratorReflection
+                            );
 
         return new WeaveResult($this->generator, $factoryGenerator);
     }
 
 
-    
+    function addPropertiesFromConstructor() {
+        if ($this->sourceReflection->hasMethod('__construct')) {
+            $sourceConstructorMethod = $this->sourceReflection->getMethod('__construct');
+            $parameters = $sourceConstructorMethod->getParameters();
+        
+            foreach ($parameters as $reflectionParameter) {
+                $propertyGenerator = new PropertyGenerator($reflectionParameter->getName());                
+                $propertyGenerator->setStandardDocBlock($reflectionParameter->getType());
+                $this->generator->addPropertyFromGenerator($propertyGenerator);
+            }
+        }
+    }
 
     /**
      * @param MethodReflection $sourceConstructorMethod
@@ -109,18 +113,6 @@ class ImplementsWeaveGenerator extends SingleClassWeaveGenerator  {
             $constructorBody .= $decoratorConstructorMethod->getBody();
         }
 
-        $factoryInterfaceName = $this->implementsWeaveInfo->getLazyFactory();
-
-        if ($factoryInterfaceName) {
-            $variableName = lcfirst(getClassName($factoryInterfaceName));
-            $constructorBody .= "    \$this->$variableName = \$$variableName;\n";
-        }
-
-        $factoryParam = $this->implementsWeaveInfo->getFactoryParameterGenerator();
-        if ($factoryParam) {
-            $generatedParameters[] = $factoryParam;
-        }
-
         $constructorBody .= $copyBody;
 
         $this->generator->addMethod(
@@ -144,16 +136,9 @@ class ImplementsWeaveGenerator extends SingleClassWeaveGenerator  {
         $lazyPropertyName = $this->implementsWeaveInfo->getLazyPropertyName();
 
         $initBody = 'if ($this->'.$lazyPropertyName.' == null) {';
-        $instanceFactorySignature = $this->implementsWeaveInfo->getInstanceFactorySignature();
+        $initBody .= '
+        $this->lazyInstance = new \\'.$this->sourceReflection->getName().'(';
 
-        if ($instanceFactorySignature != null) {
-            $initBody .= '
-            $this->lazyInstance = '.$instanceFactorySignature.'(';
-        }
-        else {
-            $initBody .= '
-            $this->lazyInstance = new \\'.$this->sourceReflection->getName().'(';
-        }
 
         $constructorParamsString = $this->addLazyConstructor();
         $initBody .= $constructorParamsString;
@@ -227,7 +212,6 @@ class ImplementsWeaveGenerator extends SingleClassWeaveGenerator  {
             }
         }
     }
-
 }
 
  
