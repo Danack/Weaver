@@ -43,6 +43,9 @@ class ImplementsWeaveInfo {
         $this->interface = $interface;
 
         if ($initMethodName) {
+            if (is_string($initMethodName) == false) {
+                throw new WeaveException("initMethodName should be a string, ".gettype($initMethodName)." given.");
+            }
             $this->initMethodName = $initMethodName;
         }
         else {
@@ -50,6 +53,9 @@ class ImplementsWeaveInfo {
         }
 
         if ($lazyPropertyName) {
+            if (is_string($lazyPropertyName) == false) {
+                throw new WeaveException("lazyPropertyName should be a string, ".gettype($lazyPropertyName)." given.");
+            }
             $this->lazyPropertyName = $lazyPropertyName;
         }
         else {
