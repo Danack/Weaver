@@ -146,4 +146,25 @@ class ImplementsWeaveTest extends \PHPUnit_Framework_TestCase {
         fwrite($fileHandle, "<?php\n");
         fwrite($fileHandle, $factoryFunction);
     }
+
+
+    function testThrowExceptionBadInitMethod() {
+        $this->setExpectedException('Weaver\WeaveException');
+        
+        $lazyWeaveInfo = new ImplementsWeaveInfo(
+            'Example\LazyProxyWithDependencyNamedDependency',
+            'Example\TestInterface',
+            new \StdClass()
+        );
+    }
+
+    function testThrowExceptionBadLazyProperty() {
+        $this->setExpectedException('Weaver\WeaveException');
+        $lazyWeaveInfo = new ImplementsWeaveInfo(
+            'Example\LazyProxyWithDependencyNamedDependency',
+            'Example\TestInterface',
+            'init',
+            new \StdClass()
+        );
+    }
 }
