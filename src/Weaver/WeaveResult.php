@@ -9,7 +9,9 @@ use Danack\Code\Reflection\ClassReflection;
 
 /**
  * @param $savePath
- * @throws \RuntimeException
+ * @param $fqcn
+ * @param $text
+ * @throws WeaveException
  */
 function saveFile($savePath, $fqcn, $text) {
 
@@ -46,8 +48,9 @@ class WeaveResult {
 
     /**
      * @param ClassGenerator $generator
-     * @param ClassReflection $sourceReflection
-     * @param ClassReflection $decorationReflection
+     * @param FactoryGenerator $factoryGenerator
+     * @internal param ClassReflection $sourceReflection
+     * @internal param ClassReflection $decorationReflection
      */
     function __construct(ClassGenerator $generator, FactoryGenerator $factoryGenerator = null) {
         $this->generator = $generator;

@@ -12,7 +12,7 @@ use Danack\Code\Reflection\ClassReflection;
 
 
 abstract class SingleClassWeaveGenerator {
-
+    
     /**
      * @var \Danack\Code\Generator\ClassGenerator
      */
@@ -36,16 +36,21 @@ abstract class SingleClassWeaveGenerator {
     }
 
     /**
+     * * Generates a name that indicates what the class is composed of.
+     * e.g. A DB class decorated with Timer would be TimerXDB
+     * 
      * @return string
      */
-    function getProxiedName() {
+    function generateWeavedName() {
         return $this->decoratorReflection->getShortName()."X".$this->sourceReflection->getShortName();
     }
 
 
     /**
+     * addPropertiesAndConstantsFromReflection - does what it's name says.
+     * 
      * @param ClassReflection $classReflection
-     * @param $originalSourceClass
+     * @internal param $originalSourceClass
      */
     function addPropertiesAndConstantsFromReflection(ClassReflection $classReflection ) {
         $constants = $classReflection->getConstants();
@@ -62,6 +67,10 @@ abstract class SingleClassWeaveGenerator {
     }
 
     /**
+     * Directly add the methods from the decorating class. They are not modified.
+     * The 'special' functions __construct, __prototype and __extend are not copied
+     * as they are instead used to generate decorated methods.
+     * 
      * @return null|MethodReflection
      */
     function addDecoratorMethods() {
@@ -84,7 +93,7 @@ abstract class SingleClassWeaveGenerator {
      */
     function getFQCN() {
         $namespace = $this->getNamespaceName();
-        $classname = $this->getProxiedName();
+        $classname = $this->generateWeavedName();
 
         $return = $classname;
 

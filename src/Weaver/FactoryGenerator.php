@@ -49,19 +49,30 @@ class FactoryGenerator {
      * @var ClassReflection
      */
     private $decorationReflection;
-    
 
+
+    /**
+     * @param ClassReflection $sourceReflection
+     * @param ClassReflection $decorationReflection
+     */
     function __construct(ClassReflection $sourceReflection, ClassReflection $decorationReflection) {
         $this->sourceReflection = $sourceReflection;
         $this->decorationReflection = $decorationReflection;
     }
 
 
+    /**
+     * @param $factoryClass
+     * @param $fqcn
+     * @return string
+     */
     function generate($factoryClass, $fqcn) {
         return $this->generateClosureFactoryInfo($factoryClass, $fqcn)->__toString();
     }
 
     /**
+     * @param $factoryClass
+     * @param $fqcn
      * @return ClosureFactoryInfo
      */
     function generateClosureFactoryInfo($factoryClass, $fqcn) {
@@ -96,6 +107,13 @@ class FactoryGenerator {
     }
 
 
+    /**
+     * @param $factoryClass
+     * @param $decoratorParameters
+     * @param $sourceParameters
+     * @param $fqcn
+     * @return string
+     */
     function generateClosureFactoryBody($factoryClass, $decoratorParameters, $sourceParameters, $fqcn) {
 
         $closureFactoryName = $factoryClass;

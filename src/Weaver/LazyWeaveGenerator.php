@@ -12,37 +12,37 @@ use Danack\Code\Reflection\ClassReflection;
 use Danack\Code\Generator\PropertyGenerator;
 
 
-class ImplementsWeaveGenerator extends SingleClassWeaveGenerator  {
-    
+class LazyWeaveGenerator extends SingleClassWeaveGenerator  {
+
+    use \Intahwebz\SafeAccess;
+
+    private $lazyWeaveInfo;
+
     /**
      * @param $sourceClass
-     * @param $decoratorClass
-     * @param $methodBindingArray MethodBinding[]
+     * @param LazyWeaveInfo $lazyWeaveInfo
      */
-    function __construct($sourceClass, ImplementsWeaveInfo $implementsWeaveInfo) {
+    function __construct($sourceClass, LazyWeaveInfo $lazyWeaveInfo) {
         //TODO - check sourceClass implements alleged interface(s)
         //TODO - check sourceClass has properties that match the constructors parameters
-        $this->implementsWeaveInfo = $implementsWeaveInfo;
+        $this->lazyWeaveInfo = $lazyWeaveInfo;
         $this->sourceReflection = new ClassReflection($sourceClass);
-        $this->decoratorReflection = new ClassReflection($implementsWeaveInfo->getDecoratorClass());
+        $this->decoratorReflection = new ClassReflection($lazyWeaveInfo->getDecoratorClass());
         $this->generator = new ClassGenerator();
-        $this->methodBindingArray = $implementsWeaveInfo->getMethodBindingArray();
+        //$this->methodBindingArray = $implementsWeaveInfo->getMethodBindingArray();
 
-        $interface = $this->implementsWeaveInfo->getInterface();
+        $interface = $this->lazyWeaveInfo->getInterface();
         $interfaces = array($interface);
         $this->generator->setImplementedInterfaces($interfaces);
     }
 
     /**
-     * @param $savePath
-     * @param $originalSourceClass
-     * @param $closureFactoryName
-     * @return string
+     * @return WeaveResult
      */
     function generate() {
         $this->addPropertiesAndConstantsFromReflection($this->decoratorReflection);
 
-        $lazyPropertyName = $this->implementsWeaveInfo->getLazyPropertyName();
+        $lazyPropertyName = $this->lazyWeaveInfo->getLazyPropertyName();
 
         if ($this->generator->hasProperty($lazyPropertyName) == false) {
             $lazyProperty = new PropertyGenerator($lazyPropertyName);
@@ -79,8 +79,8 @@ class ImplementsWeaveGenerator extends SingleClassWeaveGenerator  {
     }
 
     /**
-     * @param MethodReflection $sourceConstructorMethod
-     * @param MethodReflection $decoratorConstructorMethod
+     * @internal param MethodReflection $sourceConstructorMethod
+     * @internal param MethodReflection $decoratorConstructorMethod
      * @return string
      */
     function addLazyConstructor() {
@@ -128,18 +128,18 @@ class ImplementsWeaveGenerator extends SingleClassWeaveGenerator  {
 
 
     /**
-     * @param MethodReflection $sourceConstructorMethod
-     * @param MethodReflection $decoratorConstructorMethod
-     * @return \Danack\Code\Reflection\ParameterReflection[]
+     * 
      */
     function addInitMethod() {
-        $lazyPropertyName = $this->implementsWeaveInfo->getLazyPropertyName();
+        $lazyPropertyName = $this->lazyWeaveInfo->getLazyPropertyName();
 
+        
         $initBody = 'if ($this->'.$lazyPropertyName.' == null) {';
         $initBody .= '
+
         $this->lazyInstance = new \\'.$this->sourceReflection->getName().'(';
-
-
+        //TODO - ^^ bug right there. lazyInstance isn't always the name.
+        
         $constructorParamsString = $this->addLazyConstructor();
         $initBody .= $constructorParamsString;
         $initBody .= ");\n}";
@@ -154,16 +154,13 @@ class ImplementsWeaveGenerator extends SingleClassWeaveGenerator  {
     }
 
     /**
-     * @param ImplementsWeaveInfo $weaveInfo
      * @param MethodReflection $method
      * @return string
      */
     function generateProxyMethodBody(MethodReflection $method) {
         $newBody = '';
-        $initMethodName = $this->implementsWeaveInfo->getInitMethodName();
-        $lazyPropertyName = $this->implementsWeaveInfo->getLazyPropertyName();
-        
-        
+        $initMethodName = $this->lazyWeaveInfo->getInitMethodName();
+        $lazyPropertyName = $this->lazyWeaveInfo->getLazyPropertyName();
         $newBody .= '$this->'.$initMethodName."();\n";
         $newBody .= '$result = $this->'.$lazyPropertyName.'->'.$method->getName()."(";
         $parameters = $method->getParameters();
@@ -182,15 +179,18 @@ class ImplementsWeaveGenerator extends SingleClassWeaveGenerator  {
 
 
     /**
+     * Generates a name that indicates what the class is composed of.
+     * e.g. A DB class decorated with Timer would be TimerXDB
+     * 
      * @return string
      */
-    function getProxiedName() {
+    function generateWeavedName() {
         return $this->decoratorReflection->getShortName()."X".$this->sourceReflection->getShortName();
     }
 
 
     /**
-     * @return null|MethodReflection
+     * 
      */
     function addProxyMethods() {
         $methods = $this->sourceReflection->getMethods();

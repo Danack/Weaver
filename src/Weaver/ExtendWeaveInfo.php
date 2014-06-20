@@ -20,12 +20,11 @@ class ExtendWeaveInfo {
     private $methodBindingArray = [];
 
     /**
-     * @param string $sourceClass
      * @param string $decoratorClass
      * @param MethodBinding[] $methodBinding
+     * @internal param string $sourceClass
      */
     function __construct($decoratorClass, array $methodBinding) {
-//        $this->sourceClass = $sourceClass;
         $this->decoratorClass = $decoratorClass;
         $this->methodBindingArray = $methodBinding;
     }
@@ -38,7 +37,6 @@ class ExtendWeaveInfo {
     }
 
     /**
-     * @TODO - this is not used in all sub-classes.
      * @return MethodBinding[]
      */
     function getMethodBindingArray() {

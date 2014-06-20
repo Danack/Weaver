@@ -29,12 +29,14 @@ class CompositeWeaveGenerator {
     private $compositeClassReflectionArray = [];
     
     private $containerClassReflection;
-    
+
 
     /**
-     * @param $sourceClass
-     * @param $decoratorClass
-     * @param $methodBindingArray
+     * @param $composites
+     * @param CompositeWeaveInfo $weaveInfo
+     * @internal param $sourceClass
+     * @internal param $decoratorClass
+     * @internal param $methodBindingArray
      * @internal param \Weaver\MethodBinding[] $methodBinding
      */
     function __construct($composites, CompositeWeaveInfo $weaveInfo) {
@@ -48,7 +50,9 @@ class CompositeWeaveGenerator {
     }
 
     /**
-     * @param $outputDir
+     * @throws WeaveException
+     * @internal param $outputDir
+     * @return \Weaver\WeaveResult
      */
     function generate() {
         $interfaces = $this->containerClassReflection->getInterfaces();
@@ -215,7 +219,7 @@ class CompositeWeaveGenerator {
     /**
      * Adds the properties and constants from the decorating class to the
      * class being weaved.
-     * @param $originalSourceClass
+     * @internal param $originalSourceClass
      */
     private function addPropertiesAndConstants() {
         $this->addPropertiesAndConstantsForReflector($this->containerClassReflection);
@@ -224,7 +228,7 @@ class CompositeWeaveGenerator {
 
     /**
      * @param ClassReflection $reflector
-     * @param $originalSourceClass
+     * @internal param $originalSourceClass
      */
     private function addPropertiesAndConstantsForReflector(ClassReflection $reflector) {
         $constants = $reflector->getConstants();

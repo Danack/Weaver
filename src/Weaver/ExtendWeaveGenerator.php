@@ -11,21 +11,18 @@ use Danack\Code\Reflection\ClassReflection;
 
 class ExtendWeaveGenerator extends SingleClassWeaveGenerator {
 
-    /**
-     * @var MethodBinding[]
-     */
-    protected $methodBindingArray;
-
+    use \Intahwebz\SafeAccess;
 
     /**
      * @var ExtendWeaveInfo
      */
     private $extendWeaveInfo;
-    
+
     /**
      * @param $sourceClass
-     * @param $decoratorClass
-     * @param $methodBindingArray
+     * @param ExtendWeaveInfo $extendWeaveInfo
+     * @internal param $decoratorClass
+     * @internal param $methodBindingArray
      * @internal param \Weaver\MethodBinding[] $methodBinding
      */
     function __construct($sourceClass, ExtendWeaveInfo $extendWeaveInfo) {
@@ -51,7 +48,6 @@ class ExtendWeaveGenerator extends SingleClassWeaveGenerator {
 
         return new WeaveResult($this->generator, $factoryGenerator);
     }
-
 
     /**
      * 
@@ -96,8 +92,8 @@ class ExtendWeaveGenerator extends SingleClassWeaveGenerator {
 
 
     /**
-     * @param MethodReflection $sourceConstructorMethod
-     * @param MethodReflection $decoratorConstructorMethod
+     * @internal param MethodReflection $sourceConstructorMethod
+     * @internal param MethodReflection $decoratorConstructorMethod
      * @return array
      */
     function addProxyConstructor() {

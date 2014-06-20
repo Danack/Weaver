@@ -14,7 +14,7 @@ class ImplementsWeaveTest extends \PHPUnit_Framework_TestCase {
 
     function testMissingInterface() {
         $this->setExpectedException('Weaver\WeaveException');
-        $lazyWeaveInfo = new ImplementsWeaveInfo(
+        $lazyWeaveInfo = new LazyWeaveInfo(
             'Weaver\Weave\LazyProxy',
             'ThisInterfaceDoesNotExist'
         );
@@ -35,7 +35,7 @@ class ImplementsWeaveTest extends \PHPUnit_Framework_TestCase {
         $classname = $timedSQLIStatementWeave->writeFile($this->outputDir, 'Example\TimedPreparedStatement');
         $statementFactoryMethod = $timedSQLIStatementWeave->generateFactory('Example\ClosureStatementFactory');
 
-        $lazyWeaveInfo = new ImplementsWeaveInfo(
+        $lazyWeaveInfo = new LazyWeaveInfo(
             'Weaver\Weave\LazyProxy',    //The decorating class
             'Example\Connection'//,      //The interface to expose TODO allow multiple interfaces
         );
@@ -84,7 +84,7 @@ class ImplementsWeaveTest extends \PHPUnit_Framework_TestCase {
      *
      */
     function testImplementsWeaveWithoutFactory() {
-        $lazyWeaveInfo = new ImplementsWeaveInfo(
+        $lazyWeaveInfo = new LazyWeaveInfo(
             'Weaver\Weave\LazyProxy',
             'Example\TestInterface'
         );
@@ -95,7 +95,7 @@ class ImplementsWeaveTest extends \PHPUnit_Framework_TestCase {
 
 
     function testFunctionFactoryIsAllowed() {
-        $lazyWeaveInfo = new ImplementsWeaveInfo(
+        $lazyWeaveInfo = new LazyWeaveInfo(
             'Weaver\Weave\LazyProxy',
             'Example\TestInterface',
             'createTestClass'
@@ -107,7 +107,7 @@ class ImplementsWeaveTest extends \PHPUnit_Framework_TestCase {
     }
 
     function testTypeHintedParameter() {
-        $lazyWeaveInfo = new ImplementsWeaveInfo(
+        $lazyWeaveInfo = new LazyWeaveInfo(
             'Example\LazyProxyWithDependency',
             'Example\TestInterface',
             'makeIt',
@@ -123,7 +123,7 @@ class ImplementsWeaveTest extends \PHPUnit_Framework_TestCase {
 
 
     function testTypeHintedParameterWithOutputClassnameDefined() {
-        $lazyWeaveInfo = new ImplementsWeaveInfo(
+        $lazyWeaveInfo = new LazyWeaveInfo(
             'Example\LazyProxyWithDependencyNamedDependency',
             'Example\TestInterface'
         );
@@ -151,7 +151,7 @@ class ImplementsWeaveTest extends \PHPUnit_Framework_TestCase {
     function testThrowExceptionBadInitMethod() {
         $this->setExpectedException('Weaver\WeaveException');
         
-        $lazyWeaveInfo = new ImplementsWeaveInfo(
+        $lazyWeaveInfo = new LazyWeaveInfo(
             'Example\LazyProxyWithDependencyNamedDependency',
             'Example\TestInterface',
             new \StdClass()
@@ -160,7 +160,7 @@ class ImplementsWeaveTest extends \PHPUnit_Framework_TestCase {
 
     function testThrowExceptionBadLazyProperty() {
         $this->setExpectedException('Weaver\WeaveException');
-        $lazyWeaveInfo = new ImplementsWeaveInfo(
+        $lazyWeaveInfo = new LazyWeaveInfo(
             'Example\LazyProxyWithDependencyNamedDependency',
             'Example\TestInterface',
             'init',

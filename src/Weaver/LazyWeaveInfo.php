@@ -4,7 +4,9 @@
 namespace Weaver;
 
 
-class ImplementsWeaveInfo {
+class LazyWeaveInfo {
+
+    use \Intahwebz\SafeAccess;
 
     /**
      * The classname that the subject class(es) gets weaved with.
@@ -18,19 +20,22 @@ class ImplementsWeaveInfo {
      * @var string[]
      */
     private $methodBindingArray = [];
-    
+ 
+    /** @var string  */
     private $initMethodName;
+    
+    /** @var string  */
     private $lazyPropertyName;
-    protected $interface = null;
+
+    /** @var string  */
+    protected $interface;
 
     /**
-     * @param $sourceClass - The class that you want to wrap in a proxy
-     * @param $decoratorClass - The proxy class, todo not really required?
-     * @param $interface      - The interface that you want to expose todo support multiple interfaces
+     * @param $decoratorClass - The decorating class
+     * @param $interface - The interface that you want to expose todo support multiple interfaces
      * @param $initMethodName - What you want the init method to be called todo not really required?
      * @param $lazyPropertyName - What variable to store the proxied in todo not really required?
-     * @param $lazyFactory - optional  
-     * @param $instanceFactoryMethod
+     * @throws WeaveException
      */
     function __construct(
         $decoratorClass, 

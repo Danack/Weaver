@@ -144,9 +144,16 @@ And the Proxied version of the class with the timer attached will be used everyw
 
 * Improve syntax, so it doesn't suck.
 
+* Write about difference between this and monkey patching http://en.wikipedia.org/wiki/Monkey_patch Short version Monkey patching runtime only, impossible to debug, not much type safety.
+
+* Why extend class at all? Because if you want to decorate something that isn't a class, re-writing it as an interface is not always possible timewise.
 
 
 ## Notes
+
+
+
+
 
 
 List of examples that I should implement from Ocramius/ProxyManager

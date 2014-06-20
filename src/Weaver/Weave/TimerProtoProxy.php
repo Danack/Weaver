@@ -34,6 +34,7 @@ class TimerProtoProxy {
 
     function __prototype() {
         //You don't have to list this, but it keeps your ide happy
+        return null;
     }
 
     function __extend($param0) {
