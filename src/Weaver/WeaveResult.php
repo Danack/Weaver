@@ -32,7 +32,10 @@ END;
     $written = @file_put_contents($outputFilename, $fileHeader.$text);
 
     if ($written == false) {
-        throw new WeaveException("Failed to write file $filename.");
+        throw new WeaveException(
+            "Failed to write file $filename.",
+            WeaveException::IO_ERROR
+        );
     }
 }
 

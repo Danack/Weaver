@@ -60,7 +60,11 @@ function createStandardLogger($logChannelName = 'logChannelName') {
 }
 
 
-
+/**
+ * @param array $implementations
+ * @param array $shareClasses
+ * @return Provider
+ */
 function createProvider($implementations = array(), $shareClasses = array()) {
 
     \Intahwebz\Functions::load();

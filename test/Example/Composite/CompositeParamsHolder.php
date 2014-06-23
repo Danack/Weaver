@@ -1,7 +1,7 @@
 <?php
 
 
-namespace Example;
+namespace Example\Composite;
 
 
 class CompositeParamsHolder {

@@ -63,7 +63,7 @@ class CompositeWeaveGenerator {
         
         $interfaces = array_map($function, $interfaces);
         $this->generator->setImplementedInterfaces($interfaces);
-        $this->addPropertiesAndConstants();
+        $this->addPropertiesAndConstantsForContainer();
         $this->addConstructorMethod();
         $this->addMethods();
         $this->addEncapsulatedMethods();
@@ -159,51 +159,52 @@ class CompositeWeaveGenerator {
             }
 
             if (array_key_exists($name, $this->weaveInfo->getEncapsulateMethods()) == true) {
-                $methodGenerator->setVisibility(\Danack\Code\Generator\AbstractMemberGenerator::VISIBILITY_PRIVATE);
-                $methodGenerator->setName($name.getClassName($sourceReflector->getName()));
+//                $methodGenerator->setVisibility(\Danack\Code\Generator\AbstractMemberGenerator::VISIBILITY_PRIVATE);
+//                $methodGenerator->setName($name.getClassName($sourceReflector->getName()));
+                continue;
             }
 
             $this->generator->addMethodFromGenerator($methodGenerator);
         }
     }
 
-    /**
-     * @param ClassReflection $sourceReflector
-     */
-    private function addProxiedMethodsFromReflection(ClassReflection $sourceReflector) {
-
-        $methods = $sourceReflector->getMethods();
-
-        foreach ($methods as $method) {
-            $name = $method->getName();
-            $methodGenerator = MethodGenerator::fromReflection($method);
-
-            if ($name == '__construct') {
-                //Constructors are handled separately.
-                continue;
-            }
-
-            if (array_key_exists($name, $this->weaveInfo->getEncapsulateMethods()) == true) {
-                continue;
-            }
-
-            $modifiers = $method->getModifiers();
-
-            if (($modifiers & \ReflectionMethod::IS_PUBLIC) == false ||
-                ($modifiers & \ReflectionMethod::IS_STATIC) == true) {
-                continue;
-            }
-
-            $instanceName = lcfirst($sourceReflector->getShortName());
-            
-            $methodBody = "
-                return \$this->$instanceName->$name();
-            ";
-            
-            $methodGenerator->setBody($methodBody);
-            $this->generator->addMethodFromGenerator($methodGenerator);
-        }
-    }
+//    /**
+//     * @param ClassReflection $sourceReflector
+//     */
+//    private function addProxiedMethodsFromReflection(ClassReflection $sourceReflector) {
+//
+//        $methods = $sourceReflector->getMethods();
+//
+//        foreach ($methods as $method) {
+//            $name = $method->getName();
+//            $methodGenerator = MethodGenerator::fromReflection($method);
+//
+//            if ($name == '__construct') {
+//                //Constructors are handled separately.
+//                continue;
+//            }
+//
+//            if (array_key_exists($name, $this->weaveInfo->getEncapsulateMethods()) == true) {
+//                continue;
+//            }
+//
+//            $modifiers = $method->getModifiers();
+//
+//            if (($modifiers & \ReflectionMethod::IS_PUBLIC) == false ||
+//                ($modifiers & \ReflectionMethod::IS_STATIC) == true) {
+//                continue;
+//            }
+//
+//            $instanceName = lcfirst($sourceReflector->getShortName());
+//            
+//            $methodBody = "
+//                return \$this->$instanceName->$name();
+//            ";
+//            
+//            $methodGenerator->setBody($methodBody);
+//            $this->generator->addMethodFromGenerator($methodGenerator);
+//        }
+//    }
     
     
     /**
@@ -211,9 +212,9 @@ class CompositeWeaveGenerator {
      */
     private function addMethods() {
         $this->addMethodFromReflection($this->containerClassReflection);
-        foreach ($this->compositeClassReflectionArray as $sourceReflector) {
-            $this->addProxiedMethodsFromReflection($sourceReflector);
-        }
+//        foreach ($this->compositeClassReflectionArray as $sourceReflector) {
+//            $this->addProxiedMethodsFromReflection($sourceReflector);
+//        }
     }
 
     /**
@@ -221,8 +222,14 @@ class CompositeWeaveGenerator {
      * class being weaved.
      * @internal param $originalSourceClass
      */
-    private function addPropertiesAndConstants() {
-        $this->addPropertiesAndConstantsForReflector($this->containerClassReflection);
+    private function addPropertiesAndConstantsForContainer() {
+        $this->addPropertiesAndConstantsFromReflection($this->containerClassReflection);
+
+        foreach ($this->compositeClassReflectionArray as $compositeClassReflection) {
+            $paramName = $this->getComponentName($compositeClassReflection);
+            $newProperty = new PropertyGenerator($paramName, null, PropertyGenerator::FLAG_PRIVATE);
+            $this->generator->addPropertyFromGenerator($newProperty);
+        }
     }
 
 
@@ -230,7 +237,7 @@ class CompositeWeaveGenerator {
      * @param ClassReflection $reflector
      * @internal param $originalSourceClass
      */
-    private function addPropertiesAndConstantsForReflector(ClassReflection $reflector) {
+    private function addPropertiesAndConstantsFromReflection(ClassReflection $reflector) {
         $constants = $reflector->getConstants();
         foreach ($constants as $name => $value) {
             $this->generator->addProperty($name, $value, PropertyGenerator::FLAG_CONSTANT);
@@ -243,6 +250,11 @@ class CompositeWeaveGenerator {
         }
     }
 
+
+    function getComponentName(ClassReflection $compositeClassReflection) {
+        return lcfirst($compositeClassReflection->getShortName());
+    }
+    
     /**
      * @throws WeaveException
      */
@@ -250,27 +262,32 @@ class CompositeWeaveGenerator {
         foreach ($this->weaveInfo->getEncapsulateMethods() as $encapsulatedMethod => $resultType) {
 
             switch($resultType) {
-                case('string'): {
+
+                case(CompositeWeaveInfo::RETURN_STRING): {
                     $body = "\$result = '';\n";
                     foreach ($this->compositeClassReflectionArray as $compositeClassReflection) {
-                        $paramName = lcfirst($compositeClassReflection->getShortName());
+                        $paramName = $this->getComponentName($compositeClassReflection);
                         //TODO - add params
                         $body .= '    $result .= $this->'.$paramName.'->'.$encapsulatedMethod."();\r\n";
                     }
                     break;
                 }
 
-                case('array'): {
+                case(CompositeWeaveInfo::RETURN_ARRAY): {
                     $body = "\$result = [];\n";
                     foreach ($this->compositeClassReflectionArray as $compositeClassReflection) {
-                        $paramName = lcfirst($compositeClassReflection->getShortName());
+                        $paramName = $this->getComponentName($compositeClassReflection);
+                        //TODO - add params
                         $body .= '    $result = array_merge($result, $this->'.$paramName.'->'.$encapsulatedMethod."());\r\n";
                     }
                     break;
                 }
 
                 default:{
-                    throw new WeaveException("Unknown resultType [$resultType]");
+                    throw new WeaveException(
+                        "Unknown resultType [$resultType]",
+                        WeaveException::UNKNOWN_METHOD_RETURN_TYPE
+                    );
                     break;
                 }
             }

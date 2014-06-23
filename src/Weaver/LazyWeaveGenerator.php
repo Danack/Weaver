@@ -134,18 +134,25 @@ class LazyWeaveGenerator extends SingleClassWeaveGenerator  {
         $lazyPropertyName = $this->lazyWeaveInfo->getLazyPropertyName();
 
         
-        $initBody = 'if ($this->'.$lazyPropertyName.' == null) {';
-        $initBody .= '
+        $initBody = 'if ($this->'.$lazyPropertyName." == null) {\n";
 
-        $this->lazyInstance = new \\'.$this->sourceReflection->getName().'(';
+        $initBody .= sprintf(
+            '$this->%s = new \\%s(',
+            $this->lazyWeaveInfo->getLazyPropertyName(),
+            $this->sourceReflection->getName()
+        );
+        
+        
         //TODO - ^^ bug right there. lazyInstance isn't always the name.
         
         $constructorParamsString = $this->addLazyConstructor();
         $initBody .= $constructorParamsString;
         $initBody .= ");\n}";
 
+        
+        
         $this->generator->addMethod(
-            'init',
+            $this->lazyWeaveInfo->getInitMethodName(),
             array(),
             MethodGenerator::FLAG_PUBLIC,
             $initBody,

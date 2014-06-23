@@ -4,7 +4,7 @@
 namespace Example;
 
 
-class TypeHintClass {
+class NullClass {
 
 }
 

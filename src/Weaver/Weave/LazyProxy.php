@@ -6,9 +6,6 @@ namespace Weaver\Weave;
 
 class LazyProxy {
 
-
-    
-    
 }
 
  

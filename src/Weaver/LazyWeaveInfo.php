@@ -38,7 +38,7 @@ class LazyWeaveInfo {
      * @throws WeaveException
      */
     function __construct(
-        $decoratorClass, 
+        $decoratorClass, //@TODO - remove decorator class it does nothing.
         $interface, //TODO Allow multiple interfaces
         $initMethodName = null,
         $lazyPropertyName = null
@@ -49,7 +49,10 @@ class LazyWeaveInfo {
 
         if ($initMethodName) {
             if (is_string($initMethodName) == false) {
-                throw new WeaveException("initMethodName should be a string, ".gettype($initMethodName)." given.");
+                throw new WeaveException(
+                    "initMethodName should be a string, ".gettype($initMethodName)." given.",
+                    WeaveException::INTERFACE_NOT_VALID
+                );
             }
             $this->initMethodName = $initMethodName;
         }

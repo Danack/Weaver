@@ -44,7 +44,7 @@ class ImplementWeaveInfo {
         $this->instancePropertyName = $instancePropertyName;
         
         if ($interface == null) {
-            throw new WeaveException("Interface must be set for ImplementWeaveInfo.");
+            throw new WeaveException("Interface must be set for ImplementWeaveInfo.", WeaveException::INTERFACE_NOT_SET);
         }
 
         $this->interface = $interface;

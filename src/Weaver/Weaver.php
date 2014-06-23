@@ -33,7 +33,10 @@ class Weaver {
                 break;
             }
             default: {
-                throw new WeaveException("Unrecognised type of weaveInfo [" . get_class($weaveInfo) . "]");
+                throw new WeaveException(
+                    "Unrecognised type of weaveInfo [" . get_class($weaveInfo) . "]",
+                    WeaveException::UNKNOWN_WEAVE_TYPE
+                );
             }
         }
 

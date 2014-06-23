@@ -5,20 +5,12 @@ namespace Example;
 
 class TestClass implements TestInterface {
 
-    protected $queryString;
-    
-    function __construct($queryString) {
-        $this->queryString = $queryString;
-    }
 
     function anotherFunction($someParameter) {
-        echo "Executing anotherFunction\n";
     }
     
     function executeQuery($params) {
-        echo "executing query: ".$this->queryString."\n";
-        usleep(300);
-        return 5;
+        return 6;
     }
     
     function noReturn() {
@@ -28,5 +20,10 @@ class TestClass implements TestInterface {
     function __toString() {
         return "This shouldn't be extended";
     }
+    
+    function unextendedFunctionWithParam($foo) {
+        return $foo;
+    }
+    
 }
 

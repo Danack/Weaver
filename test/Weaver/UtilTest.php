@@ -41,8 +41,11 @@ class UtilTest extends \PHPUnit_Framework_TestCase {
         $result = Weaver::weave('Example\TestClass', $cacheWeaveInfo);
         $result->writeFile($this->outputDir, 'Example\CachedTwitter');
     }
-    
-    
+
+    /**
+     * Check that passing in invalid weaveInfo 
+     * @throws WeaveException
+     */
     function testUnknownWeaverType() {
         $this->setExpectedException('Weaver\WeaveException');
         $result = Weaver::weave('Example\TestClass', new \stdClass());

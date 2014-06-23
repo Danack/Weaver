@@ -6,8 +6,11 @@ namespace Weaver;
 use Danack\Code\Generator\ClassGenerator;
 use Danack\Code\Generator\MethodGenerator;
 use Danack\Code\Generator\ParameterGenerator;
+use Danack\Code\Generator\PropertyGenerator;
 use Danack\Code\Reflection\MethodReflection;
 use Danack\Code\Reflection\ClassReflection;
+
+
 
 class ImplementWeaveGenerator extends SingleClassWeaveGenerator {
 
@@ -31,30 +34,33 @@ class ImplementWeaveGenerator extends SingleClassWeaveGenerator {
         $this->decoratorReflection = new ClassReflection($implementWeaveInfo->getDecoratorClass());
         $this->generator = new ClassGenerator();
         $this->generator->setName($this->getFQCN());
-        $interface = $this->implementWeaveInfo->getInterface();
 
+        
 
         $interfaceToImplement = $implementWeaveInfo->getInterface();
 
-        $wat = $this->sourceReflection->implementsInterface($interfaceToImplement);
-        //$wat = $this->sourceReflection->implementsInterface("badsadbad");
-        echo $wat;
-        
-        if (!$wat) {
-            throw new WeaveException("Class $sourceClass does not implement interface $interfaceToImplement, weaving is not possible.");
+        if (!$this->sourceReflection->implementsInterface($interfaceToImplement)) {
+            throw new WeaveException("Class $sourceClass does not implement interface $interfaceToImplement, weaving is not possible.", WeaveException::INTERFACE_NOT_IMPLEMENTED);
         }
 
-        $interfaces = array($interface);
+        $interfaces = array($interfaceToImplement);
         $this->generator->setImplementedInterfaces($interfaces);
     }
 
+    function addInstanceProperty() {
+        $newProperty = new PropertyGenerator($this->implementWeaveInfo->getInstancePropertyName());
+        $newProperty->setVisibility(\Danack\Code\Generator\AbstractMemberGenerator::FLAG_PRIVATE);
+        $this->generator->addPropertyFromGenerator($newProperty);
+    }
+    
     /**
      * @return WeaveResult
      */
     function generate() {
-        $this->addDecoratedMethods();
-        $this->addDecoratorMethods();
+        $this->addInstanceProperty();
+        $this->addSourceMethods();
         $this->addProxyConstructor();
+        $this->addDecoratorMethods();
         $this->addPropertiesAndConstantsFromReflection($this->decoratorReflection);
         $fqcn = $this->getFQCN();
         $this->generator->setName($fqcn);
@@ -86,7 +92,7 @@ class ImplementWeaveGenerator extends SingleClassWeaveGenerator {
 
         $newBody = str_replace(
             '$this->__prototype()',
-            'parent::'.$sourceMethod->getName()."($paramList)",
+            '    $this->weavedInstance->'.$sourceMethod->getName()."($paramList)",
             $newBody
         );
 
@@ -111,9 +117,10 @@ class ImplementWeaveGenerator extends SingleClassWeaveGenerator {
         $paramList = implode(', ', $paramArray);
 
         $weavedMethod = MethodGenerator::fromReflection($sourceMethod);
-        
+
         $body = sprintf(
-            "    \$this->instance->%s(%s);",
+            " return \$this->%s->%s(%s);",
+            $this->implementWeaveInfo->getInstancePropertyName(),
             $sourceMethod->getName(),
             $paramList
         );
@@ -123,22 +130,37 @@ class ImplementWeaveGenerator extends SingleClassWeaveGenerator {
     }
     
     /**
-     * For all of the methods that need to be decorated, generate the decorated version
+     * For all of the methods  in that need to be decorated, generate the decorated version
      * and all the to the generator.
+     * @TODO Shouldn't this only implement the methods in the interface that is being exposed?
      */
-    function addDecoratedMethods() {
-        $methodBindingArray = $this->implementWeaveInfo->getMethodBindingArray();
-        foreach ($methodBindingArray as $methodBinding) {
-            $decoratorMethod = $methodBinding->getMethod();
-            $decoratorMethodReflection = $this->decoratorReflection->getMethod($decoratorMethod);
+    function addSourceMethods() {
 
-            foreach ($this->sourceReflection->getMethods() as $sourceMethod) {
+        $methodBindingArray = $this->implementWeaveInfo->getMethodBindingArray();
+        
+        $methods = $this->sourceReflection->getMethods();
+
+        foreach ($methods as $sourceMethod) {
+            
+            if ($sourceMethod->getName() === '__construct') {
+                continue;
+            }
+            
+            $methodBindingToApply = null;
+            foreach ($methodBindingArray as $methodBinding) {
                 if ($methodBinding->matchesMethod($sourceMethod->getName()) ) {
-                    $this->addDecoratedMethod($sourceMethod, $decoratorMethodReflection);
+                    $methodBindingToApply = $methodBinding;
+                    break;
                 }
-                else {
-                    $this->addPlainMethod($sourceMethod);
-                }
+            }
+
+            if ($methodBindingToApply != null) {
+                $decoratorMethod = $methodBindingToApply->getMethod();
+                $decoratorMethodReflection = $this->decoratorReflection->getMethod($decoratorMethod);
+                $this->addDecoratedMethod($sourceMethod, $decoratorMethodReflection);
+            }
+            else {
+                $this->addPlainMethod($sourceMethod);
             }
         }
     }

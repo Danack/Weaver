@@ -3,6 +3,7 @@
 
 namespace Weaver;
 
+use Mockery;
 
 class CompositeWeaveTest extends \PHPUnit_Framework_TestCase {
 
@@ -11,130 +12,182 @@ class CompositeWeaveTest extends \PHPUnit_Framework_TestCase {
     function __construct() {
         $this->outputDir = dirname(__FILE__).'/../../generated/';
     }
-    
+
+    /**
+     * @throws WeaveException
+     */
     function testCompositeWeave() {
 
         $components = [
-            'Example\Component1',
-            'Example\Component2'
+            'Example\Composite\Component1',
+            'Example\Composite\Component2'
         ];
 
+        //TODO - allow this to be generated from the interface
         $compositeWeaveInfo = new \Weaver\CompositeWeaveInfo(
-            'Example\CompositeHolder',
-            [
-                'renderElement' => 'string',
-            ]
+            'Example\Composite\CompositeHolder',
+            ['render' => CompositeWeaveInfo::RETURN_STRING,]
         );
 
-        $outputClassname = 'Example\Coverage\CompositeHolderComponent1Component2';
+        $outputClassname = 'Example\Coverage\Composite\TestCompositeWeave';
 
         $result = Weaver::weave($components, $compositeWeaveInfo);
         $result->writeFile($this->outputDir, $outputClassname);
-        
-        $injector = createProvider([], []);
-        
-        $injector->defineParam('component1Arg', 'foo');
-        $injector->defineParam('component2Arg', 'bar');
-        $injector->defineParam('testValue', 5);
 
-        $composite = $injector->make($outputClassname);
-        $output = $composite->render();
+        $injector = createProvider([], []);
+
+        //Setup Test objects
+        $component1 = $injector->make('Example\Composite\Component1');
+        $component2 = $injector->make('Example\Composite\Component2');
+
+        $component1 = Mockery::mock($component1);
+        $component1->shouldReceive('render')->once()->passthru();
+        $component1->shouldReceive('methodNotInInterface')->never();
+
+        $component2 = Mockery::mock($component2);
+        $component2->shouldReceive('render')->once()->passthru();
+        $component2->shouldReceive('methodNotInInterface')->never();
+
+       
+        $compositeSUT = new $outputClassname($component1, $component2, 5);
+
+        //Run test
+        $result = $compositeSUT->render();
+        $compositeSUT->methodNotInInterface();
         
-        $this->assertContains('component1', $output);
-        $this->assertContains('component2', $output);
-        $this->assertNotContains('CompositeHolder', $output);
+        //Check results
+        $this->assertContains("component1", $result);
+        $this->assertContains("component2", $result);
     }
 
 
-    function testCompositeWeaveSpecificName() {
+    /**
+     * Test that the auto-generated name is usable 
+     * @throws WeaveException
+     */
+    function testCompositeWeaveGeneratedName() {
 
         $components = [
-            'Example\Component1',
-            'Example\Component2'
+            'Example\Composite\Component1',
+            'Example\Composite\Component2'
         ];
 
         $compositeWeaveInfo = new \Weaver\CompositeWeaveInfo(
-            'Example\CompositeHolder',
+            'Example\Composite\CompositeHolder',
             [
-                'renderElement' => 'string',
+                'render' => CompositeWeaveInfo::RETURN_STRING,
             ]
         );
 
         $result = Weaver::weave($components, $compositeWeaveInfo);
-        $result->writeFile($this->outputDir, 'Example\Coverage\CompositeRenamed');
+        $outputClassname = $result->writeFile($this->outputDir);
 
         $injector = createProvider([], []);
-
-        $injector->defineParam('component1Arg', 'foo');
-        $injector->defineParam('component2Arg', 'bar');
         $injector->defineParam('testValue', 5);
+        $composite = $injector->make($outputClassname);
 
-        $composite = $injector->make('Example\Coverage\CompositeRenamed');
+
+        $result = $composite->render();
+
+        //Check results
+        $this->assertContains("component1", $result);
+        $this->assertContains("component2", $result);
     }
 
+    /**
+     * Check that Weaving a class into global namespace works correctly.
+     * @throws WeaveException
+     */
     function testCompositeWeaveGlobalNamespaceClassname() {
 
         $components = [
-            'Example\Component1',
-            'Example\Component2'
+            'Example\Composite\Component1',
+            'Example\Composite\Component2'
         ];
 
         $compositeWeaveInfo = new \Weaver\CompositeWeaveInfo(
-            'Example\CompositeHolder',
+            'Example\Composite\CompositeHolder',
             [
-                'renderElement' => 'string',
+                'render' => CompositeWeaveInfo::RETURN_STRING,
             ]
         );
 
-        $result = Weaver::weave($components, $compositeWeaveInfo);
-        $result->writeFile($this->outputDir, 'GlobalNamespaceTest');
+        $weaveResult = Weaver::weave($components, $compositeWeaveInfo);
+        $weaveResult->writeFile($this->outputDir, 'GlobalNamespaceTest');
 
         $injector = createProvider([], []);
+        $composite = $injector->make('GlobalNamespaceTest', [':testValue' => 5]);
 
-        $injector->defineParam('component1Arg', 'foo');
-        $injector->defineParam('component2Arg', 'bar');
-        $injector->defineParam('testValue', 5);
+        $result = $composite->render();
 
-        $composite = $injector->make('GlobalNamespaceTest');
+        //Check results
+        $this->assertContains("component1", $result);
+        $this->assertContains("component2", $result);
     }
 
 
+    /**
+     
+     * @throws WeaveException
+     */
     function testCompositeWeaveArrayReturn() {
         $components = [
-            'Example\ComponentParams1',
-            'Example\ComponentParams2'
+            'Example\Composite\ComponentParams1',
+            'Example\Composite\ComponentParams2'
         ];
 
         $compositeWeaveInfo = new \Weaver\CompositeWeaveInfo(
-            'Example\CompositeParamsHolder',
+            'Example\Composite\CompositeParamsHolder',
             [
-                'getParams' => 'array',
+                'getParams' => CompositeWeaveInfo::RETURN_ARRAY
             ]
         );
 
         $result = Weaver::weave($components, $compositeWeaveInfo);
-        $classname = $result->writeFile($this->outputDir, 'Example\Coverage\ArrayReturn');
+        $outputClassname = $result->writeFile($this->outputDir, 'Example\Coverage\ArrayReturn');
+
 
         $injector = createProvider([], []);
-        $composite = $injector->make($classname);
+        $component1 = $injector->make('Example\Composite\ComponentParams1');
+        $component2 = $injector->make('Example\Composite\ComponentParams2');
+
+        $component1 = Mockery::mock($component1);
+        $component1->shouldReceive('getParams')->once()->andReturn(['foo1' => 1]);
+        $component2 = Mockery::mock($component2);
+        $component2->shouldReceive('getParams')->once()->andReturn(['foo2' => 2]);
+
+        $compositeSUT = new $outputClassname($component1, $component2);
+
+        $result = $compositeSUT->getParams();
+
+        $this->assertArrayHasKey('foo1', $result);
+        $this->assertArrayHasKey('foo2', $result);
     }
-    
+
+    /**
+     * Check that an unknown return type throws the correct exception.
+     * @throws WeaveException
+     */
     function testUnknownCompositeType() {
         $this->setExpectedException('Weaver\WeaveException');
 
         $components = [
-            'Example\ComponentParams1',
-            'Example\ComponentParams2'
+            'Example\Composite\Component1',
+            'Example\Composite\Component2'
         ];
 
         $compositeWeaveInfo = new \Weaver\CompositeWeaveInfo(
-            'Example\CompositeParamsHolder',
+            'Example\Composite\CompositeHolder',
             [
-                'getParams' => 'blob',
+                'getParams' => 'UnknownReturnType',
             ]
         );
 
         $result = Weaver::weave($components, $compositeWeaveInfo);
         $classname = $result->writeFile($this->outputDir, 'Example\Coverage\UnknownComposite');
+    }
+
+    protected function tearDown() {
+        \Mockery::close();
     }
 }

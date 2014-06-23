@@ -11,6 +11,11 @@
     <testsuites>
         <testsuite name="Weaver Test Suite">
             <directory>./test/Weaver/</directory>
+
+            <listeners>
+                <listener class="\Mockery\Adapter\Phpunit\TestListener"/>
+            </listeners>
+            
         </testsuite>
     </testsuites>
 

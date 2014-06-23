@@ -1,8 +1,7 @@
 <?php
 
 
-namespace Example;
-
+namespace Example\Composite;
 
 class ComponentParams2 {
 
