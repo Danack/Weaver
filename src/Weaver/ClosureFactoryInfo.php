@@ -11,11 +11,14 @@ class ClosureFactoryInfo {
     private $params;
 
     private $body;
+    
+    private $classname;
 
-    function __construct($functionName, $params, $body) {
+    function __construct($functionName, $params, $body, $classname) {
         $this->functionName = $functionName;
         $this->params = $params;
         $this->body = $body;
+        $this->classname = $classname;
 
     }
 
@@ -24,7 +27,14 @@ class ClosureFactoryInfo {
      */
     public function __toString() {
         $paramsString = getParamsAsString($this->params, true);
-        $output = "    function ".$this->functionName."($paramsString) {" ;
+
+        $output = "";
+        $output = "
+    /**
+     * @return ".$this->classname."
+     */\n";
+
+        $output .= "    function ".$this->functionName."($paramsString) {" ;
         $output .= $this->body;
         $output .= "}";
         return $output;

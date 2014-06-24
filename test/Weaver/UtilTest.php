@@ -9,6 +9,7 @@ namespace {
 namespace Weaver {
 
 
+    //TODO Replace this with the VFS mocking class
 function file_put_contents($outputFilename, $text) {
     if (isset($GLOBALS['mockFilePutContents']) && $GLOBALS['mockFilePutContents'] === true) {
         return false;

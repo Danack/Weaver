@@ -1,10 +1,10 @@
 <?php
 
 
-namespace Example\Lazy;
+namespace Example\Implement;
 
 
-class LazyProxyWithDependency {
+class DecoratorWithDependency {
 
     private $proxyDependency;
     

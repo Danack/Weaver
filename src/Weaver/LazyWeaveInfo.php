@@ -7,19 +7,6 @@ namespace Weaver;
 class LazyWeaveInfo {
 
     use \Intahwebz\SafeAccess;
-
-    /**
-     * The classname that the subject class(es) gets weaved with.
-     * @var string
-     */
-    protected $decoratorClass;
-
-    /**
-     * Which methods of the weaved get intercepted.
-     *
-     * @var string[]
-     */
-    private $methodBindingArray = [];
  
     /** @var string  */
     private $initMethodName;
@@ -38,20 +25,17 @@ class LazyWeaveInfo {
      * @throws WeaveException
      */
     function __construct(
-        $decoratorClass, //@TODO - remove decorator class it does nothing.
         $interface, //TODO Allow multiple interfaces
         $initMethodName = null,
         $lazyPropertyName = null
     ) {
-        $this->decoratorClass = $decoratorClass;
-        $this->methodBindingArray = [];
         $this->interface = $interface;
 
         if ($initMethodName) {
             if (is_string($initMethodName) == false) {
                 throw new WeaveException(
                     "initMethodName should be a string, ".gettype($initMethodName)." given.",
-                    WeaveException::INTERFACE_NOT_VALID
+                    WeaveException::METHOD_NAME_INVALID
                 );
             }
             $this->initMethodName = $initMethodName;
@@ -62,7 +46,10 @@ class LazyWeaveInfo {
 
         if ($lazyPropertyName) {
             if (is_string($lazyPropertyName) == false) {
-                throw new WeaveException("lazyPropertyName should be a string, ".gettype($lazyPropertyName)." given.");
+                throw new WeaveException(
+                    "lazyPropertyName should be a string, ".gettype($lazyPropertyName)." given.",
+                    WeaveException::PROPERTY_NAME_INVALID
+                );
             }
             $this->lazyPropertyName = $lazyPropertyName;
         }
@@ -71,22 +58,11 @@ class LazyWeaveInfo {
         }
 
         if (interface_exists($interface) == false) {
-            throw new WeaveException("Error in ImplementsWeaveInfo: ".$interface." does not exist");
+            throw new WeaveException(
+                "Error in ImplementsWeaveInfo: Interface ".$interface." does not exist",
+                WeaveException::INTERFACE_NOT_VALID
+            );
         }
-    }
-
-    /**
-     * @return string
-     */
-    public function getDecoratorClass() {
-        return $this->decoratorClass;
-    }
-
-    /**
-     * @return MethodBinding[]
-     */
-    function getMethodBindingArray() {
-        return $this->methodBindingArray;
     }
 
     /**

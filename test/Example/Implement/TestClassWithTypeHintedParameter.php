@@ -1,6 +1,6 @@
 <?php
 
-namespace Example\Lazy;
+namespace Example\Implement;
 
 
 class TestClassWithTypeHintedParameter implements ExpensiveInterface {

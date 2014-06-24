@@ -13,31 +13,7 @@ class ImplementWeaveTest extends \PHPUnit_Framework_TestCase {
     function __construct() {
         $this->outputDir = dirname(__FILE__).'/../../generated/';
     }
-//
-//    function testMissingInterface() {
-//        $this->setExpectedException('Weaver\WeaveException');
-//        $lazyWeaveInfo = new LazyWeaveInfo(
-//            'Weaver\Weave\LazyProxy',
-//            'ThisInterfaceDoesNotExist'
-//        );
-//    }
 
-    /**
-     *
-     */
-//    function testImplementsWeaveMissingInterfaceException() {
-//        
-//        $this->setExpectedException('Weaver\WeaveException');
-//        
-//        $lazyWeaveInfo = new ImplementWeaveInfo(
-//            'Weaver\Weave\NullClass',
-//            'Example\TestInterface',
-//            []
-//        );
-//
-//        $result = Weaver::weave('Example\NullClass', $lazyWeaveInfo);
-//        $classname = $result->writeFile($this->outputDir, 'Example\FirstImplement');
-//    }
 
 //TODO - make passing in an empty method binding, make it bind to all?
 //OR just the interface properties.
@@ -85,6 +61,49 @@ class ImplementWeaveTest extends \PHPUnit_Framework_TestCase {
         $decoratedInstance = $injector->make($classname);
     }
 
+    function testClassFactoryIsAllowed() {
+
+        $cacheMethodBinding = new MethodBinding(
+            '__extend',
+            new MethodMatcher(['executeQuery', 'anotherFunction'])
+        );
+
+        $lazyWeaveInfo = new ImplementWeaveInfo(
+            'Weaver\Weave\CacheProtoProxy',
+            'Example\TestInterface',
+            [$cacheMethodBinding]
+        );
+
+        $outputClassName = 'Example\SourceClassHasConstructor';
+
+        $result = Weaver::weave('Example\Implement\ClassWithConstructor', $lazyWeaveInfo);
+        $classname = $result->writeFile($this->outputDir, $outputClassName);
+
+        $expensiveFactoryMethod = $result->generateFactory('\Example\Implement\ClassWithConstructorClosureFactory');
+
+        $filename = $this->outputDir."implementClassFactoryIsAllowed.php";
+
+        $fileHandle = fopen($filename, 'wb');
+        fwrite($fileHandle, "<?php\n\n\n");
+        fwrite($fileHandle, $expensiveFactoryMethod);
+//        fwrite($fileHandle, "\n\n\n");
+//        fwrite($fileHandle, $connectionFactoryMethod);
+        fclose($fileHandle);
+        
+        require_once $filename;
+
+        $injector = createProvider([], []);
+        $injector->alias('Intahwebz\ObjectCache', 'Intahwebz\Cache\InMemoryCache');
+        $classFactory = $injector->execute('createSourceClassHasConstructorFactory');
+        
+        $injector->defineParam('foo', 'bar');
+        $injector->delegate($classname, [$classFactory, 'create']);
+
+        $decoratedInstance = $injector->make($classname);
+
+    }
+
+
     function testImplementsWeaveCache() {
 
         $cacheMethodBinding = new MethodBinding(
@@ -121,16 +140,112 @@ class ImplementWeaveTest extends \PHPUnit_Framework_TestCase {
         $decoratedObject->executeQuery(['foo' => 1]);
         
         //This function shouldn't be decorated.
-        //$decoratedObject->__toString();
+        $decoratedObject->__toString();
     }
 
 
+    /**
+     * Check that an appropriate exception is thrown when the class
+     * to be decorated doesn't implement the interface.
+     * @throws WeaveException
+     */
     function testInterfaceNotImplemented() {
 
         $this->setExpectedException(
             'Weaver\WeaveException',
             '',
             WeaveException::INTERFACE_NOT_IMPLEMENTED
+        );
+
+        $cacheWeaveInfo = new ImplementWeaveInfo(
+            'Weaver\Weave\CacheProtoProxy',
+            'Example\TestInterface',
+            []
+        );
+
+        $outputClassName = 'Example\CachedImplement';
+
+        $result = Weaver::weave('Example\Implement\ClassDoesntImplementInterface', $cacheWeaveInfo);
+        $classname = $result->writeFile($this->outputDir, $outputClassName);
+        //TODO check result with Mockery
+    }
+
+
+    /**
+     * Check that a typehinted param for the expensive class is created correctly.
+     * @throws WeaveException
+     */
+    function testTypeHintedParameter() {
+        $cacheMethodBinding = new MethodBinding(
+            '__extend',
+            new MethodMatcher(['executeQuery', 'anotherFunction'])
+        );
+
+        $cacheWeaveInfo = new ImplementWeaveInfo(
+            'Weaver\Weave\CacheProtoProxy',
+            'Example\Implement\ExpensiveInterface',
+            [$cacheMethodBinding]
+        );
+
+        $result = Weaver::weave('Example\Implement\TestClassWithTypeHintedParameter', $cacheWeaveInfo);
+        $className = $result->writeFile($this->outputDir, 'Example\Coverage\TypeHintedParam');
+
+        $injector = createProvider([], []);
+        $injector->defineParam('queryString', 'testQueryString');
+        $proxiedClass = $injector->make($className);
+
+        $proxiedClass->executeQuery('foo');
+        //TODO add mock checking
+        //check  Dependency is set
+    }
+
+
+    /**
+     * @throws WeaveException
+     */
+    function testTypeHintedParameterWithOutputClassnameDefined() {
+
+        $cacheMethodBinding = new MethodBinding(
+            '__extend',
+            new MethodMatcher(['executeQuery', 'anotherFunction'])
+        );
+
+        $cacheWeaveInfo = new ImplementWeaveInfo(
+            'Weaver\Weave\CacheProtoProxy',
+            'Example\Implement\ExpensiveInterface',
+            [$cacheMethodBinding]
+        );
+
+        $outputClassName = 'Example\Coverage\Implement\ProxyWithDependency';
+
+        $result = Weaver::weave('Example\Implement\TestClassWithTypeHintedParameter', $cacheWeaveInfo);
+        $resultOutputClassName = $result->writeFile($this->outputDir, $outputClassName);
+
+        $this->assertEquals($resultOutputClassName, $outputClassName);
+
+        $injector = createProvider([], []);
+        $injector->defineParam('dependencyNotInProxiedClass', true);
+        $injector->defineParam('queryString', 'testQueryString');
+        $proxiedClass = $injector->make($outputClassName, [':queryString' => 'testQueryString']);
+
+        $factoryFunction = $result->generateFactory('Example\Lazy\StandardTestClassFactory');
+
+        $fileHandle = fopen($this->outputDir."testTypeHintedParameterWithOutputClassnameDefined.php", 'wb');
+        fwrite($fileHandle, "<?php\n");
+        fwrite($fileHandle, $factoryFunction);
+    }
+
+
+    /**
+     * Check that a typehinted param for the expensive class is created correctly.
+     * @throws WeaveException
+     */
+    function testErrorWhenInterfaceNotString() {
+
+        $this->setExpectedException(
+            'Weaver\WeaveException',
+            '',
+            WeaveException::INTERFACE_NOT_SET
         );
 
         $cacheMethodBinding = new MethodBinding(
@@ -140,16 +255,8 @@ class ImplementWeaveTest extends \PHPUnit_Framework_TestCase {
 
         $cacheWeaveInfo = new ImplementWeaveInfo(
             'Weaver\Weave\CacheProtoProxy',
-            'Example\TestInterface',
+            null,
             [$cacheMethodBinding]
         );
-
-        $outputClassName = 'Example\CachedImplement';
-
-        $result = Weaver::weave('Example\Implement\ClassDoesntImplementInterface', $cacheWeaveInfo);
-        $classname = $result->writeFile($this->outputDir, $outputClassName);
-
     }
-    
-    
 }

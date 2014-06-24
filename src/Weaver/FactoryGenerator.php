@@ -55,7 +55,7 @@ class FactoryGenerator {
      * @param ClassReflection $sourceReflection
      * @param ClassReflection $decorationReflection
      */
-    function __construct(ClassReflection $sourceReflection, ClassReflection $decorationReflection) {
+    function __construct(ClassReflection $sourceReflection, ClassReflection $decorationReflection = null) {
         $this->sourceReflection = $sourceReflection;
         $this->decorationReflection = $decorationReflection;
     }
@@ -83,9 +83,11 @@ class FactoryGenerator {
         $decoratorParameters = [];
         $sourceParameters = [];
 
-        if ($this->decorationReflection->hasMethod('__construct')){
-            $constructorReflection = $this->decorationReflection->getMethod('__construct');
-            $decoratorParameters = $constructorReflection->getParameters();
+        if ($this->decorationReflection) {
+            if ($this->decorationReflection->hasMethod('__construct')) {
+                $constructorReflection = $this->decorationReflection->getMethod('__construct');
+                $decoratorParameters = $constructorReflection->getParameters();
+            }
         }
 
         if ($this->sourceReflection->hasMethod('__construct')){

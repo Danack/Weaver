@@ -187,7 +187,4 @@ class CompositeWeaveTest extends \PHPUnit_Framework_TestCase {
         $classname = $result->writeFile($this->outputDir, 'Example\Coverage\UnknownComposite');
     }
 
-    protected function tearDown() {
-        \Mockery::close();
-    }
 }

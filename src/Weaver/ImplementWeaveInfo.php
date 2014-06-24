@@ -43,8 +43,8 @@ class ImplementWeaveInfo {
         $this->methodBindingArray = $methodBinding;
         $this->instancePropertyName = $instancePropertyName;
         
-        if ($interface == null) {
-            throw new WeaveException("Interface must be set for ImplementWeaveInfo.", WeaveException::INTERFACE_NOT_SET);
+        if (is_string($interface) == null) {
+            throw new WeaveException("Interface must be set as a string for ImplementWeaveInfo.", WeaveException::INTERFACE_NOT_SET);
         }
 
         $this->interface = $interface;

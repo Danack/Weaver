@@ -149,6 +149,17 @@ And the Proxied version of the class with the timer attached will be used everyw
 * Why extend class at all? Because if you want to decorate something that isn't a class, re-writing it as an interface is not always possible timewise.
 
 
+## Terms
+
+* Source class - the original class that needs to have it's behaviour modified.
+
+* Decorator class - the class that will be used to decorate the source class.
+
+* Decorated class - the result of the weaving.
+
+
+
+
 ## Notes
 
 
