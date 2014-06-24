@@ -52,7 +52,7 @@ class LazyWeaveGenerator extends SingleClassWeaveGenerator  {
         $this->addInitMethod();
         $fqcn = $this->getFQCN();
         $this->generator->setName($fqcn);
-        $factoryGenerator = new FactoryGenerator(
+        $factoryGenerator = new SingleClassFactoryGenerator(
                                 $this->sourceReflection,
                                 null
                             );

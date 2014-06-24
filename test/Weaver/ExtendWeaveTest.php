@@ -119,15 +119,45 @@ class ExtendWeaveTest extends \PHPUnit_Framework_TestCase {
         $outputClassname = $result->writeFile($this->outputDir, 'Example\Extend\TimedTwitter');
 
         $injector = createProvider([], []);
-        $object = $injector->make($outputClassname, [':twitterAPIKey' => 123456]);
+        $instance = $injector->make($outputClassname, [':twitterAPIKey' => 123456]);
 
-        $object->getTweet("12345");
-        $object->pushTweet("12345");
-        $timings = $object->getTimings();
+
+        $instance->getTweet("12345");
+        $instance->pushTweet("12345");
+        $timings = $instance->getTimings();
         
         $this->assertEquals(2, count($timings));
     }
 
+
+    function testExtendWeaveAllMethodsAndFactory() {
+        $timerMethodBinding = new MethodBinding(
+            '__extend',
+            new MethodMatcher(['*'])
+        );
+
+        $timerWeaveInfo = new ExtendWeaveInfo(
+            'Weaver\Weave\TimerProtoProxy',
+            [$timerMethodBinding]
+        );
+
+        $result = Weaver::weave('Example\Extend\Twitter', $timerWeaveInfo);
+        $outputClassname = $result->writeFile($this->outputDir, 'Example\Extend\TimedTwitter2');
+        $factoryClassname = $result->writeFactory($this->outputDir);
+        
+
+        $injector = createProvider([], []);
+        $factory = $injector->make($factoryClassname);
+
+        $object = $factory->create('123456');
+
+        $object->getTweet("12345");
+        $object->pushTweet("12345");
+        $timings = $object->getTimings();
+
+        $this->assertEquals(2, count($timings));
+    }
+    
 
 
     /**

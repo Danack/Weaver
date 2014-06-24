@@ -49,12 +49,10 @@ class ImplementWeaveTest extends \PHPUnit_Framework_TestCase {
             [$cacheMethodBinding]
         );
 
-        $outputClassName = 'Example\SourceClassHasConstructor';
+        $outputClassName = 'Example\Implement\SourceClassHasConstructor';
         
         $result = Weaver::weave('Example\Implement\ClassWithConstructor', $lazyWeaveInfo);
         $classname = $result->writeFile($this->outputDir, $outputClassName);
-
-        //$decoratedInstance = new $classname("bar");
 
         $injector = createProvider([], []);
         $injector->defineParam('foo', 'bar');
@@ -74,34 +72,53 @@ class ImplementWeaveTest extends \PHPUnit_Framework_TestCase {
             [$cacheMethodBinding]
         );
 
-        $outputClassName = 'Example\SourceClassHasConstructor';
+        $outputClassName = 'Example\Implement\SourceClassHasConstructor';
 
         $result = Weaver::weave('Example\Implement\ClassWithConstructor', $lazyWeaveInfo);
         $classname = $result->writeFile($this->outputDir, $outputClassName);
 
-        $expensiveFactoryMethod = $result->generateFactory('\Example\Implement\ClassWithConstructorClosureFactory');
-
-        $filename = $this->outputDir."implementClassFactoryIsAllowed.php";
-
-        $fileHandle = fopen($filename, 'wb');
-        fwrite($fileHandle, "<?php\n\n\n");
-        fwrite($fileHandle, $expensiveFactoryMethod);
-//        fwrite($fileHandle, "\n\n\n");
-//        fwrite($fileHandle, $connectionFactoryMethod);
-        fclose($fileHandle);
-        
-        require_once $filename;
+        $factoryClassname = $result->writeFactory($this->outputDir, $classname.'Factory');
 
         $injector = createProvider([], []);
         $injector->alias('Intahwebz\ObjectCache', 'Intahwebz\Cache\InMemoryCache');
-        $classFactory = $injector->execute('createSourceClassHasConstructorFactory');
+        $factoryInstance = $injector->make($factoryClassname);
+
+        $instance = $factoryInstance->create("bar");
         
-        $injector->defineParam('foo', 'bar');
-        $injector->delegate($classname, [$classFactory, 'create']);
-
-        $decoratedInstance = $injector->make($classname);
-
+        $this->assertInstanceOf($outputClassName, $instance);
+        $this->assertInstanceOf('Example\TestInterface', $instance);
     }
+    
+    
+
+//      //TODO - put closure factory generation back in, even though it's nuts.
+//    
+//            
+//        if (false) {
+//            $expensiveFactoryMethod = $result->generateClosureFactoryFunction('\Example\Implement\ClassWithConstructorClosureFactory'
+//            );
+//
+//            $filename = $this->outputDir . "implementClassFactoryIsAllowed.php";
+//
+//            $fileHandle = fopen($filename, 'wb');
+//            fwrite($fileHandle, "<?php\n\n\n");
+//            fwrite($fileHandle, $expensiveFactoryMethod);
+////        fwrite($fileHandle, "\n\n\n");
+////        fwrite($fileHandle, $connectionFactoryMethod);
+//            fclose($fileHandle);
+//
+//            require_once $filename;
+//
+//            $injector = createProvider([], []);
+//            $injector->alias('Intahwebz\ObjectCache', 'Intahwebz\Cache\InMemoryCache');
+//            $classFactory = $injector->execute('createSourceClassHasConstructorFactory');
+//
+//            $injector->defineParam('foo', 'bar');
+//            $injector->delegate($classname, [$classFactory, 'create']);
+//
+//            $decoratedInstance = $injector->make($classname);
+//
+//        }
 
 
     function testImplementsWeaveCache() {
@@ -228,7 +245,7 @@ class ImplementWeaveTest extends \PHPUnit_Framework_TestCase {
         $injector->defineParam('queryString', 'testQueryString');
         $proxiedClass = $injector->make($outputClassName, [':queryString' => 'testQueryString']);
 
-        $factoryFunction = $result->generateFactory('Example\Lazy\StandardTestClassFactory');
+        $factoryFunction = $result->generateClosureFactoryFunction('Example\Lazy\StandardTestClassFactory');
 
         $fileHandle = fopen($this->outputDir."testTypeHintedParameterWithOutputClassnameDefined.php", 'wb');
         fwrite($fileHandle, "<?php\n");

@@ -73,10 +73,37 @@ class WeaveResult {
 
         return $this->generator->getFQCN();
     }
+
+    /**
+     * @param $outputDir
+     * @param null $factoryClassname
+     * @return null|string
+     * @throws WeaveException
+     */
+    public function writeFactory($outputDir, $factoryClassname = null) {
+        if (!$factoryClassname) {
+            $factoryClassname = $this->generator->getFQCN().'Factory';
+        }
+
+        $generator = $this->generateFactory($factoryClassname);
+        saveFile($outputDir, $factoryClassname, $generator->generate());
+        
+        return $factoryClassname;
+    }
+
+    /**
+     * @param $factoryClassname
+     * @return ClassGenerator
+     */
+    public function generateFactory($factoryClassname) {
+        $generator = $this->factoryGenerator->generateClassFactory($factoryClassname, $this->generator->getFQCN());
+        //echo $generator->generate();
+
+        return $generator; 
+    }
     
-    
-    public function generateFactory($factoryClass) {
-        return $this->factoryGenerator->generate($factoryClass, $this->generator->getFQCN());
+    public function generateClosureFactoryFunction($factoryClass) {
+        return $this->factoryGenerator->generateClosureFactoryFunction($factoryClass, $this->generator->getFQCN());
     }
 }
 
