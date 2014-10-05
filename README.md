@@ -138,6 +138,7 @@ And the Proxied version of the class with the timer attached will be used everyw
 
 ## TODO
 
+
 * Figure out what to do about factories, because having to make a new factory for every combination of thing sucks. e.g. CachedTimedStatementWrapperFactory to make a cached, timed, statementWrapper factory.
 
 * Cover more of the examples from below, particularly Ghost object.

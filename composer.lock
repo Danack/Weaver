@@ -1,9 +1,10 @@
 {
     "_readme": [
         "This file locks the dependencies of your project to a known state",
-        "Read more about it at http://getcomposer.org/doc/01-basic-usage.md#composer-lock-the-lock-file"
+        "Read more about it at http://getcomposer.org/doc/01-basic-usage.md#composer-lock-the-lock-file",
+        "This file is @generated automatically"
     ],
-    "hash": "c245121fa892c7a7f92c03e91c6b9263",
+    "hash": "8db1e474fabd6bc403babe4311884c61",
     "packages": [
         {
             "name": "danack/danack-code",
@@ -187,6 +188,29 @@
         }
     ],
     "packages-dev": [
+        {
+            "name": "mikey179/vfsStream",
+            "version": "1.2.0",
+            "dist": {
+                "type": "zip",
+                "url": "http://satis.basereality.com/packages/mikey179/vfsStream/mikey179_vfsStream_v1.2.0.zip",
+                "reference": null,
+                "shasum": "e64c39a731cd8bd7d5a43e742b3506c3affe4853"
+            },
+            "require": {
+                "php": ">=5.3.0"
+            },
+            "type": "library",
+            "autoload": {
+                "psr-0": {
+                    "org\\bovigo\\vfs\\": "src/main/php"
+                }
+            },
+            "license": [
+                "BSD"
+            ],
+            "homepage": "http://vfs.bovigo.org/"
+        },
         {
             "name": "mockery/mockery",
             "version": "0.9.1",
@@ -1178,6 +1202,7 @@
     "stability-flags": {
         "rdlowrey/auryn": 20
     },
+    "prefer-stable": false,
     "platform": {
         "php": ">=5.4.0"
     },
