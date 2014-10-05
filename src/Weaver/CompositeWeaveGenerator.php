@@ -100,7 +100,7 @@ class CompositeWeaveGenerator {
                 $modifiedConstructorName = 'construct_'.getClassName($methodReflection->getName());
                 $methodGenerator->setName($modifiedConstructorName);
                 $this->generator->addMethodFromGenerator($methodGenerator);
-                $weaveConstructorBody .= "\t\t\$this->".$modifiedConstructorName.'(';
+                $weaveConstructorBody .= "\$this->".$modifiedConstructorName.'(';
 
                 $separator = '';
                 $parameters = $methodReflection->getParameters();

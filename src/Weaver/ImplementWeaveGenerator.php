@@ -183,7 +183,7 @@ class ImplementWeaveGenerator extends SingleClassWeaveGenerator {
         );
 
         $constructorBody .= sprintf(
-            "    \$this->%s = \$%s;\n",
+            "\$this->%s = \$%s;\n",
             $this->implementWeaveInfo->getInstancePropertyName(),
             $paramName
         );
