@@ -261,14 +261,22 @@ class CompositeWeaveGenerator {
     function addEncapsulatedMethods() {
         foreach ($this->weaveInfo->getEncapsulateMethods() as $encapsulatedMethod => $resultType) {
 
+            //TODO - generate param string
+            $paramString = '';
+            
             switch($resultType) {
 
                 case(CompositeWeaveInfo::RETURN_STRING): {
                     $body = "\$result = '';\n";
                     foreach ($this->compositeClassReflectionArray as $compositeClassReflection) {
                         $paramName = $this->getComponentName($compositeClassReflection);
-                        //TODO - add params
-                        $body .= '    $result .= $this->'.$paramName.'->'.$encapsulatedMethod."();\r\n";
+                 
+                        $body .= sprintf(
+                            "\$result .= \$this->%s->%s(%s);\r\n",
+                            $paramName,
+                            $encapsulatedMethod, 
+                            $paramString
+                        );
                     }
                     break;
                 }
@@ -278,10 +286,30 @@ class CompositeWeaveGenerator {
                     foreach ($this->compositeClassReflectionArray as $compositeClassReflection) {
                         $paramName = $this->getComponentName($compositeClassReflection);
                         //TODO - add params
-                        $body .= '    $result = array_merge($result, $this->'.$paramName.'->'.$encapsulatedMethod."());\r\n";
+                        $body .= sprintf(
+                            "\$result = array_merge(\$result, \$this->%s->%s(%s));\r\n",
+                            $paramName,
+                            $encapsulatedMethod,
+                            $paramString
+                        );
                     }
                     break;
                 }
+
+                case(CompositeWeaveInfo::RETURN_BOOLEAN): {
+                    $body = "\$result = true;\n";
+                    foreach ($this->compositeClassReflectionArray as $compositeClassReflection) {
+                        $paramName = $this->getComponentName($compositeClassReflection);
+                        //TODO - add params
+                        $body .= sprintf(
+                            "\$result = \$result && \$this->%s->%s(%s);\r\n",
+                            $paramName,
+                            $encapsulatedMethod,
+                            $paramString
+                        );
+                    }
+                    break;
+                }        
 
                 default:{
                     throw new WeaveException(

@@ -159,7 +159,6 @@ class CompositeWeaveTest extends \PHPUnit_Framework_TestCase {
         $compositeSUT = new $outputClassname($component1, $component2);
 
         $result = $compositeSUT->getParams();
-
         $this->assertArrayHasKey('foo1', $result);
         $this->assertArrayHasKey('foo2', $result);
     }
@@ -187,4 +186,68 @@ class CompositeWeaveTest extends \PHPUnit_Framework_TestCase {
         $classname = $result->writeFile($this->outputDir, 'Example\Coverage\UnknownComposite');
     }
 
+
+    function testBooleanCompositeTrue() {
+        $components = [
+            'Example\Composite\BooleanComponent1',
+            'Example\Composite\BooleanComponent2'
+        ];
+
+        $compositeWeaveInfo = new \Weaver\CompositeWeaveInfo(
+            'Example\Composite\BooleanHolder',
+            [
+                'isValid' => CompositeWeaveInfo::RETURN_BOOLEAN,
+            ]
+        );
+
+        $result = Weaver::weave($components, $compositeWeaveInfo);
+        $classname = $result->writeFile($this->outputDir, 'Example\Coverage\BooleanTrueComposite');
+
+        $injector = createProvider([], []);
+        
+        //$component1 = new Example\Composite\BooleanComponent1();
+        //$component2 = new Example\Composite\BooleanComponent2();
+        
+        $compositeSUT = $injector->make($classname); 
+            //new $outputClassname($component1, $component2);
+
+        $result = $compositeSUT->isValid();
+        $this->assertTrue($result);
+    }
+
+
+
+    function testBooleanCompositeFalse() {
+        $components = [
+            'Example\Composite\BooleanComponent1',
+            'Example\Composite\BooleanComponent2',
+            'Example\Composite\BooleanComponent3',
+        ];
+
+        $compositeWeaveInfo = new \Weaver\CompositeWeaveInfo(
+            'Example\Composite\BooleanHolder',
+            [
+                'isValid' => CompositeWeaveInfo::RETURN_BOOLEAN,
+            ]
+        );
+
+        $result = Weaver::weave($components, $compositeWeaveInfo);
+        $classname = $result->writeFile(
+            $this->outputDir,
+            'Example\Coverage\BooleanFalseComposite'
+        );
+
+        $injector = createProvider([], []);
+
+        //$component1 = new Example\Composite\BooleanComponent1();
+        //$component2 = new Example\Composite\BooleanComponent2();
+
+        $compositeSUT = $injector->make($classname);
+        //new $outputClassname($component1, $component2);
+
+        $result = $compositeSUT->isValid();
+        $this->assertFalse($result);
+    }
+    
+    
 }
