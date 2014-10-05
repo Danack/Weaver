@@ -60,10 +60,19 @@ class WeaveResult {
         $this->factoryGenerator = $factoryGenerator;
     }
 
+    /**
+     * @param $fqcn
+     */
     public function setFQCN($fqcn) {
         $this->generator->setFQCN($fqcn);
     }
-    
+
+    /**
+     * @param $outputDir
+     * @param null $outputClassname
+     * @return string
+     * @throws WeaveException
+     */
     public function writeFile($outputDir, $outputClassname = null) {
         if ($outputClassname) {
             $this->setFQCN($outputClassname);
@@ -97,7 +106,6 @@ class WeaveResult {
      */
     public function generateFactory($factoryClassname) {
         $generator = $this->factoryGenerator->generateClassFactory($factoryClassname, $this->generator->getFQCN());
-        //echo $generator->generate();
 
         return $generator; 
     }

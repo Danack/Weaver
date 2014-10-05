@@ -52,9 +52,10 @@ class ImplementFactoryGenerator extends FactoryGenerator {
         return $body;
     }
 
+    /**
+     * @param $fqcn
+     */
     function addCreateMethod($fqcn) {
-
-
         $sourceParameters = $this->getSourceClassConstructorParams();
         $sourceParametersAsString = getParamsAsString($sourceParameters);
 

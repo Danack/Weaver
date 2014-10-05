@@ -9,6 +9,9 @@ use Danack\Code\Generator\DocBlockGenerator;
 
 class SingleClassFactoryGenerator extends FactoryGenerator {
 
+    /**
+     * @param $fqcn
+     */
     function addCreateMethod($fqcn) {
         $sourceParameters = $this->getSourceClassConstructorParams();
         $sourceParametersAsString = getParamsAsString($sourceParameters);

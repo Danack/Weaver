@@ -76,7 +76,6 @@ class ImplementWeaveInfo {
     }
 
     /**
-     * @TODO - this is not used in all sub-classes.
      * @return MethodBinding[]
      */
     function getMethodBindingArray() {

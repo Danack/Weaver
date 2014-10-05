@@ -10,8 +10,6 @@ class CompositeWeaveInfo {
 
     private $encapsulateMethods;
     
-    //const   RETURN_BLOB = 'blob';
-    
     /** Combine all return values in array e.g.
      *
      * public function getParams()
@@ -26,12 +24,16 @@ class CompositeWeaveInfo {
      */
     const   RETURN_ARRAY = 'array';
     
-    /** Concatentate all the return values 
+    /** return type string - concatenates all the return values 
      *
+     * public function renderItem()
+     * { 
+     *     $result = '';
+     *     $result .= $this->element1->renderItem();
+     *     $result .= $this->element2->renderItem();;
      *
-     *
-     *
-     * 
+     *     return $result;
+     * }
      * 
      * 
      */

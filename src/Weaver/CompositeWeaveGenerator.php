@@ -159,62 +159,19 @@ class CompositeWeaveGenerator {
             }
 
             if (array_key_exists($name, $this->weaveInfo->getEncapsulateMethods()) == true) {
-//                $methodGenerator->setVisibility(\Danack\Code\Generator\AbstractMemberGenerator::VISIBILITY_PRIVATE);
-//                $methodGenerator->setName($name.getClassName($sourceReflector->getName()));
+                // Don't add the method that is going to be replaced.
                 continue;
             }
 
             $this->generator->addMethodFromGenerator($methodGenerator);
         }
     }
-
-//    /**
-//     * @param ClassReflection $sourceReflector
-//     */
-//    private function addProxiedMethodsFromReflection(ClassReflection $sourceReflector) {
-//
-//        $methods = $sourceReflector->getMethods();
-//
-//        foreach ($methods as $method) {
-//            $name = $method->getName();
-//            $methodGenerator = MethodGenerator::fromReflection($method);
-//
-//            if ($name == '__construct') {
-//                //Constructors are handled separately.
-//                continue;
-//            }
-//
-//            if (array_key_exists($name, $this->weaveInfo->getEncapsulateMethods()) == true) {
-//                continue;
-//            }
-//
-//            $modifiers = $method->getModifiers();
-//
-//            if (($modifiers & \ReflectionMethod::IS_PUBLIC) == false ||
-//                ($modifiers & \ReflectionMethod::IS_STATIC) == true) {
-//                continue;
-//            }
-//
-//            $instanceName = lcfirst($sourceReflector->getShortName());
-//            
-//            $methodBody = "
-//                return \$this->$instanceName->$name();
-//            ";
-//            
-//            $methodGenerator->setBody($methodBody);
-//            $this->generator->addMethodFromGenerator($methodGenerator);
-//        }
-//    }
-    
     
     /**
      * @return null|MethodReflection
      */
     private function addMethods() {
         $this->addMethodFromReflection($this->containerClassReflection);
-//        foreach ($this->compositeClassReflectionArray as $sourceReflector) {
-//            $this->addProxiedMethodsFromReflection($sourceReflector);
-//        }
     }
 
     /**
@@ -264,14 +221,7 @@ class CompositeWeaveGenerator {
          * @var  $encapsulatedMethod MethodGenerator
          * @var  $resultType
          */
-
-        //$decoratorClass = $this->weaveInfo->getDecoratorClass();
-        
-        
         foreach ($this->weaveInfo->getEncapsulateMethods() as $encapsulatedMethod => $resultType) {
-
-  //          $params = $encapsulatedMethod->getParameters();
-
             $params = [];
             
             if ($this->containerClassReflection) {
@@ -282,18 +232,10 @@ class CompositeWeaveGenerator {
                 }
             }
 
-            
-//
-//            if (!$encapsulatedMethod) {
-//                throw new WeaveException("Container class does not have the method $encapsulatedMethod cannot use it to enacapsulate.");
-//            }
-
-
             $getParamName = function(ParameterReflection $paramReflection) {
                 return '$'.$paramReflection->getName();
             };
             
-            //TODO - generate param string
             $paramString = implode(', ', array_map($getParamName, $params));
             
             switch($resultType) {
@@ -302,7 +244,6 @@ class CompositeWeaveGenerator {
                     $body = "\$result = '';\n";
                     foreach ($this->compositeClassReflectionArray as $compositeClassReflection) {
                         $paramName = $this->getComponentName($compositeClassReflection);
-                 
                         $body .= sprintf(
                             "\$result .= \$this->%s->%s(%s);\r\n",
                             $paramName,
@@ -317,7 +258,6 @@ class CompositeWeaveGenerator {
                     $body = "\$result = [];\n";
                     foreach ($this->compositeClassReflectionArray as $compositeClassReflection) {
                         $paramName = $this->getComponentName($compositeClassReflection);
-                        //TODO - add params
                         $body .= sprintf(
                             "\$result = array_merge(\$result, \$this->%s->%s(%s));\r\n",
                             $paramName,
@@ -332,7 +272,6 @@ class CompositeWeaveGenerator {
                     $body = "\$result = true;\n";
                     foreach ($this->compositeClassReflectionArray as $compositeClassReflection) {
                         $paramName = $this->getComponentName($compositeClassReflection);
-                        //TODO - add params
                         $body .= sprintf(
                             "\$result = \$result && \$this->%s->%s(%s);\r\n",
                             $paramName,
@@ -359,11 +298,9 @@ class CompositeWeaveGenerator {
             $makeGenerators = function (ParameterReflection $paramReflection) {
                 return ParameterGenerator::fromReflection($paramReflection);
             };
-            
-            
+
             $paramGenerators = array_map($makeGenerators, $params);
-            
-            
+
             $methodGenerator = new MethodGenerator(
                 $encapsulatedMethod,
                 $paramGenerators, 

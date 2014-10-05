@@ -17,7 +17,7 @@ class ImplementWeaveGenerator extends SingleClassWeaveGenerator {
     use \Intahwebz\SafeAccess;
 
     /**
-     * @var ExtendWeaveInfo|ImplementWeaveInfo
+     * @var ImplementWeaveInfo
      */
     private $implementWeaveInfo;
     
@@ -47,6 +47,9 @@ class ImplementWeaveGenerator extends SingleClassWeaveGenerator {
         $this->generator->setImplementedInterfaces($interfaces);
     }
 
+    /**
+     * 
+     */
     function addInstanceProperty() {
         $newProperty = new PropertyGenerator($this->implementWeaveInfo->getInstancePropertyName());
         $newProperty->setVisibility(\Danack\Code\Generator\AbstractMemberGenerator::FLAG_PRIVATE);
@@ -135,11 +138,8 @@ class ImplementWeaveGenerator extends SingleClassWeaveGenerator {
      * @TODO Shouldn't this only implement the methods in the interface that is being exposed?
      */
     function addSourceMethods() {
-
         $methodBindingArray = $this->implementWeaveInfo->getMethodBindingArray();
-        
         $methods = $this->sourceReflection->getMethods();
-
         foreach ($methods as $sourceMethod) {
             
             if ($sourceMethod->getName() === '__construct') {

@@ -12,11 +12,8 @@ class WeaveException extends \Exception {
     const INTERFACE_NOT_VALID = 4;
     const UNKNOWN_WEAVE_TYPE = 5;
     const IO_ERROR = 6;
-    
     const PROPERTY_NAME_INVALID = 7;
     const METHOD_NAME_INVALID = 8;
-    
-
 }
 
  

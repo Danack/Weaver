@@ -68,6 +68,9 @@ abstract class FactoryGenerator {
         $this->decorationReflection = $decorationReflection;
     }
 
+    /**
+     * @return array|\Danack\Code\Reflection\ParameterReflection[]
+     */
     function getSourceClassConstructorParams() {
         $sourceParameters = [];
 
@@ -78,7 +81,10 @@ abstract class FactoryGenerator {
         
         return $sourceParameters;
     }
-    
+
+    /**
+     * @return array|\Danack\Code\Reflection\ParameterReflection[]
+     */
     function getDecoratorClassConstructorParams() {
         $decoratorParameters = [];
         if ($this->decorationReflection) {

@@ -61,6 +61,9 @@ class LazyWeaveGenerator extends SingleClassWeaveGenerator  {
     }
 
 
+    /**
+     * 
+     */
     function addPropertiesFromConstructor() {
         if ($this->sourceReflection->hasMethod('__construct')) {
             $sourceConstructorMethod = $this->sourceReflection->getMethod('__construct');
@@ -127,15 +130,10 @@ class LazyWeaveGenerator extends SingleClassWeaveGenerator  {
             $this->lazyWeaveInfo->getLazyPropertyName(),
             $this->sourceReflection->getName()
         );
-        
-        
-        //TODO - ^^ bug right there. lazyInstance isn't always the name.
-        
+
         $constructorParamsString = $this->addLazyConstructor();
         $initBody .= $constructorParamsString;
         $initBody .= ");\n}";
-
-        
         
         $this->generator->addMethod(
             $this->lazyWeaveInfo->getInitMethodName(),
@@ -197,12 +195,8 @@ class LazyWeaveGenerator extends SingleClassWeaveGenerator  {
 
             $methodGenerator = MethodGenerator::fromReflection($method);
             $newBody = $this->generateProxyMethodBody($method);
-
-            if ($newBody) {
-                //TODO - document why this is only added when newBody is set.
-                $methodGenerator->setBody($newBody);
-                $this->generator->addMethodFromGenerator($methodGenerator);
-            }
+            $methodGenerator->setBody($newBody);
+            $this->generator->addMethodFromGenerator($methodGenerator);
         }
     }
 }
