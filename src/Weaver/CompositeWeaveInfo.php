@@ -56,6 +56,7 @@ class CompositeWeaveInfo {
      * @param $decoratorClass
      * @param array $encapsulateMethods
      * @TODO Allow the interface to be specified.
+     * @TODO Get the methods to encapsulate from the interface
      */
     function __construct($decoratorClass, array $encapsulateMethods = []) {
         $this->decoratorClass = $decoratorClass;
@@ -73,6 +74,7 @@ class CompositeWeaveInfo {
 
     /**
      * @return string
+     * @TODO - this is a stupid name
      */
     public function getDecoratorClass() {
         return $this->decoratorClass;

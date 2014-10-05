@@ -9,7 +9,7 @@ use Danack\Code\Generator\ParameterGenerator;
 use Danack\Code\Generator\PropertyGenerator;
 use Danack\Code\Reflection\MethodReflection;
 use Danack\Code\Reflection\ClassReflection;
-
+use Danack\Code\Reflection\ParameterReflection;
 
 class CompositeWeaveGenerator {
 
@@ -259,10 +259,42 @@ class CompositeWeaveGenerator {
      * @throws WeaveException
      */
     function addEncapsulatedMethods() {
+        
+        /**
+         * @var  $encapsulatedMethod MethodGenerator
+         * @var  $resultType
+         */
+
+        //$decoratorClass = $this->weaveInfo->getDecoratorClass();
+        
+        
         foreach ($this->weaveInfo->getEncapsulateMethods() as $encapsulatedMethod => $resultType) {
 
+  //          $params = $encapsulatedMethod->getParameters();
+
+            $params = [];
+            
+            if ($this->containerClassReflection) {
+                
+                if ($this->containerClassReflection->hasMethod($encapsulatedMethod)) {
+                    $containerMethod = $this->containerClassReflection->getMethod($encapsulatedMethod);
+                    $params = $containerMethod->getParameters();
+                }
+            }
+
+            
+//
+//            if (!$encapsulatedMethod) {
+//                throw new WeaveException("Container class does not have the method $encapsulatedMethod cannot use it to enacapsulate.");
+//            }
+
+
+            $getParamName = function(ParameterReflection $paramReflection) {
+                return '$'.$paramReflection->getName();
+            };
+            
             //TODO - generate param string
-            $paramString = '';
+            $paramString = implode(', ', array_map($getParamName, $params));
             
             switch($resultType) {
 
@@ -322,10 +354,19 @@ class CompositeWeaveGenerator {
 
             $body .= "\n";
             $body .= "return \$result;\n";
+
+
+            $makeGenerators = function (ParameterReflection $paramReflection) {
+                return ParameterGenerator::fromReflection($paramReflection);
+            };
+            
+            
+            $paramGenerators = array_map($makeGenerators, $params);
+            
             
             $methodGenerator = new MethodGenerator(
-                $encapsulatedMethod, 
-                [], 
+                $encapsulatedMethod,
+                $paramGenerators, 
                 MethodGenerator::FLAG_PUBLIC, 
                 $body
             );

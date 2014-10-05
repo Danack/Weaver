@@ -239,15 +239,40 @@ class CompositeWeaveTest extends \PHPUnit_Framework_TestCase {
 
         $injector = createProvider([], []);
 
-        //$component1 = new Example\Composite\BooleanComponent1();
-        //$component2 = new Example\Composite\BooleanComponent2();
-
         $compositeSUT = $injector->make($classname);
-        //new $outputClassname($component1, $component2);
 
         $result = $compositeSUT->isValid();
         $this->assertFalse($result);
     }
-    
-    
+
+
+    function testBooleanCompositeValue() {
+        $components = [
+            'Example\Composite\Value\Email',
+            'Example\Composite\Value\MinLength'
+        ];
+
+        $compositeWeaveInfo = new \Weaver\CompositeWeaveInfo(
+            'Example\Composite\Value\ValueHolder',
+            [
+                'isValid' => CompositeWeaveInfo::RETURN_BOOLEAN,
+            ]
+        );
+
+        $result = Weaver::weave($components, $compositeWeaveInfo);
+        $classname = $result->writeFile(
+            $this->outputDir,
+            'Example\Coverage\ValueComposite'
+        );
+
+        $injector = createProvider([], []);
+        $injector->define('Example\Composite\Value\MinLength', [':minLength' => 6]);
+
+        $compositeSUT = $injector->make($classname);
+
+        $result = $compositeSUT->isValid("Daniel");
+        $this->assertFalse($result);
+    }
+
+
 }
