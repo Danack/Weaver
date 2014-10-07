@@ -23,7 +23,6 @@ class CompositeWeaveTest extends \PHPUnit_Framework_TestCase {
             'Example\Composite\Component2'
         ];
 
-        //TODO - allow this to be generated from the interface
         $compositeWeaveInfo = new \Weaver\CompositeWeaveInfo(
             'Example\Composite\CompositeHolder',
             ['render' => CompositeWeaveInfo::RETURN_STRING,]
@@ -275,4 +274,37 @@ class CompositeWeaveTest extends \PHPUnit_Framework_TestCase {
     }
 
 
+    /**
+     * Test that we can generate a composite without a holder class.
+     * @throws WeaveException
+     */
+    function testInterfaceWithoutHolder() {
+
+        $components = [
+            'Example\Composite\Value\Email',
+            'Example\Composite\Value\MinLength'
+        ];
+
+        $compositeWeaveInfo = new \Weaver\CompositeWeaveInfo(
+            'Example\Composite\Value\Validator',
+            [
+                'isValid' => CompositeWeaveInfo::RETURN_BOOLEAN,
+            ]
+        );
+
+        $result = Weaver::weave($components, $compositeWeaveInfo);
+        $classname = $result->writeFile(
+            $this->outputDir,
+            'Example\Coverage\ValueCompositeWithoutHolder'
+        );
+
+        $injector = createProvider([], []);
+        $injector->define('Example\Composite\Value\MinLength', [':minLength' => 6]);
+
+        $compositeSUT = $injector->make($classname);
+
+        $result = $compositeSUT->isValid("Danack@basereality.com");
+        $this->assertTrue($result);
+    }
+    
 }

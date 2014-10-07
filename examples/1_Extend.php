@@ -3,7 +3,7 @@
 require '../vendor/autoload.php';
 
 use Weaver\MethodBinding;
-use Weaver\MethodMatcher;
+use Weaver\MethodNameMatcher;
 use Weaver\ExtendWeaveInfo;
 use Weaver\Weaver;
 
@@ -43,7 +43,7 @@ class HtmlFormatterProxy {
 
 $cacheMethodBinding = new MethodBinding(
     '__extend',
-    new MethodMatcher(['format'])
+    new MethodNameMatcher(['format'])
 );
 
 

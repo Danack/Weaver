@@ -15,13 +15,12 @@ class LazyWeaveInfo {
     private $lazyPropertyName;
 
     /** @var string  */
-    protected $interface;
+    protected $interfaceName;
 
     /**
-     * @param $decoratorClass - The decorating class
      * @param $interface - The interface that you want to expose todo support multiple interfaces
-     * @param $initMethodName - What you want the init method to be called todo not really required?
-     * @param $lazyPropertyName - What variable to store the proxied in todo not really required?
+     * @param $initMethodName - What you want the init method to be called
+     * @param $lazyPropertyName - What variable to store the proxied in
      * @throws WeaveException
      */
     function __construct(
@@ -29,7 +28,7 @@ class LazyWeaveInfo {
         $initMethodName = null,
         $lazyPropertyName = null
     ) {
-        $this->interface = $interface;
+        $this->interfaceName = $interface;
 
         if ($initMethodName) {
             if (is_string($initMethodName) == false) {
@@ -80,7 +79,7 @@ class LazyWeaveInfo {
     }
 
 
-    function getInterface() {
-        return $this->interface;
+    function getInterfaceName() {
+        return $this->interfaceName;
     }
 }

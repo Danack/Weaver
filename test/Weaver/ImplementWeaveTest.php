@@ -5,6 +5,7 @@ namespace Weaver;
 
 use Mockery;
 
+use Weaver\MethodInterfaceMatcher;
 
 class ImplementWeaveTest extends \PHPUnit_Framework_TestCase {
 
@@ -14,37 +15,18 @@ class ImplementWeaveTest extends \PHPUnit_Framework_TestCase {
         $this->outputDir = dirname(__FILE__).'/../../generated/';
     }
 
-
-//TODO - make passing in an empty method binding, make it bind to all?
-//OR just the interface properties.
-//    function testSourceClassHasConstructor() {
-//
-//        $lazyWeaveInfo = new ImplementWeaveInfo(
-//            'Example\Implement\ClassWithConstructor',
-//            'Example\TestInterface',
-//            new MethodMatcher(['executeQuery', 'anotherFunction'])
-//        );
-//
-//        $outputClassName = 'Example\SourceClassHasConstructor';
-//
-//        $result = Weaver::weave('Example\TestClass', $lazyWeaveInfo);
-//        $classname = $result->writeFile($this->outputDir, $outputClassName);
-//
-//        $decoratedInstance = new $classname("bar");
-//
-//        //   $initializerMatcher = $this->getMock($outputClassName, ['__invoke'], [$proxiedInstance]);
-//    }
-
-
-    function testSourceClassHasConstructor() {
+    /**
+     * @throws WeaveException
+     */
+    function testSourceClassWithConstructor() {
 
         $cacheMethodBinding = new MethodBinding(
             '__extend',
-            new MethodMatcher(['executeQuery', 'anotherFunction'])
+            new MethodNameMatcher(['executeQuery', 'anotherFunction'])
         );
         
         $lazyWeaveInfo = new ImplementWeaveInfo(
-            'Weaver\Weave\CacheProtoProxy',
+            'Weaver\Weave\CachePrototypeDecorator',
             'Example\TestInterface',
             [$cacheMethodBinding]
         );
@@ -59,15 +41,46 @@ class ImplementWeaveTest extends \PHPUnit_Framework_TestCase {
         $decoratedInstance = $injector->make($classname);
     }
 
+
+
+    function testSourceClassWithConstructorWithInterfaceMatcher() {
+
+        $cacheMethodBinding = new MethodBinding(
+            '__extend',
+            new MethodInterfaceMatcher('Example\TestInterface')
+        );
+
+        $lazyWeaveInfo = new ImplementWeaveInfo(
+            'Weaver\Weave\CachePrototypeDecorator',
+            'Example\TestInterface',
+            [$cacheMethodBinding]
+        );
+
+        $outputClassName = 'Example\Implement\SourceClassHasConstructorWithInterfaceMatcher';
+
+        $result = Weaver::weave('Example\Implement\ClassWithConstructor', $lazyWeaveInfo);
+        $classname = $result->writeFile($this->outputDir, $outputClassName);
+
+        $injector = createProvider([], []);
+        $injector->defineParam('foo', 'bar');
+        $decoratedInstance = $injector->make($classname);
+    }
+
+
+
+
+    /**
+     * @throws WeaveException
+     */
     function testClassFactoryIsAllowed() {
 
         $cacheMethodBinding = new MethodBinding(
             '__extend',
-            new MethodMatcher(['executeQuery', 'anotherFunction'])
+            new MethodNameMatcher(['executeQuery', 'anotherFunction'])
         );
 
         $lazyWeaveInfo = new ImplementWeaveInfo(
-            'Weaver\Weave\CacheProtoProxy',
+            'Weaver\Weave\CachePrototypeDecorator',
             'Example\TestInterface',
             [$cacheMethodBinding]
         );
@@ -125,11 +138,11 @@ class ImplementWeaveTest extends \PHPUnit_Framework_TestCase {
 
         $cacheMethodBinding = new MethodBinding(
             '__extend',
-            new MethodMatcher(['executeQuery', 'anotherFunction'])
+            new MethodNameMatcher(['executeQuery', 'anotherFunction'])
         );
 
         $cacheWeaveInfo = new ImplementWeaveInfo(
-            'Weaver\Weave\CacheProtoProxy',
+            'Weaver\Weave\CachePrototypeDecorator',
             'Example\TestInterface',
             [$cacheMethodBinding]
         );
@@ -175,7 +188,7 @@ class ImplementWeaveTest extends \PHPUnit_Framework_TestCase {
         );
 
         $cacheWeaveInfo = new ImplementWeaveInfo(
-            'Weaver\Weave\CacheProtoProxy',
+            'Weaver\Weave\CachePrototypeDecorator',
             'Example\TestInterface',
             []
         );
@@ -195,11 +208,14 @@ class ImplementWeaveTest extends \PHPUnit_Framework_TestCase {
     function testTypeHintedParameter() {
         $cacheMethodBinding = new MethodBinding(
             '__extend',
-            new MethodMatcher(['executeQuery', 'anotherFunction'])
+            new MethodNameMatcher(['executeQuery', 'anotherFunction'])
         );
 
+
+        
+        
         $cacheWeaveInfo = new ImplementWeaveInfo(
-            'Weaver\Weave\CacheProtoProxy',
+            'Weaver\Weave\CachePrototypeDecorator',
             'Example\Implement\ExpensiveInterface',
             [$cacheMethodBinding]
         );
@@ -224,11 +240,11 @@ class ImplementWeaveTest extends \PHPUnit_Framework_TestCase {
 
         $cacheMethodBinding = new MethodBinding(
             '__extend',
-            new MethodMatcher(['executeQuery', 'anotherFunction'])
+            new MethodNameMatcher(['executeQuery', 'anotherFunction'])
         );
 
         $cacheWeaveInfo = new ImplementWeaveInfo(
-            'Weaver\Weave\CacheProtoProxy',
+            'Weaver\Weave\CachePrototypeDecorator',
             'Example\Implement\ExpensiveInterface',
             [$cacheMethodBinding]
         );
@@ -267,13 +283,22 @@ class ImplementWeaveTest extends \PHPUnit_Framework_TestCase {
 
         $cacheMethodBinding = new MethodBinding(
             '__extend',
-            new MethodMatcher(['executeQuery', 'anotherFunction'])
+            new MethodNameMatcher(['executeQuery', 'anotherFunction'])
         );
 
         $cacheWeaveInfo = new ImplementWeaveInfo(
-            'Weaver\Weave\CacheProtoProxy',
+            'Weaver\Weave\CachePrototypeDecorator',
             null,
             [$cacheMethodBinding]
         );
     }
+
+    function testInterfaceMatcher() {
+        $interfaceMatcher = new MethodInterfaceMatcher('Weaver\MethodInterfaceMatcher');
+        $this->assertTrue($interfaceMatcher->matches('matches'), "Method that should exist not found.");
+        $this->assertFalse($interfaceMatcher->matches('thatches'), "Method found that shouldn't exist");
+    }
+
+
+    
 }

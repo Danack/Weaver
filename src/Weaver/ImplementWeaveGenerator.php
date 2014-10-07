@@ -10,7 +10,41 @@ use Danack\Code\Generator\PropertyGenerator;
 use Danack\Code\Reflection\MethodReflection;
 use Danack\Code\Reflection\ClassReflection;
 
+/**
+ * Trims the whitespace at the start of each line, by the amount of whitespace
+ * in the first line that contains code. 
+ * 
+ * @param $body
+ * @return string
+ */
+function trimBody($body) {
 
+    $newBody = '';    
+    $lines = explode("\n", $body);
+    $whitespaceToRemove = null;
+
+    foreach($lines as $line) {
+
+        if ($whitespaceToRemove === null) {
+            $matchCount = preg_match ('#\S+#', $line, $matches, PREG_OFFSET_CAPTURE);
+            if ($matchCount) {
+                $position = $matches[0][1];
+                $whitespaceToRemove = substr($line, 0, $position);
+            }
+        }
+
+        if ($whitespaceToRemove !== null && strpos($line, $whitespaceToRemove) === 0) {
+            $newBody .= substr($line, strlen($whitespaceToRemove)); 
+        }
+        else {
+            $newBody .= $line;
+        }
+
+        $newBody .= "\n";
+    }
+
+    return $newBody;
+}
 
 class ImplementWeaveGenerator extends SingleClassWeaveGenerator {
 
@@ -30,16 +64,14 @@ class ImplementWeaveGenerator extends SingleClassWeaveGenerator {
      */
     function __construct($sourceClass, ImplementWeaveInfo $implementWeaveInfo) {
         $this->implementWeaveInfo = $implementWeaveInfo;
-        $this->sourceReflection = new ClassReflection($sourceClass);
+        $this->sourceClassReflection = new ClassReflection($sourceClass);
         $this->decoratorReflection = new ClassReflection($implementWeaveInfo->getDecoratorClass());
         $this->generator = new ClassGenerator();
         $this->generator->setName($this->getFQCN());
 
-        
-
         $interfaceToImplement = $implementWeaveInfo->getInterface();
 
-        if (!$this->sourceReflection->implementsInterface($interfaceToImplement)) {
+        if (!$this->sourceClassReflection->implementsInterface($interfaceToImplement)) {
             throw new WeaveException("Class $sourceClass does not implement interface $interfaceToImplement, weaving is not possible.", WeaveException::INTERFACE_NOT_IMPLEMENTED);
         }
 
@@ -62,12 +94,12 @@ class ImplementWeaveGenerator extends SingleClassWeaveGenerator {
     function generate() {
         $this->addInstanceProperty();
         $this->addSourceMethods();
-        $this->addProxyConstructor();
+        $this->addDecoratorConstructor();
         $this->addDecoratorMethods();
         $this->addPropertiesAndConstantsFromReflection($this->decoratorReflection);
         $fqcn = $this->getFQCN();
         $this->generator->setName($fqcn);
-        $factoryGenerator = new ImplementFactoryGenerator($this->sourceReflection, $this->decoratorReflection, null);
+        $factoryGenerator = new ImplementFactoryGenerator($this->sourceClassReflection, $this->decoratorReflection, null);
 
         return new WeaveResult($this->generator, $factoryGenerator);
     }
@@ -80,6 +112,9 @@ class ImplementWeaveGenerator extends SingleClassWeaveGenerator {
     function addDecoratedMethod(MethodReflection $sourceMethod, MethodReflection $decoratorMethodReflection ) {
         $weavedMethod = MethodGenerator::fromReflection($sourceMethod);
         $newBody = $decoratorMethodReflection->getBody();
+
+        $newBody = trimBody($newBody);
+
         $parameters = $sourceMethod->getParameters();
 
         $paramArray = [];
@@ -95,7 +130,7 @@ class ImplementWeaveGenerator extends SingleClassWeaveGenerator {
 
         $newBody = str_replace(
             '$this->__prototype()',
-            '    $this->weavedInstance->'.$sourceMethod->getName()."($paramList)",
+            '$this->weavedInstance->'.$sourceMethod->getName()."($paramList)",
             $newBody
         );
 
@@ -139,7 +174,7 @@ class ImplementWeaveGenerator extends SingleClassWeaveGenerator {
      */
     function addSourceMethods() {
         $methodBindingArray = $this->implementWeaveInfo->getMethodBindingArray();
-        $methods = $this->sourceReflection->getMethods();
+        $methods = $this->sourceClassReflection->getMethods();
         foreach ($methods as $sourceMethod) {
             
             if ($sourceMethod->getName() === '__construct') {
@@ -171,15 +206,15 @@ class ImplementWeaveGenerator extends SingleClassWeaveGenerator {
      * @internal param MethodReflection $decoratorConstructorMethod
      * @return array
      */
-    function addProxyConstructor() {
+    function addDecoratorConstructor() {
         $constructorBody = '';
         $generatedParameters = array();
 
-        $paramName = lcfirst($this->sourceReflection->getShortName()); 
+        $paramName = lcfirst($this->sourceClassReflection->getShortName()); 
         
         $generatedParameters[] = new ParameterGenerator(
             $paramName,
-            $this->sourceReflection->getName()
+            $this->sourceClassReflection->getName()
         );
 
         $constructorBody .= sprintf(

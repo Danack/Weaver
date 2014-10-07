@@ -11,6 +11,12 @@ use Danack\Code\Reflection\MethodReflection;
 use Danack\Code\Reflection\ClassReflection;
 
 
+/**
+ * Class SingleClassWeaveGenerator 
+ * Base class for the ImplementWeaveGenerator, ExtendWeaveGenerator and
+ * LazyWeaveGenerator 
+ * @package Weaver
+ */
 abstract class SingleClassWeaveGenerator {
     
     /**
@@ -21,7 +27,7 @@ abstract class SingleClassWeaveGenerator {
     /**
      * @var ClassReflection
      */
-    protected $sourceReflection;
+    protected $sourceClassReflection;
 
     /**
      * @var ClassReflection
@@ -32,7 +38,7 @@ abstract class SingleClassWeaveGenerator {
      * @return string
      */
     function getNamespaceName() {
-        return $this->sourceReflection->getNamespaceName();
+        return $this->sourceClassReflection->getNamespaceName();
     }
 
     /**
@@ -42,7 +48,7 @@ abstract class SingleClassWeaveGenerator {
      * @return string
      */
     function generateWeavedName() {
-        return $this->decoratorReflection->getShortName()."X".$this->sourceReflection->getShortName();
+        return $this->decoratorReflection->getShortName()."X".$this->sourceClassReflection->getShortName();
     }
 
 

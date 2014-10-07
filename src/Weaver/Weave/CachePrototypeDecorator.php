@@ -6,7 +6,12 @@ namespace Weaver\Weave;
 use Intahwebz\ObjectCache;
 
 
-class CacheProtoProxy {
+/**
+ * Class CachePrototypeDecorator
+ * An example to show how to write a decorator that cache other classes.
+ * @package Weaver\Weave
+ */
+class CachePrototypeDecorator {
 
     /**
      * @var \Intahwebz\ObjectCache

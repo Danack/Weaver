@@ -3,7 +3,7 @@
 require '../vendor/autoload.php';
 
 use Weaver\MethodBinding;
-use Weaver\MethodMatcher;
+use Weaver\MethodNameMatcher;
 use Weaver\ImplementWeaveInfo;
 use Weaver\Weaver;
 
@@ -38,7 +38,7 @@ class ImplementDecorator {
 
 $methodBinding = new MethodBinding(
     '__extend',
-    new MethodMatcher(['foo'])
+    new MethodNameMatcher(['foo'])
 );
 
 $weaveInfo = new ImplementWeaveInfo(

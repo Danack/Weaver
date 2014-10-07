@@ -6,7 +6,7 @@ namespace Weaver\Weave;
 use Intahwebz\Timer;
 
 
-class TimerProtoProxy {
+class TimerPrototypeDecorator {
 
     private $timer;
 

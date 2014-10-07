@@ -55,13 +55,12 @@ class CompositeWeaveInfo {
     const   RETURN_BOOLEAN = 'boolean';
 
     /**
-     * @param $decoratorClass
+     * @param $decoratorClassOrInterface
      * @param array $encapsulateMethods
      * @TODO Allow the interface to be specified.
-     * @TODO Get the methods to encapsulate from the interface
      */
-    function __construct($decoratorClass, array $encapsulateMethods = []) {
-        $this->decoratorClass = $decoratorClass;
+    function __construct($decoratorClassOrInterface, array $encapsulateMethods = []) {
+        $this->decoratorClass = $decoratorClassOrInterface;
         $this->encapsulateMethods = $encapsulateMethods;
 
         \Intahwebz\Functions::load();

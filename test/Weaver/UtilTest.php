@@ -28,16 +28,21 @@ class UtilTest extends \PHPUnit_Framework_TestCase {
 
     /** 
      * This test exists solely to get coverage of when writing the output fails. 
+     * @TODO - this test is slightly out of date. The non-prototype based decorator is no longer
+     * really usable. The test still tests okay.
      */
-    function testExtendWeave_cacheProxy() {
-        $this->setExpectedException('Weaver\WeaveException');
+    function testExtendWeave_cacheDecorator() {
+        $this->setExpectedException(
+            'Weaver\WeaveException',
+            '',
+            \Weaver\WeaveException::IO_ERROR
+        );
         $cacheWeaveInfo = new ExtendWeaveInfo(
-            'Weaver\Weave\CacheProxy',
+            'Weaver\Weave\CacheDecorator',
             []
         );
 
         $GLOBALS['mockFilePutContents'] = true;
-
         $result = Weaver::weave('Example\TestClass', $cacheWeaveInfo);
         $result->writeFile($this->outputDir, 'Example\CachedTwitter');
     }

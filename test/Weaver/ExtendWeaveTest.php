@@ -17,11 +17,11 @@ class ExtendWeaveTest extends \PHPUnit_Framework_TestCase {
     function testExtendWeave_CacheProtoProxy() {
         $cacheMethodBinding = new MethodBinding(
             '__extend',
-            new MethodMatcher(['getTweet'])
+            new MethodNameMatcher(['getTweet'])
         );
 
         $cacheWeaveInfo = new ExtendWeaveInfo(
-            'Weaver\Weave\CacheProtoProxy',
+            'Weaver\Weave\CachePrototypeDecorator',
             [$cacheMethodBinding]
         );
 
@@ -107,11 +107,11 @@ class ExtendWeaveTest extends \PHPUnit_Framework_TestCase {
     function testExtendWeaveAllMethods() {
         $timerMethodBinding = new MethodBinding(
             '__extend',
-            new MethodMatcher(['*'])
+            new MethodNameMatcher(['*'])
         );
 
         $timerWeaveInfo = new ExtendWeaveInfo(
-            'Weaver\Weave\TimerProtoProxy',
+            'Weaver\Weave\TimerPrototypeDecorator',
             [$timerMethodBinding]
         );
 
@@ -133,11 +133,11 @@ class ExtendWeaveTest extends \PHPUnit_Framework_TestCase {
     function testExtendWeaveAllMethodsAndFactory() {
         $timerMethodBinding = new MethodBinding(
             '__extend',
-            new MethodMatcher(['*'])
+            new MethodNameMatcher(['*'])
         );
 
         $timerWeaveInfo = new ExtendWeaveInfo(
-            'Weaver\Weave\TimerProtoProxy',
+            'Weaver\Weave\TimerPrototypeDecorator',
             [$timerMethodBinding]
         );
 

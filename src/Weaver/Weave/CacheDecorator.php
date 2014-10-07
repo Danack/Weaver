@@ -6,8 +6,8 @@ namespace Weaver\Weave;
 use Intahwebz\ObjectCache;
 
 
-//This sould be called CacheDecorator
-class CacheProxy {
+//This should be called CacheDecorator
+class CacheDecorator {
 
     /**
      * @var \Intahwebz\ObjectCache

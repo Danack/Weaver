@@ -27,11 +27,11 @@ class ExtendWeaveGenerator extends SingleClassWeaveGenerator {
      */
     function __construct($sourceClass, ExtendWeaveInfo $extendWeaveInfo) {
         $this->extendWeaveInfo = $extendWeaveInfo;
-        $this->sourceReflection = new ClassReflection($sourceClass);
+        $this->sourceClassReflection = new ClassReflection($sourceClass);
         $this->decoratorReflection = new ClassReflection($extendWeaveInfo->getDecoratorClass());
         $this->generator = new ClassGenerator();
         $this->generator->setName($this->getFQCN());
-        $this->generator->setExtendedClass('\\'.$this->sourceReflection->getName());
+        $this->generator->setExtendedClass('\\'.$this->sourceClassReflection->getName());
     }
 
     /**
@@ -40,11 +40,11 @@ class ExtendWeaveGenerator extends SingleClassWeaveGenerator {
     function generate() {
         $this->addWeavedMethods();
         $this->addDecoratorMethods();
-        $this->addProxyConstructor();
+        $this->addDecoratorConstructor();
         $this->addPropertiesAndConstantsFromReflection($this->decoratorReflection);
         $fqcn = $this->getFQCN();
         $this->generator->setName($fqcn);
-        $factoryGenerator = new SingleClassFactoryGenerator($this->sourceReflection, $this->decoratorReflection, null);
+        $factoryGenerator = new SingleClassFactoryGenerator($this->sourceClassReflection, $this->decoratorReflection, null);
 
         return new WeaveResult($this->generator, $factoryGenerator);
     }
@@ -58,7 +58,7 @@ class ExtendWeaveGenerator extends SingleClassWeaveGenerator {
             $decoratorMethod = $methodBinding->getMethod();
             $decoratorMethodReflection = $this->decoratorReflection->getMethod($decoratorMethod);
 
-            foreach ($this->sourceReflection->getMethods() as $sourceMethod) {
+            foreach ($this->sourceClassReflection->getMethods() as $sourceMethod) {
 
                 if ($methodBinding->matchesMethod($sourceMethod->getName()) ) {
                     $weavedMethod = MethodGenerator::fromReflection($sourceMethod);
@@ -96,12 +96,12 @@ class ExtendWeaveGenerator extends SingleClassWeaveGenerator {
      * @internal param MethodReflection $decoratorConstructorMethod
      * @return array
      */
-    function addProxyConstructor() {
+    function addDecoratorConstructor() {
         $constructorBody = '';
         $generatedParameters = array();
 
-        if ($this->sourceReflection->hasMethod('__construct')) {
-            $sourceConstructorMethod = $this->sourceReflection->getMethod('__construct');
+        if ($this->sourceClassReflection->hasMethod('__construct')) {
+            $sourceConstructorMethod = $this->sourceClassReflection->getMethod('__construct');
             $parameters = $sourceConstructorMethod->getParameters();
             $constructorBody .= 'parent::__construct(';
             $separator = '';

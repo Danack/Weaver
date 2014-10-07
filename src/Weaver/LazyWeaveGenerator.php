@@ -23,12 +23,10 @@ class LazyWeaveGenerator extends SingleClassWeaveGenerator  {
      * @param LazyWeaveInfo $lazyWeaveInfo
      */
     function __construct($sourceClass, LazyWeaveInfo $lazyWeaveInfo) {
-        //TODO - check sourceClass implements alleged interface(s)
-        //TODO - check sourceClass has properties that match the constructors parameters
         $this->lazyWeaveInfo = $lazyWeaveInfo;
-        $this->sourceReflection = new ClassReflection($sourceClass);
+        $this->sourceClassReflection = new ClassReflection($sourceClass);        
         $this->generator = new ClassGenerator();
-        $interface = $this->lazyWeaveInfo->getInterface();
+        $interface = $this->lazyWeaveInfo->getInterfaceName();
         $interfaces = array($interface);
         $this->generator->setImplementedInterfaces($interfaces);
     }
@@ -42,18 +40,17 @@ class LazyWeaveGenerator extends SingleClassWeaveGenerator  {
 
         if ($this->generator->hasProperty($lazyPropertyName) == false) {
             $lazyProperty = new PropertyGenerator($lazyPropertyName);
-            $lazyProperty->setStandardDocBlock($this->sourceReflection->getName());
+            $lazyProperty->setStandardDocBlock($this->sourceClassReflection->getName());
             $this->generator->addPropertyFromGenerator($lazyProperty);
         }
 
         $this->addPropertiesFromConstructor();
-        $this->addProxyMethods();
-        //$this->addDecoratorMethods();
+        $this->addDecoratorMethods();
         $this->addInitMethod();
         $fqcn = $this->getFQCN();
         $this->generator->setName($fqcn);
         $factoryGenerator = new SingleClassFactoryGenerator(
-                                $this->sourceReflection,
+                                $this->sourceClassReflection,
                                 null
                             );
 
@@ -65,8 +62,8 @@ class LazyWeaveGenerator extends SingleClassWeaveGenerator  {
      * 
      */
     function addPropertiesFromConstructor() {
-        if ($this->sourceReflection->hasMethod('__construct')) {
-            $sourceConstructorMethod = $this->sourceReflection->getMethod('__construct');
+        if ($this->sourceClassReflection->hasMethod('__construct')) {
+            $sourceConstructorMethod = $this->sourceClassReflection->getMethod('__construct');
             $parameters = $sourceConstructorMethod->getParameters();
         
             foreach ($parameters as $reflectionParameter) {
@@ -89,8 +86,8 @@ class LazyWeaveGenerator extends SingleClassWeaveGenerator  {
 
         $generatedParameters = array();
 
-        if ($this->sourceReflection->hasMethod('__construct')) {
-            $sourceConstructorMethod = $this->sourceReflection->getMethod('__construct');
+        if ($this->sourceClassReflection->hasMethod('__construct')) {
+            $sourceConstructorMethod = $this->sourceClassReflection->getMethod('__construct');
             $parameters = $sourceConstructorMethod->getParameters();
             $separator = '';
 
@@ -128,7 +125,7 @@ class LazyWeaveGenerator extends SingleClassWeaveGenerator  {
         $initBody .= sprintf(
             '$this->%s = new \\%s(',
             $this->lazyWeaveInfo->getLazyPropertyName(),
-            $this->sourceReflection->getName()
+            $this->sourceClassReflection->getName()
         );
 
         $constructorParamsString = $this->addLazyConstructor();
@@ -148,7 +145,7 @@ class LazyWeaveGenerator extends SingleClassWeaveGenerator  {
      * @param MethodReflection $method
      * @return string
      */
-    function generateProxyMethodBody(MethodReflection $method) {
+    function generateDecoratedMethodBody(MethodReflection $method) {
         $newBody = '';
         $initMethodName = $this->lazyWeaveInfo->getInitMethodName();
         $lazyPropertyName = $this->lazyWeaveInfo->getLazyPropertyName();
@@ -176,15 +173,15 @@ class LazyWeaveGenerator extends SingleClassWeaveGenerator  {
      * @return string
      */
     function generateWeavedName() {
-        return "LazyX".$this->sourceReflection->getShortName();
+        return "LazyX".$this->sourceClassReflection->getShortName();
     }
 
 
     /**
      * 
      */
-    function addProxyMethods() {
-        $methods = $this->sourceReflection->getMethods();
+    function addDecoratorMethods() {
+        $methods = $this->sourceClassReflection->getMethods();
 
         foreach ($methods as $method) {
             $name = $method->getName();
@@ -194,7 +191,7 @@ class LazyWeaveGenerator extends SingleClassWeaveGenerator  {
             }
 
             $methodGenerator = MethodGenerator::fromReflection($method);
-            $newBody = $this->generateProxyMethodBody($method);
+            $newBody = $this->generateDecoratedMethodBody($method);
             $methodGenerator->setBody($newBody);
             $this->generator->addMethodFromGenerator($methodGenerator);
         }
