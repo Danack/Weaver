@@ -17,24 +17,29 @@ class ImplementsWeaveTest extends \PHPUnit_Framework_TestCase {
      *
      */
     function testImplementsWeaveWithoutFactory() {
+
+        $interfaceName = 'Example\Lazy\ExpensiveInterface';
+        
         $lazyWeaveInfo = new LazyWeaveInfo(
-            '\Example\Lazy\ExpensiveInterface'
+            $interfaceName
         );
 
         $result = Weaver::weave('Example\Lazy\ExpensiveClass', $lazyWeaveInfo);
         $classname = $result->writeFile($this->outputDir, 'Example\Coverage\LazyProxyXTestClass');
 
         $mock = Mockery::mock($classname);
-//        $mock->shouldReceive('executeQuery')->once()->passthru();
-//        $mock->shouldReceive('__toString')->once();
+        $this->assertInstanceOf($interfaceName, $mock);
     }
 
     /**
      *
      */
     function testLazyWeaveWithPropertyNameSet() {
+
+        $interfaceName = 'Example\Lazy\ExpensiveInterface';
+        
         $lazyWeaveInfo = new LazyWeaveInfo(
-            '\Example\Lazy\ExpensiveInterface',
+            $interfaceName,
             'makeIt',
             'delayedInstance'
         );
@@ -46,8 +51,7 @@ class ImplementsWeaveTest extends \PHPUnit_Framework_TestCase {
         );
 
         $mock = Mockery::mock($classname);
-//        $mock->shouldReceive('executeQuery')->once()->passthru();
-//        $mock->shouldReceive('__toString')->once();
+        $this->assertInstanceOf($interfaceName, $mock);
     }
 
 
@@ -62,6 +66,8 @@ class ImplementsWeaveTest extends \PHPUnit_Framework_TestCase {
         $classname = $result->writeFile($this->outputDir, 'Example\Coverage\FunctionFactory');
         //TODO - write the factory method
         //TODO - or mock the factory call.
+        
+        
     }
 
 
@@ -113,5 +119,4 @@ class ImplementsWeaveTest extends \PHPUnit_Framework_TestCase {
             'ThisInterfaceDoesNotExist'
         );
     }
-
 }

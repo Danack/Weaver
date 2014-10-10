@@ -56,12 +56,12 @@ class CompositeWeaveInfo {
 
     /**
      * @param $decoratorClassOrInterface
-     * @param array $encapsulateMethods
+     * @param array $methodCompositionTypes Which composition method to use for each method
      * @TODO Allow the interface to be specified.
      */
-    function __construct($decoratorClassOrInterface, array $encapsulateMethods = []) {
+    function __construct($decoratorClassOrInterface, array $methodCompositionTypes = []) {
         $this->decoratorClass = $decoratorClassOrInterface;
-        $this->encapsulateMethods = $encapsulateMethods;
+        $this->encapsulateMethods = $methodCompositionTypes;
 
         \Intahwebz\Functions::load();
     }

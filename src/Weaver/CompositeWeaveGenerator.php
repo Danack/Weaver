@@ -55,7 +55,12 @@ class CompositeWeaveGenerator {
      * @return \Weaver\WeaveResult
      */
     function generate() {
-        $interfaces = $this->containerClassReflection->getInterfaces();
+        if ($this->containerClassReflection->isInterface()) {
+            $interfaces = [$this->containerClassReflection];
+        }
+        else {
+            $interfaces = $this->containerClassReflection->getInterfaces();
+        }
 
         $function = function (ClassReflection $interfaceReflection) {
             return $interfaceReflection->getName();

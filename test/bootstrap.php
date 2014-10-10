@@ -16,7 +16,7 @@ $autoloader->add(
     'Example', 
     array(
         realpath('./').'/generated/',
-        realpath('./').'/test/'
+        realpath('./').'/test/fixture/'
     )
 );
 
@@ -27,14 +27,6 @@ $autoloader->add(
    )
 );
 
-
-//apc_store('foo12345', 'BAR');
-//if (apc_fetch('foo12345') == false) {
-//    echo "APC appears to be failing.";
-//    exit(0);
-//}
-
-//require_once('../vendor/autoload.php');
 
 function createStandardLogger($logChannelName = 'logChannelName') {
     $logger = new Logger($logChannelName);

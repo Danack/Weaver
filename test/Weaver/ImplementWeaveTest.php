@@ -45,6 +45,8 @@ class ImplementWeaveTest extends \PHPUnit_Framework_TestCase {
 
     function testSourceClassWithConstructorWithInterfaceMatcher() {
 
+        $interfaceName = 'Example\TestInterface';
+        
         $cacheMethodBinding = new MethodBinding(
             '__extend',
             new MethodInterfaceMatcher('Example\TestInterface')
@@ -52,7 +54,7 @@ class ImplementWeaveTest extends \PHPUnit_Framework_TestCase {
 
         $lazyWeaveInfo = new ImplementWeaveInfo(
             'Weaver\Weave\CachePrototypeDecorator',
-            'Example\TestInterface',
+            $interfaceName,
             [$cacheMethodBinding]
         );
 
@@ -64,6 +66,8 @@ class ImplementWeaveTest extends \PHPUnit_Framework_TestCase {
         $injector = createProvider([], []);
         $injector->defineParam('foo', 'bar');
         $decoratedInstance = $injector->make($classname);
+
+        $this->assertInstanceOf($interfaceName, $decoratedInstance);
     }
 
 
@@ -136,6 +140,8 @@ class ImplementWeaveTest extends \PHPUnit_Framework_TestCase {
 
     function testImplementsWeaveCache() {
 
+        $interfaceName = 'Example\TestInterface';
+        
         $cacheMethodBinding = new MethodBinding(
             '__extend',
             new MethodNameMatcher(['executeQuery', 'anotherFunction'])
@@ -143,7 +149,7 @@ class ImplementWeaveTest extends \PHPUnit_Framework_TestCase {
 
         $cacheWeaveInfo = new ImplementWeaveInfo(
             'Weaver\Weave\CachePrototypeDecorator',
-            'Example\TestInterface',
+            $interfaceName,
             [$cacheMethodBinding]
         );
 
@@ -171,6 +177,8 @@ class ImplementWeaveTest extends \PHPUnit_Framework_TestCase {
         
         //This function shouldn't be decorated.
         $decoratedObject->__toString();
+
+        $this->assertInstanceOf($interfaceName, $decoratedObject);
     }
 
 
@@ -206,17 +214,17 @@ class ImplementWeaveTest extends \PHPUnit_Framework_TestCase {
      * @throws WeaveException
      */
     function testTypeHintedParameter() {
+
+        $interfaceName = 'Example\Implement\ExpensiveInterface';
+        
         $cacheMethodBinding = new MethodBinding(
             '__extend',
             new MethodNameMatcher(['executeQuery', 'anotherFunction'])
         );
 
-
-        
-        
         $cacheWeaveInfo = new ImplementWeaveInfo(
             'Weaver\Weave\CachePrototypeDecorator',
-            'Example\Implement\ExpensiveInterface',
+            $interfaceName,
             [$cacheMethodBinding]
         );
 
@@ -225,11 +233,13 @@ class ImplementWeaveTest extends \PHPUnit_Framework_TestCase {
 
         $injector = createProvider([], []);
         $injector->defineParam('queryString', 'testQueryString');
-        $proxiedClass = $injector->make($className);
+        $decoratedClass = $injector->make($className);
 
-        $proxiedClass->executeQuery('foo');
+        $decoratedClass->executeQuery('foo');
         //TODO add mock checking
         //check  Dependency is set
+
+        $this->assertInstanceOf($interfaceName, $decoratedClass);
     }
 
 

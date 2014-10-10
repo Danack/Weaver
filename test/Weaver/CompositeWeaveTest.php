@@ -269,6 +269,8 @@ class CompositeWeaveTest extends \PHPUnit_Framework_TestCase {
 
         $compositeSUT = $injector->make($classname);
 
+        $this->assertInstanceOf('Example\Composite\Value\Validator', $compositeSUT);
+
         $result = $compositeSUT->isValid("Daniel");
         $this->assertFalse($result);
     }
@@ -285,8 +287,10 @@ class CompositeWeaveTest extends \PHPUnit_Framework_TestCase {
             'Example\Composite\Value\MinLength'
         ];
 
+        $interface = 'Example\Composite\Value\Validator'; 
+                    
         $compositeWeaveInfo = new \Weaver\CompositeWeaveInfo(
-            'Example\Composite\Value\Validator',
+            $interface,
             [
                 'isValid' => CompositeWeaveInfo::RETURN_BOOLEAN,
             ]
@@ -302,6 +306,8 @@ class CompositeWeaveTest extends \PHPUnit_Framework_TestCase {
         $injector->define('Example\Composite\Value\MinLength', [':minLength' => 6]);
 
         $compositeSUT = $injector->make($classname);
+        
+        $this->assertInstanceOf($interface, $compositeSUT);
 
         $result = $compositeSUT->isValid("Danack@basereality.com");
         $this->assertTrue($result);
