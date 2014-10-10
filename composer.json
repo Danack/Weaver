@@ -2,7 +2,7 @@
     "name": "intahwebz/weaver",
     "homepage": "https://github.com/danack/Weaver",
     "description": "An experiment in compositional programming.",
-    "keywords": ["AOP", "weaving", "wtf", "idonteven"],
+    "keywords": ["AOP", "weaving", "code generation", "lazyloader", "composition"],
     "license": "MIT",
 
     "authors": [
@@ -27,7 +27,7 @@
     ],
 
     "require-dev": {
-        "rdlowrey/auryn": "dev-DanackMaster",
+        "danack/auryn": "~0.14",
         "monolog/monolog": "1.4.0",
         "phpunit/phpunit": "4.1.3",
         "mikey179/vfsStream": "v1.2.0",

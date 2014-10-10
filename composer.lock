@@ -4,7 +4,7 @@
         "Read more about it at http://getcomposer.org/doc/01-basic-usage.md#composer-lock-the-lock-file",
         "This file is @generated automatically"
     ],
-    "hash": "8db1e474fabd6bc403babe4311884c61",
+    "hash": "d16191139b40667d7c10064a316e68c1",
     "packages": [
         {
             "name": "danack/danack-code",
@@ -109,13 +109,13 @@
         },
         {
             "name": "zendframework/zend-eventmanager",
-            "version": "2.3.0",
+            "version": "2.3.1",
             "target-dir": "Zend/EventManager",
             "dist": {
                 "type": "zip",
-                "url": "http://satis.basereality.com/packages/zendframework/Component_ZendEventManager/zendframework_Component_ZendEventManager_2.3.0.zip",
-                "reference": "zendframework_Component_ZendEventManager_2.3.0.zip",
-                "shasum": "19683eab8f6622d013f7d97ea8e308b97f663847"
+                "url": "http://satis.basereality.com/packages/zendframework/Component_ZendEventManager/zendframework_Component_ZendEventManager_2.3.1.zip",
+                "reference": null,
+                "shasum": "cf76b60eb4925f93b231c4af94c41830ebab79ec"
             },
             "require": {
                 "php": ">=5.3.23",
@@ -124,8 +124,8 @@
             "type": "library",
             "extra": {
                 "branch-alias": {
-                    "dev-master": "2.2-dev",
-                    "dev-develop": "2.3-dev"
+                    "dev-master": "2.3-dev",
+                    "dev-develop": "2.4-dev"
                 }
             },
             "autoload": {
@@ -144,13 +144,13 @@
         },
         {
             "name": "zendframework/zend-stdlib",
-            "version": "2.3.0",
+            "version": "2.3.1",
             "target-dir": "Zend/Stdlib",
             "dist": {
                 "type": "zip",
-                "url": "http://satis.basereality.com/packages/zendframework/Component_ZendStdlib/zendframework_Component_ZendStdlib_2.3.0.zip",
-                "reference": "zendframework_Component_ZendStdlib_2.3.0.zip",
-                "shasum": "c61a659a0fa2afcbf915e1e6ea22017c2ee9b81d"
+                "url": "http://satis.basereality.com/packages/zendframework/Component_ZendStdlib/zendframework_Component_ZendStdlib_2.3.1.zip",
+                "reference": null,
+                "shasum": "220a0efc6d5707be91f27d3b8606e041c4807022"
             },
             "require": {
                 "php": ">=5.3.23"
@@ -168,8 +168,8 @@
             "type": "library",
             "extra": {
                 "branch-alias": {
-                    "dev-master": "2.2-dev",
-                    "dev-develop": "2.3-dev"
+                    "dev-master": "2.3-dev",
+                    "dev-develop": "2.4-dev"
                 }
             },
             "autoload": {
@@ -188,6 +188,67 @@
         }
     ],
     "packages-dev": [
+        {
+            "name": "danack/auryn",
+            "version": "0.14.1",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/Danack/Auryn.git",
+                "reference": "3e4ccfff93da9fb9dccbc7d14a3c94a3d996c58e"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/Danack/Auryn/zipball/3e4ccfff93da9fb9dccbc7d14a3c94a3d996c58e",
+                "reference": "3e4ccfff93da9fb9dccbc7d14a3c94a3d996c58e",
+                "shasum": ""
+            },
+            "require": {
+                "php": ">=5.3.0"
+            },
+            "require-dev": {
+                "phpunit/phpunit": "4.0.*"
+            },
+            "type": "library",
+            "autoload": {
+                "psr-4": {
+                    "Auryn\\": "lib/"
+                }
+            },
+            "license": [
+                "MIT"
+            ],
+            "authors": [
+                {
+                    "name": "Daniel Lowrey",
+                    "email": "rdlowrey@gmail.com",
+                    "role": "Creator / Main Developer"
+                },
+                {
+                    "name": "Levi Morrison",
+                    "email": "levim@php.net",
+                    "homepage": "http://morrisonlevi.github.com/",
+                    "role": "Developer"
+                },
+                {
+                    "name": "Dan Ackroyd",
+                    "email": "Danack@basereality.com",
+                    "homepage": "http://www.basereality.com",
+                    "role": "Developer"
+                }
+            ],
+            "description": "Auryn is a dependency injector for bootstrapping object-oriented PHP applications.",
+            "homepage": "https://github.com/rdlowrey/Auryn",
+            "keywords": [
+                "dependency injection",
+                "dic",
+                "ioc"
+            ],
+            "support": {
+                "source": "https://github.com/Danack/Auryn/tree/master",
+                "issues": "https://github.com/Danack/Auryn/issues"
+            },
+            "time": "2014-09-20 16:35:58"
+        },
         {
             "name": "mikey179/vfsStream",
             "version": "1.2.0",
@@ -334,24 +395,24 @@
         },
         {
             "name": "phpunit/php-code-coverage",
-            "version": "2.0.8",
+            "version": "2.0.11",
             "dist": {
                 "type": "zip",
-                "url": "http://satis.basereality.com/packages/sebastianbergmann/php-code-coverage/sebastianbergmann_php-code-coverage_2.0.8.zip",
-                "reference": "sebastianbergmann_php-code-coverage_2.0.8.zip",
-                "shasum": "6d85ad40f59109bc7ba0d63dfb8384be922289ba"
+                "url": "http://satis.basereality.com/packages/sebastianbergmann/php-code-coverage/sebastianbergmann_php-code-coverage_2.0.11.zip",
+                "reference": null,
+                "shasum": "130eaaa8e1ca9e19592a2f312c95703c6df82bb6"
             },
             "require": {
                 "php": ">=5.3.3",
-                "phpunit/php-file-iterator": "~1.3.1",
-                "phpunit/php-text-template": "~1.2.0",
-                "phpunit/php-token-stream": "~1.2.2",
-                "sebastian/environment": "~1.0.0",
-                "sebastian/version": "~1.0.3"
+                "phpunit/php-file-iterator": "~1.3",
+                "phpunit/php-text-template": "~1.2",
+                "phpunit/php-token-stream": "~1.3",
+                "sebastian/environment": "~1.0",
+                "sebastian/version": "~1.0"
             },
             "require-dev": {
                 "ext-xdebug": ">=2.1.4",
-                "phpunit/phpunit": "~4.0.14"
+                "phpunit/phpunit": "~4.1"
             },
             "suggest": {
                 "ext-dom": "*",
@@ -529,45 +590,38 @@
         },
         {
             "name": "phpunit/php-token-stream",
-            "version": "1.2.2",
-            "source": {
-                "type": "git",
-                "url": "https://github.com/sebastianbergmann/php-token-stream.git",
-                "reference": "ad4e1e23ae01b483c16f600ff1bebec184588e32"
-            },
+            "version": "1.3.0",
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/sebastianbergmann/php-token-stream/zipball/ad4e1e23ae01b483c16f600ff1bebec184588e32",
-                "reference": "ad4e1e23ae01b483c16f600ff1bebec184588e32",
-                "shasum": ""
+                "url": "http://satis.basereality.com/packages/sebastianbergmann/php-token-stream/sebastianbergmann_php-token-stream_1.3.0.zip",
+                "reference": null,
+                "shasum": "71ba35dd8b30b9440c23152781727d182e780fa5"
             },
             "require": {
                 "ext-tokenizer": "*",
                 "php": ">=5.3.3"
             },
+            "require-dev": {
+                "phpunit/phpunit": "~4.2"
+            },
             "type": "library",
             "extra": {
                 "branch-alias": {
-                    "dev-master": "1.2-dev"
+                    "dev-master": "1.3-dev"
                 }
             },
             "autoload": {
                 "classmap": [
-                    "PHP/"
+                    "src/"
                 ]
             },
-            "notification-url": "https://packagist.org/downloads/",
-            "include-path": [
-                ""
-            ],
             "license": [
                 "BSD-3-Clause"
             ],
             "authors": [
                 {
                     "name": "Sebastian Bergmann",
-                    "email": "sb@sebastian-bergmann.de",
-                    "role": "lead"
+                    "email": "sebastian@phpunit.de"
                 }
             ],
             "description": "Wrapper around PHP's tokenizer extension.",
@@ -575,7 +629,9 @@
             "keywords": [
                 "tokenizer"
             ],
-            "time": "2014-03-03 05:10:30"
+            "support": {
+                "issues": "https://github.com/sebastianbergmann/php-token-stream/issues"
+            }
         },
         {
             "name": "phpunit/phpunit",
@@ -650,12 +706,12 @@
         },
         {
             "name": "phpunit/phpunit-mock-objects",
-            "version": "2.1.4",
+            "version": "2.1.5",
             "dist": {
                 "type": "zip",
-                "url": "http://satis.basereality.com/packages/sebastianbergmann/phpunit-mock-objects/sebastianbergmann_phpunit-mock-objects_2.1.4.zip",
-                "reference": "sebastianbergmann_phpunit-mock-objects_2.1.4.zip",
-                "shasum": "b10a82b77670c152a8be474333960eadecdf717d"
+                "url": "http://satis.basereality.com/packages/sebastianbergmann/phpunit-mock-objects/sebastianbergmann_phpunit-mock-objects_2.1.5.zip",
+                "reference": null,
+                "shasum": "c9ebfa3916927b2dee50d583f40cd20f4444c9b8"
             },
             "require": {
                 "php": ">=5.3.3",
@@ -701,58 +757,6 @@
                 "issues": "https://github.com/sebastianbergmann/phpunit-mock-objects/issues",
                 "irc": "irc://irc.freenode.net/phpunit"
             }
-        },
-        {
-            "name": "rdlowrey/auryn",
-            "version": "dev-DanackMaster",
-            "source": {
-                "type": "git",
-                "url": "https://github.com/Danack/Auryn.git",
-                "reference": "384eb93e68c8c5de4e6d3d809a553a9a8e68cddb"
-            },
-            "dist": {
-                "type": "zip",
-                "url": "https://api.github.com/repos/Danack/Auryn/zipball/384eb93e68c8c5de4e6d3d809a553a9a8e68cddb",
-                "reference": "384eb93e68c8c5de4e6d3d809a553a9a8e68cddb",
-                "shasum": ""
-            },
-            "require": {
-                "php": ">=5.3.0"
-            },
-            "type": "library",
-            "autoload": {
-                "psr-0": {
-                    "Auryn": "src"
-                }
-            },
-            "license": [
-                "MIT"
-            ],
-            "authors": [
-                {
-                    "name": "Daniel Lowrey",
-                    "email": "rdlowrey@gmail.com",
-                    "role": "Creator / Main Developer"
-                },
-                {
-                    "name": "Levi Morrison",
-                    "email": "levim@php.net",
-                    "homepage": "http://morrisonlevi.github.com/",
-                    "role": "Developer"
-                }
-            ],
-            "description": "Auryn is a Dependency Injection Container designed to wire together S.O.L.I.D., object-oriented PHP applications.",
-            "homepage": "https://github.com/rdlowrey/Auryn",
-            "keywords": [
-                "dependency injection",
-                "dic",
-                "ioc"
-            ],
-            "support": {
-                "source": "https://github.com/Danack/Auryn/tree/DanackMaster",
-                "issues": "https://github.com/Danack/Auryn/issues"
-            },
-            "time": "2013-12-04 17:27:33"
         },
         {
             "name": "sebastian/comparator",
@@ -987,13 +991,13 @@
         },
         {
             "name": "symfony/yaml",
-            "version": "v2.5.0",
+            "version": "2.5.4",
             "target-dir": "Symfony/Component/Yaml",
             "dist": {
                 "type": "zip",
-                "url": "http://satis.basereality.com/packages/symfony/yaml/symfony_yaml_v2.5.0.zip",
-                "reference": "symfony_yaml_v2.5.0.zip",
-                "shasum": "88c3a8f1e39b3c1549e0bb34dcc7aabd05f4a55e"
+                "url": "http://satis.basereality.com/packages/symfony/yaml/symfony_yaml_v2.5.4.zip",
+                "reference": null,
+                "shasum": "1529a1fa83d72133c49a27a9ac39b91d7d33c6ed"
             },
             "require": {
                 "php": ">=5.3.3"
@@ -1199,9 +1203,9 @@
 
     ],
     "minimum-stability": "stable",
-    "stability-flags": {
-        "rdlowrey/auryn": 20
-    },
+    "stability-flags": [
+
+    ],
     "prefer-stable": false,
     "platform": {
         "php": ">=5.4.0"
