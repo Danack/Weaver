@@ -40,8 +40,8 @@
             "dist": {
                 "type": "zip",
                 "url": "http://satis.basereality.com/packages/Danack/intahwebz-core/Danack_intahwebz-core_0.2.5.zip",
-                "reference": "Danack_intahwebz-core_0.2.5.zip",
-                "shasum": "148a50be51f4c9a5f9634901a5c50f7fdfc1e263"
+                "reference": null,
+                "shasum": "d0ac1401eb27a47b3003923bedfa978061fcc605"
             },
             "require": {
                 "psr/log": "~1.0"
