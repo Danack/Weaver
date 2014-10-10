@@ -12,8 +12,8 @@
             "dist": {
                 "type": "zip",
                 "url": "http://satis.basereality.com/packages/Danack/DanackCode/Danack_DanackCode_2.4.2.zip",
-                "reference": "Danack_DanackCode_2.4.2.zip",
-                "shasum": "9080d0b968f48d7a0f30000cfde8098ee3b80c14"
+                "reference": null,
+                "shasum": "e0714f8cfc9f19945031369b041fc0ae28a1bec5"
             },
             "require": {
                 "php": ">=5.3.23",
