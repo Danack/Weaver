@@ -14,7 +14,7 @@ The two projects listed above are both good ideas, but have serious limitations.
 
 The ProxyManager is nice, but has issues with how it interacts with other code and seems to make debugging code incredibly hard. I also couldn't see how to implement a caching proxy.
 
-This project is an attempt to allow building of Proxies with:
+This project is an attempt to allow generating various types of decorated versions of classes with a goal of:
 
 * Great flexibility on how they're used.
 
@@ -87,7 +87,7 @@ $timerWeaving = array(
 
 
 
-Produces a proxied class:
+Produces a decorated class:
 
 
 ```
@@ -141,13 +141,9 @@ And the Proxied version of the class with the timer attached will be used everyw
 
 * Figure out what to do about factories, because having to make a new factory for every combination of thing sucks. e.g. CachedTimedStatementWrapperFactory to make a cached, timed, statementWrapper factory.
 
-* Cover more of the examples from below, particularly Ghost object.
 
-* Improve syntax, so it doesn't suck.
 
 * Write about difference between this and monkey patching http://en.wikipedia.org/wiki/Monkey_patch Short version Monkey patching runtime only, impossible to debug, not much type safety.
-
-* Why extend class at all? Because if you want to decorate something that isn't a class, re-writing it as an interface is not always possible timewise.
 
 
 ## Terms
@@ -159,10 +155,7 @@ And the Proxied version of the class with the timer attached will be used everyw
 * Decorated class - the result of the weaving.
 
 
-
-
 ## Notes
-
 
 
 
