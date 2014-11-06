@@ -25,7 +25,8 @@ class CompositeWeaveTest extends \PHPUnit_Framework_TestCase {
 
         $compositeWeaveInfo = new \Weaver\CompositeWeaveInfo(
             'Example\Composite\CompositeHolder',
-            ['render' => CompositeWeaveInfo::RETURN_STRING,]
+            ['render' => CompositeWeaveInfo::RETURN_STRING,],
+            ['methodExposedExpli.*']
         );
 
         $outputClassname = 'Example\Coverage\Composite\TestCompositeWeave';
@@ -41,22 +42,46 @@ class CompositeWeaveTest extends \PHPUnit_Framework_TestCase {
 
         $component1 = Mockery::mock($component1);
         $component1->shouldReceive('render')->once()->passthru();
-        $component1->shouldReceive('methodNotInInterface')->never();
+        $component1->shouldReceive('unexposedMethod')->never();
 
         $component2 = Mockery::mock($component2);
         $component2->shouldReceive('render')->once()->passthru();
-        $component2->shouldReceive('methodNotInInterface')->never();
-
+        $component2->shouldReceive('unexposedMethod')->never();
+        $component2->shouldReceive('methodExposedExplicitly')->once();
        
         $compositeSUT = new $outputClassname($component1, $component2, 5);
 
         //Run test
         $result = $compositeSUT->render();
-        $compositeSUT->methodNotInInterface();
+        $compositeSUT->unexposedMethod();
+        $compositeSUT->methodExposedExplicitly();
+        
         
         //Check results
         $this->assertContains("component1", $result);
         $this->assertContains("component2", $result);
+    }
+
+    /**
+     * 
+     */
+    function testCompositeWeaveExceptionOnDuplicateMethod() {
+
+        $this->setExpectedException('Weaver\WeaveException', '', \Weaver\WeaveException::DUPLICATE_METHOD);
+
+        $components = [
+            'Example\Composite\Component2',
+            'Example\Composite\Component3'
+        ];
+
+        $compositeWeaveInfo = new \Weaver\CompositeWeaveInfo(
+            'Example\Composite\CompositeHolder',
+            ['render' => CompositeWeaveInfo::RETURN_STRING,],
+            ['methodExposedExpli.*']
+        );
+
+        $outputClassname = 'Example\Coverage\Composite\TestCompositeWeave';
+        $result = Weaver::weave($components, $compositeWeaveInfo);
     }
 
 

@@ -14,6 +14,7 @@ class WeaveException extends \Exception {
     const IO_ERROR = 6;
     const PROPERTY_NAME_INVALID = 7;
     const METHOD_NAME_INVALID = 8;
+    const DUPLICATE_METHOD = 9;
 }
 
  

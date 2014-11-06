@@ -10,7 +10,7 @@ class Component1 implements CompositeInterface {
         return 'component1';
     }
 
-    function methodNotInInterface() {
+    function unexposedMethod() {
         return 'component1';
     }
     

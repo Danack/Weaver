@@ -10,6 +10,8 @@ class CompositeWeaveInfo {
 
     private $encapsulateMethods;
     
+    private $exposeMethods;
+    
     /** Combine all return values in array e.g.
      *
      * public function getParams()
@@ -59,9 +61,14 @@ class CompositeWeaveInfo {
      * @param array $methodCompositionTypes Which composition method to use for each method
      * @TODO Allow the interface to be specified.
      */
-    function __construct($decoratorClassOrInterface, array $methodCompositionTypes = []) {
+    function __construct(
+        $decoratorClassOrInterface,
+        array $methodCompositionTypes = [],
+        array $exposeMethods = []    
+    ) {
         $this->decoratorClass = $decoratorClassOrInterface;
         $this->encapsulateMethods = $methodCompositionTypes;
+        $this->exposeMethods = $exposeMethods;
 
         \Intahwebz\Functions::load();
     }
@@ -73,6 +80,15 @@ class CompositeWeaveInfo {
         return $this->encapsulateMethods;
     }
 
+    /**
+     * @return array
+     */
+    public function getExposeMethods() {
+        return $this->exposeMethods;
+    }
+
+    
+    
     /**
      * @return string
      * @TODO - this is a stupid name

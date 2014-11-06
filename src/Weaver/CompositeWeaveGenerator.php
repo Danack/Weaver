@@ -72,6 +72,7 @@ class CompositeWeaveGenerator {
         $this->addConstructorMethod();
         $this->addMethods();
         $this->addEncapsulatedMethods();
+        $this->addPublicCompositeMethods();
         $this->generator->setName($this->getFQCN());
 
         //TODO - generate a FactoryGenerator
@@ -168,6 +169,7 @@ class CompositeWeaveGenerator {
                 continue;
             }
 
+    
             $this->generator->addMethodFromGenerator($methodGenerator);
         }
     }
@@ -179,6 +181,80 @@ class CompositeWeaveGenerator {
         $this->addMethodFromReflection($this->containerClassReflection);
     }
 
+
+    /**
+     * 
+     */
+    private function addPublicCompositeMethods() {
+        foreach ($this->compositeClassReflectionArray as $compositeClassReflection) {
+            $this->addCompositePublicMethods($compositeClassReflection);
+        }
+    }
+
+    /**
+     * @param MethodReflection $method
+     * @return bool
+     */
+    private function methodShouldBeExposed(MethodReflection $method) {
+        $name = $method->getName();
+        if ($name == '__construct') {
+            return false;
+        }
+
+        $modifiers = $method->getModifiers();
+
+        if (($modifiers & \ReflectionMethod::IS_PUBLIC) == false ||
+            ($modifiers & \ReflectionMethod::IS_STATIC) == true ) {
+            return false;
+        }
+
+        foreach ($this->weaveInfo->getExposeMethods() as $exposeMethod) {
+            if (preg_match('#'.$exposeMethod.'#', $name)) {
+                return true;
+            }
+        }
+        
+        return false;
+    }
+
+    /**
+     * @param ClassReflection $classReflection
+     */
+    private function addCompositePublicMethods(ClassReflection $classReflection) {
+        $methods = $classReflection->getMethods();
+        foreach ($methods as $method) {
+            $name = $method->getName();
+            if (array_key_exists($name, $this->weaveInfo->getEncapsulateMethods()) == true) {
+                continue;
+            }
+
+            if (!$this->methodShouldBeExposed($method)) {
+                continue;
+            }
+
+            $instanceName = lcfirst($classReflection->getShortName());
+            
+            $methodBody = "
+                return \$this->$instanceName->$name();
+            ";
+
+            $methodGenerator = MethodGenerator::fromReflection($method);
+            $methodGenerator->setBody($methodBody);
+            
+            try {
+                $this->generator->addMethodFromGenerator($methodGenerator);
+            }
+            catch (\Danack\Code\Generator\Exception\InvalidArgumentException $iae) {
+                throw new WeaveException(
+                    "Method '$name' exists in multiple parts of the composite. It cannot be exposed as a method.",
+                    \Weaver\WeaveException::DUPLICATE_METHOD,
+                    $iae);
+            }
+        }
+    }
+    
+    
+    
     /**
      * Adds the properties and constants from the decorating class to the
      * class being weaved.
@@ -230,7 +306,6 @@ class CompositeWeaveGenerator {
             $params = [];
             
             if ($this->containerClassReflection) {
-                
                 if ($this->containerClassReflection->hasMethod($encapsulatedMethod)) {
                     $containerMethod = $this->containerClassReflection->getMethod($encapsulatedMethod);
                     $params = $containerMethod->getParameters();

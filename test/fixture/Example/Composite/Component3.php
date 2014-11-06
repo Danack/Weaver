@@ -4,14 +4,14 @@
 namespace Example\Composite;
 
 
-class Component2 implements CompositeInterface {
+class Component3 implements CompositeInterface {
 
     function render() {
-        return 'component2';
+        return 'component3';
     }
 
     function unexposedMethod() {
-        return 'component2';
+        return 'component3';
     }
     
     function methodExposedExplicitly() {

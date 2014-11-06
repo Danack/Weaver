@@ -16,6 +16,10 @@ class Element2 {
     function foo() {
         return "Element 2";
     }
+    
+    public function bar() {
+        return 'bar';
+    }
 }
 
 

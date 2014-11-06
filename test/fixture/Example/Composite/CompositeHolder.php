@@ -23,7 +23,7 @@ class CompositeHolder implements CompositeInterface {
         return self::output;
     }
 
-    function methodNotInInterface() {
+    function unexposedMethod() {
         return self::output;   
     }
 }
